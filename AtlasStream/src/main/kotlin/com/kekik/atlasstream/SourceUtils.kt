@@ -23,34 +23,40 @@ object SourceUtils {
     }
 
     /**
-     * TMDB başlıklarından site arama motorlarının bulabileceği varyasyonları (ana başlık, orijinal başlık, alt başlıksız hal) üretir.
-     * Örn: "Spartaküs: Kan ve Kum" -> ["Spartacus", "Spartaküs", "Spartacus Blood and Sand", "Spartaküs Kan ve Kum"]
+     * TMDB başlıklarından ve IMDb ID'sinden site arama motorlarının bulabileceği tüm varyasyonları üretir.
+     * Örn: "House of the Dragon", "Spartaküs: Kan ve Kum" -> ["tt11198330", "House of the Dragon", "Spartacus", "Spartaküs", ...]
      */
-    fun getSearchQueries(titleTr: String, titleOrig: String?): List<String> {
+    fun getSearchQueries(titleTr: String, titleOrig: String?, imdbId: String? = null): List<String> {
         val queries = linkedSetOf<String>()
+
+        // 1. IMDb ID: IMDb araması destekleyen siteler için doğrudan kesin sonuç verir
+        if (!imdbId.isNullOrBlank() && imdbId.startsWith("tt")) {
+            queries.add(imdbId)
+        }
 
         fun addCandidates(raw: String) {
             val clean = cleanTitle(raw)
             if (clean.isNotBlank()) queries.add(clean)
 
-            // 1. İki nokta, tire, parantez veya slash öncesindeki ana başlık
+            // İki nokta, tire, parantez veya slash öncesindeki ana başlık
             val parts = raw.split(":", "-", "(", "/", "|").map { it.trim() }.filter { it.length >= 2 }
             if (parts.isNotEmpty()) {
                 val mainPart = cleanTitle(parts[0])
                 if (mainPart.isNotBlank()) queries.add(mainPart)
             }
 
-            // 2. Eğer başlıkta "Sezon", "Season", "Part", "Bölüm" gibi ekler varsa temizle
+            // Eğer başlıkta "Sezon", "Season", "Part", "Bölüm" gibi ekler varsa temizle
             val noSeason = raw.replace(Regex("""(?i)\b(sezon|season|part|bölüm|bolum|\d+\.\s*sezon|\d+\.\s*bölüm)\b.*"""), "").trim()
             val cleanNoSeason = cleanTitle(noSeason)
             if (cleanNoSeason.isNotBlank()) queries.add(cleanNoSeason)
         }
 
+        // 2. Orijinal / Uluslararası başlık (Örn: "House of the Dragon", "Spartacus")
         if (titleOrig != null) addCandidates(titleOrig)
+        // 3. Türkçe başlık (Örn: "Spartaküs", "Örümcek Adam")
         addCandidates(titleTr)
 
-        // En kısa/en genel anahtar kelimeleri (ana başlıkları) önceliklendir, sonra detaylı olanları sırala
-        return queries.filter { it.length >= 2 }.sortedBy { it.length }
+        return queries.filter { it.length >= 2 }.toList()
     }
 
     /**
@@ -162,12 +168,12 @@ object SourceUtils {
             bestScore = maxOf(bestScore, similarityScore(resultWords, canonicalWords(normOrig)))
         }
 
-        // Ön ek / başlangıç eşleşmesi (ör. "Breaking Bad" -> "Breaking Bad 1 Sezon")
-        if (normTr.length >= 3 && (normResult.startsWith(normTr) || normTr.startsWith(normResult))) {
-            bestScore = maxOf(bestScore, 0.85)
+        // İçerme / Ön ek eşleşmesi (ör. "House of the Dragon" -> "House of the Dragon 1. Sezon")
+        if (normTr.length >= 3 && (normResult.contains(normTr) || normTr.contains(normResult))) {
+            bestScore = maxOf(bestScore, 0.90)
         }
-        if (normOrig != null && normOrig.length >= 3 && (normResult.startsWith(normOrig) || normOrig.startsWith(normResult))) {
-            bestScore = maxOf(bestScore, 0.85)
+        if (normOrig != null && normOrig.length >= 3 && (normResult.contains(normOrig) || normOrig.contains(normResult))) {
+            bestScore = maxOf(bestScore, 0.90)
         }
 
         if (bestScore <= 0.0) return 0.0
@@ -175,7 +181,7 @@ object SourceUtils {
     }
 
     /** Eşik değeri: bu skorun altındaki sonuçlar eşleşme sayılmaz. */
-    const val MATCH_THRESHOLD = 0.6
+    const val MATCH_THRESHOLD = 0.45
 
     /**
      * Sağlayıcıdan dönen arama sonucu başlığı ile hedef içeriğin eşleşip eşleşmediğini akıllıca kontrol eder.

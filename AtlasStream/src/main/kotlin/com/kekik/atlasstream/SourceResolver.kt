@@ -126,7 +126,7 @@ object SourceResolver {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ) = coroutineScope {
-        val searchQueries = SourceUtils.getSearchQueries(media.title, media.originalTitle)
+        val searchQueries = SourceUtils.getSearchQueries(media.title, media.originalTitle, media.imdbId)
 
         val jobs = mutableListOf<kotlinx.coroutines.Deferred<*>>()
 
@@ -158,7 +158,7 @@ object SourceResolver {
                                     return@withTimeoutOrNull
                                 }
 
-                                // 1. Kademe: Aday Arama Sorgularını Sırayla/Akıllıca Tara
+                                // 1. Kademe: Aday Arama Sorgularını Sırayla/Akıllıca Tara (IMDb ID, İngilizce ve Türkçe Başlık)
                                 var matched: SearchResponse? = null
 
                                 for (query in searchQueries) {
@@ -170,7 +170,7 @@ object SourceResolver {
                                     if (matched != null) break
                                 }
 
-                                // 2. Kademe: IMDb ID ile Arama (Sağlayıcı IMDb ID aramasını destekliyorsa)
+                                // 2. Kademe: IMDb ID ile Doğrudan Arama (Sağlayıcı IMDb ID aramasını destekliyorsa)
                                 if (matched == null && !media.imdbId.isNullOrBlank()) {
                                     val imdbRes = try {
                                         provider.search(media.imdbId)
@@ -223,8 +223,21 @@ object SourceResolver {
                                                 ep = loadRes.episodes.firstOrNull {
                                                     val epName = it.name ?: ""
                                                     epName.contains("${targetEpisode}. Bölüm", ignoreCase = true) ||
+                                                    epName.contains("${targetEpisode}. Bolum", ignoreCase = true) ||
                                                     epName.contains("Bölüm ${targetEpisode}", ignoreCase = true) ||
                                                     epName.contains("Episode ${targetEpisode}", ignoreCase = true)
+                                                }
+                                            }
+
+                                            // 5. URL Deseni Eşleşmesi (Örn: /sezon-1/bolum-1 veya /1-sezon-1-bolum)
+                                            if (ep == null) {
+                                                ep = loadRes.episodes.firstOrNull {
+                                                    val epData = it.data.lowercase()
+                                                    (epData.contains("sezon-$targetSeason") && epData.contains("bolum-$targetEpisode")) ||
+                                                    (epData.contains("${targetSeason}-sezon-${targetEpisode}-bolum")) ||
+                                                    (epData.contains("/s${targetSeason}e${targetEpisode}")) ||
+                                                    (epData.contains("season-$targetSeason/episode-$targetEpisode")) ||
+                                                    (epData.contains("/${targetSeason}/${targetEpisode}"))
                                                 }
                                             }
 

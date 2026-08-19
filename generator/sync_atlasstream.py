@@ -164,7 +164,7 @@ def update_plugin_and_resolver(providers: dict):
             all_sources_entries.append(f'            "{p["name"]}" to "{p["name"]}",\n')
 
         all_sources_block = "val ALL_SOURCES = linkedMapOf(\n" + "".join(all_sources_entries) + "        )"
-        p_content = re.sub(r"(?s)val ALL_SOURCES = linkedMapOf\(.*?\)", all_sources_block, p_content)
+        p_content = re.sub(r"(?s)val ALL_SOURCES = linkedMapOf\(.*?\n\s*\)", all_sources_block, p_content)
 
         with open(plugin_kt, "w", encoding="utf-8") as f:
             f.write(p_content)

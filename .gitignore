@@ -7,3 +7,7 @@ local.properties
 .DS_Store
 *.apk
 *.ap_
+__pycache__/
+*.pyc
+temp_upstreams/
+temp_inspect/

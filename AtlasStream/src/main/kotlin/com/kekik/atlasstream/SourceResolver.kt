@@ -21,8 +21,11 @@ object SourceResolver {
     private val externalProviders: List<com.lagradost.cloudstream3.MainAPI> by lazy {
         listOf(
             com.kekik.atlasstream.providers.altiyuzaltmisaltifilmizle.AltiYuzAltmisAltiFilmIzle(),
+            com.kekik.atlasstream.providers.animecix.AnimeciX(),
+            com.kekik.atlasstream.providers.asyaanimeleri.AsyaAnimeleri(),
             com.kekik.atlasstream.providers.asyawatch.AsyaWatch(),
             com.kekik.atlasstream.providers.belgeselx.BelgeselX(),
+            com.kekik.atlasstream.providers.canlitv.CanliTV(),
             com.kekik.atlasstream.providers.cizgimax.CizgiMax(),
             com.kekik.atlasstream.providers.ddizi.DDiziProvider(),
             com.kekik.atlasstream.providers.dizibox.DiziBox(),
@@ -41,27 +44,37 @@ object SourceResolver {
             com.kekik.atlasstream.providers.filmmodu.FilmModu(),
             com.kekik.atlasstream.providers.fullhdfilm.FullHDFilm(),
             com.kekik.atlasstream.providers.fullhdfilmizlesene.FullHDFilmizlesene(),
+            com.kekik.atlasstream.providers.fullhdfilmizlede.FullHDFilmIzlede(),
             com.kekik.atlasstream.providers.hdfilmcehennemi.HDFilmCehennemi(),
             com.kekik.atlasstream.providers.hdfilmizle.HDFilmIzle(),
             com.kekik.atlasstream.providers.hdfilmsitesi.HDFilmSitesi(),
+            com.kekik.atlasstream.providers.inatbox.InatBox(),
             com.kekik.atlasstream.providers.jetfilmizle.JetFilmizle(),
             com.kekik.atlasstream.providers.koreanturk.KoreanTurk(),
             com.kekik.atlasstream.providers.kultfilmler.KultFilmler(),
             com.kekik.atlasstream.providers.powerdizi.powerDizi(),
             com.kekik.atlasstream.providers.powersinema.powerSinema(),
             com.kekik.atlasstream.providers.rarefilmm.RareFilmm(),
+            com.kekik.atlasstream.providers.rectv.RecTV(),
             com.kekik.atlasstream.providers.roketdizi.RoketDizi(),
+            com.kekik.atlasstream.providers.selcukflix.SelcukFlix(),
             com.kekik.atlasstream.providers.setfilmizle.SetFilmIzle(),
             com.kekik.atlasstream.providers.sezonlukdizi.SezonlukDizi(),
             com.kekik.atlasstream.providers.sinemacx.SinemaCX(),
             com.kekik.atlasstream.providers.sinewix.SineWix(),
             com.kekik.atlasstream.providers.superfilmgeldi.SuperFilmGeldi(),
             com.kekik.atlasstream.providers.tafdi.Tafdi(),
+            com.kekik.atlasstream.providers.tlc.TLC(),
+            com.kekik.atlasstream.providers.tlctr.Tlctr(),
             com.kekik.atlasstream.providers.tranimaci.TRanimaci(),
+            com.kekik.atlasstream.providers.trasyalog.TRasyalog(),
+            com.kekik.atlasstream.providers.turkanime.TurkAnime(),
             com.kekik.atlasstream.providers.tvdiziler.TvDiziler(),
             com.kekik.atlasstream.providers.ugurfilm.UgurFilm(),
+            com.kekik.atlasstream.providers.vavoospor.vavooSpor(),
             com.kekik.atlasstream.providers.watch2movies.Watch2Movies(),
             com.kekik.atlasstream.providers.webteizle.WebteIzle(),
+            com.kekik.atlasstream.providers.wfilmizle.WFilmIzle(),
             com.kekik.atlasstream.providers.xprime.XPrime(),
             com.kekik.atlasstream.providers.yabancidizi.YabanciDizi()
         )
@@ -96,25 +109,69 @@ object SourceResolver {
                 } else {
                     provider.supportedTypes.contains(TvType.TvSeries) ||
                     provider.supportedTypes.contains(TvType.Cartoon) ||
-                    provider.supportedTypes.contains(TvType.AsianDrama)
+                    provider.supportedTypes.contains(TvType.AsianDrama) ||
+                    provider.supportedTypes.contains(TvType.Anime)
                 }
 
                 if (matchesType) {
                     jobs.add(async {
                         try {
-                            val searchRes = provider.search(cleanTr)
-                            val matched = searchRes?.firstOrNull { 
-                                SourceUtils.cleanTitle(it.name).equals(cleanTr, ignoreCase = true) || 
-                                (cleanOrig != null && SourceUtils.cleanTitle(it.name).equals(cleanOrig, ignoreCase = true)) 
+                            // 1. Kademe: Türkçe Başlık ile Arama
+                            var searchRes: List<SearchResponse>? = try {
+                                provider.search(cleanTr)
+                            } catch (e: Exception) { null }
+
+                            var matched = searchRes?.firstOrNull { item ->
+                                SourceUtils.isTitleMatch(
+                                    resultTitle = item.name,
+                                    targetTitleTr = media.title,
+                                    targetTitleOrig = media.originalTitle,
+                                    targetYear = media.year,
+                                    resultYear = item.year
+                                )
                             }
+
+                            // 2. Kademe: Eşleşme yoksa Orijinal (İngilizce/Yabancı) Başlık ile Arama
+                            if (matched == null && cleanOrig != null && !cleanOrig.equals(cleanTr, ignoreCase = true)) {
+                                val origRes = try {
+                                    provider.search(cleanOrig)
+                                } catch (e: Exception) { null }
+
+                                matched = origRes?.firstOrNull { item ->
+                                    SourceUtils.isTitleMatch(
+                                        resultTitle = item.name,
+                                        targetTitleTr = media.title,
+                                        targetTitleOrig = media.originalTitle,
+                                        targetYear = media.year,
+                                        resultYear = item.year
+                                    )
+                                }
+                            }
+
+                            // 3. Kademe: IMDb ID ile Arama (Sağlayıcı IMDb ID aramasını destekliyorsa)
+                            if (matched == null && !media.imdbId.isNullOrBlank()) {
+                                val imdbRes = try {
+                                    provider.search(media.imdbId)
+                                } catch (e: Exception) { null }
+
+                                matched = imdbRes?.firstOrNull()
+                            }
+
                             if (matched != null) {
-                                val loadRes = provider.load(matched.url)
+                                val loadRes = try {
+                                    provider.load(matched.url)
+                                } catch (e: Exception) { null }
+
                                 if (media.isMovie && loadRes is MovieLoadResponse) {
                                     provider.loadLinks(loadRes.dataUrl, false, subtitleCallback, callback)
                                 } else if (!media.isMovie && loadRes is TvSeriesLoadResponse) {
                                     val targetSeason = media.season ?: 1
                                     val targetEpisode = media.episode ?: 1
-                                    val ep = loadRes.episodes.firstOrNull { it.season == targetSeason && it.episode == targetEpisode }
+                                    val ep = loadRes.episodes.firstOrNull { 
+                                        it.season == targetSeason && it.episode == targetEpisode 
+                                    } ?: loadRes.episodes.firstOrNull {
+                                        it.episode == targetEpisode && (it.season == null || it.season == 0)
+                                    }
                                     if (ep != null) {
                                         provider.loadLinks(ep.data, false, subtitleCallback, callback)
                                     }

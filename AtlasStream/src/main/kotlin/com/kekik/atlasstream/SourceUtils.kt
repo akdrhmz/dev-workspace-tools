@@ -12,13 +12,109 @@ import kotlin.math.min
 object SourceUtils {
     fun cleanTitle(title: String): String {
         return title
-            .replace(":", "")
+            .replace(":", " ")
             .replace("!", "")
             .replace("?", "")
             .replace("'", "")
             .replace("\"", "")
             .replace("-", " ")
+            .replace(Regex("\\s+"), " ")
             .trim()
+    }
+
+    /**
+     * Başlıktaki parantez içi yıl, ek kelimeler ve gürültüleri temizler, Türkçe karakterleri normalize eder.
+     */
+    fun normalizeTitle(input: String): String {
+        var s = input.lowercase().trim()
+        
+        // Parantez veya köşeli parantez içindeki yıl veya ekleri sil: (2024), [1080p], (Dizi), vb.
+        s = s.replace("""\(\d{4}(?:-\d{4})?\)""".toRegex(), " ")
+        s = s.replace("""\[\d{4}(?:-\d{4})?\]""".toRegex(), " ")
+        s = s.replace("""\(\s*dizi\s*\)""".toRegex(RegexOption.IGNORE_CASE), " ")
+        s = s.replace("""\(\s*film\s*\)""".toRegex(RegexOption.IGNORE_CASE), " ")
+        s = s.replace("""\b(19\d\d|20\d\d)\b""".toRegex(), " ")
+        
+        // Türkçe streaming sitelerindeki yaygın ekleri ve gürültü kelimelerini temizle
+        val stopWords = listOf(
+            "turkce", "türkçe", "dublaj", "dublajli", "dublajlı", "altyazi", "altyazili", "altyazılı",
+            "izle", "filmi", "dizisi", "dizi", "film", "full", "hd", "1080p", "720p", "4k", "uhd",
+            "sinema", "tek parca", "tek parça", "parca", "parça", "fragman", "ozel", "özel",
+            "sezon", "bolum", "bölüm", "series", "movie", "season", "episode"
+        )
+        for (sw in stopWords) {
+            s = s.replace(Regex("""\b${Regex.escape(sw)}\b""", RegexOption.IGNORE_CASE), " ")
+        }
+        
+        // Türkçe karakterleri standart Latin karakterlerine dönüştür
+        val trMap = mapOf(
+            'ç' to 'c', 'ğ' to 'g', 'ı' to 'i', 'i' to 'i', 'ö' to 'o', 'ş' to 's', 'ü' to 'u',
+            'Ç' to 'c', 'Ğ' to 'g', 'İ' to 'i', 'I' to 'i', 'Ö' to 'o', 'Ş' to 's', 'Ü' to 'u'
+        )
+        val sb = StringBuilder()
+        for (ch in s) {
+            sb.append(trMap[ch] ?: ch)
+        }
+        s = sb.toString()
+
+        // Noktalama ve özel karakterleri boşlukla değiştir
+        s = s.replace(Regex("[^a-z0-9]"), " ")
+
+        // Fazla boşlukları tek boşluğa indir
+        return s.replace(Regex("\\s+"), " ").trim()
+    }
+
+    /**
+     * Sağlayıcıdan dönen arama sonucu başlığı ile hedef içeriğin eşleşip eşleşmediğini akıllıca kontrol eder.
+     */
+    fun isTitleMatch(
+        resultTitle: String,
+        targetTitleTr: String,
+        targetTitleOrig: String? = null,
+        targetYear: Int? = null,
+        resultYear: Int? = null
+    ): Boolean {
+        val normResult = normalizeTitle(resultTitle)
+        if (normResult.isBlank()) return false
+
+        val normTr = normalizeTitle(targetTitleTr)
+        val normOrig = targetTitleOrig?.let { normalizeTitle(it) }
+
+        // 1. Tam Eşleşme
+        if (normTr.isNotEmpty() && normResult == normTr) return true
+        if (normOrig != null && normOrig.isNotEmpty() && normResult == normOrig) return true
+
+        // 2. Yıl Uyumu Kontrolü (Eğer her ikisinde de yıl varsa ve 1 yıldan fazla fark varsa eşleşmeyi reddet)
+        if (targetYear != null && resultYear != null && Math.abs(targetYear - resultYear) > 1) {
+            return false
+        }
+
+        // 3. Kelime Kümesi (Token) Kapsama Kontrolü (Örn: "Breaking Bad" -> "Breaking Bad 1. Sezon")
+        val resultWords = normResult.split(" ").filter { it.length > 1 }.toSet()
+        
+        if (normTr.isNotEmpty()) {
+            val trWords = normTr.split(" ").filter { it.length > 1 }.toSet()
+            if (trWords.isNotEmpty() && (resultWords.containsAll(trWords) || trWords.containsAll(resultWords))) {
+                return true
+            }
+        }
+
+        if (normOrig != null && normOrig.isNotEmpty()) {
+            val origWords = normOrig.split(" ").filter { it.length > 1 }.toSet()
+            if (origWords.isNotEmpty() && (resultWords.containsAll(origWords) || origWords.containsAll(resultWords))) {
+                return true
+            }
+        }
+
+        // 4. Ön Ek / Başlangıç Eşleşmesi (Minimum 3 karakter)
+        if (normTr.length >= 3 && (normResult.startsWith(normTr) || normTr.startsWith(normResult))) {
+            return true
+        }
+        if (normOrig != null && normOrig.length >= 3 && (normResult.startsWith(normOrig) || normOrig.startsWith(normResult))) {
+            return true
+        }
+
+        return false
     }
 
     // --- FullHDFilmizlesene Decrypt ---

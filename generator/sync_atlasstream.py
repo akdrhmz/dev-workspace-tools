@@ -20,9 +20,8 @@ ATLAS_SRC_DIR = BASE_DIR / "AtlasStream" / "src" / "main" / "kotlin" / "com" / "
 PROVIDERS_DIR = ATLAS_SRC_DIR / "providers"
 
 EXCLUDED_PROVIDERS = {
-    "animecix", "asyaanimeleri", "turkanime", "canlitv", "inatbox",
-    "rectv", "vavoospor", "selcukflix", "__temel", "gradle", ".github",
-    "tlc", "tlctr", "trasyalog", "fullhdfilmizlede", "wfilmizle", "dizipaloriginal", "hdfilmcehennemi2",
+    "__temel", "temel", "gradle", ".github", ".idea", ".gradle", "core", "test", "build", "out",
+    "dizipaloriginal", "hdfilmcehennemi2",
     "4kfilmizlesene", "p4kfilmizlesene"
 }
 

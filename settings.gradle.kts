@@ -1,4 +1,4 @@
-pluginManagement {
+﻿pluginManagement {
     repositories {
         google()
         mavenCentral()
@@ -9,15 +9,5 @@ pluginManagement {
 
 rootProject.name = "dev-workspace-tools"
 
-// Modüller
-
+// Sadece AtlasStream (Meta-Provider) derlenecek
 include(":AtlasStream")
-include(":FilmMakinesiProvider")
-include(":DiziBoxProvider")
-include(":HDFilmCehennemiProvider")
-include(":SineWixProvider")
-include(":DizillaProvider")
-
-include(":JetFilmizleProvider")
-
-

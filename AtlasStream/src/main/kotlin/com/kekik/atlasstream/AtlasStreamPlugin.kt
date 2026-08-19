@@ -25,7 +25,9 @@ class AtlasStreamPlugin : Plugin() {
             "JetFilmizle"      to "JetFilmizle (Yerli/Yabanci Film)",
             "DiziPal"          to "DiziPal (Geniþ Arþiv)",
             "FullHDFilmizlesene" to "FullHDFilmizlesene (Film Odaklý)",
-            "FilmModu"         to "FilmModu (Film Odaklý)"
+            "FilmModu"         to "FilmModu (Film Odaklý)",
+            "SezonlukDizi"     to "SezonlukDizi (Dizi Odaklý)",
+            "CizgiMax"         to "CizgiMax (Çizgi Dizi/Film)"
         )
     }
 
@@ -127,4 +129,5 @@ class AtlasStreamPlugin : Plugin() {
             .show()
     }
 }
+
 

@@ -56,6 +56,12 @@ object SourceResolver {
             }
             if (isProviderEnabled("DiziPal")) {
                 jobs += async { resolveDiziPal(cleanTr, cleanOrig, media.isMovie, media.seasonNumber, media.episodeNumber, subtitleCallback, callback) }
+            if (isProviderEnabled("CizgiMax")) {
+                jobs += async { resolveCizgiMax(cleanTr, cleanOrig, media.isMovie, media.seasonNumber, media.episodeNumber, subtitleCallback, callback) }
+            }
+            if (!media.isMovie && isProviderEnabled("SezonlukDizi")) {
+                jobs += async { resolveSezonlukDizi(cleanTr, cleanOrig, media.seasonNumber, media.episodeNumber, subtitleCallback, callback) }
+            }
             }
             }
         } else {
@@ -629,6 +635,8 @@ object SourceResolver {
         @JsonProperty("kind")     val kind: String?     = null
     )
 }
+
+
 
 
 

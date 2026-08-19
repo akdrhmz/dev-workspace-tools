@@ -1,0 +1,85 @@
+name: Upstream Sync & CloudStream Build
+
+on:
+  schedule:
+    - cron: "0 */6 * * *" # Her 6 saatte bir otomatik çalışır
+  workflow_dispatch:      # Manuel tetikleme desteği
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Repoyu Klonla
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Python 3.11 Kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Upstream KekikStream Eklentilerini Çevir
+        run: |
+          python generator/sync_upstream.py
+
+      - name: JDK 17 Kur
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Gradle Cache Ayarla
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Gradle İzinlerini Ver
+        run: chmod +x gradlew || true
+
+      - name: Eklentileri Derle (.cs3 paketleri)
+        run: |
+          ./gradlew makePlugins || ./gradlew build
+
+      - name: plugins.json Manifestosu ve Repo Dizini Oluştur
+        run: |
+          mkdir -p public
+          cp -r build/plugins/* public/ 2>/dev/null || true
+          # Manifest üretici
+          python -c "
+          import json, os, glob
+          plugins = []
+          for f in glob.glob('public/*.cs3'):
+              name = os.path.basename(f).replace('.cs3', '')
+              plugins.append({
+                  'name': name,
+                  'url': f'https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/{os.path.basename(f)}',
+                  'version': 1,
+                  'language': 'tr'
+              })
+          with open('public/plugins.json', 'w', encoding='utf-8') as mf:
+              json.dump(plugins, mf, indent=2, ensure_ascii=False)
+          "
+
+      - name: GitHub Pages Üzerine Dağıt
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
+          force_orphan: true

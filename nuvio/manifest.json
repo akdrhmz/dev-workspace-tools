@@ -1,0 +1,203 @@
+{
+  "name": "AtlasStream Universal (TR)",
+  "version": "1.0.0",
+  "description": "Nuvio için Türkçe Film, Dizi ve Belgesel kaynakları. @AtlasStream",
+  "scrapers": [
+    {
+      "id": "filmmakinesi",
+      "name": "Film Makinesi",
+      "description": "FilmMakinesi.to üzerinden Türkçe dublajlı ve altyazılı filmler & diziler.",
+      "version": "1.0.0",
+      "author": "AtlasStream",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "filename": "providers/filmmakinesi.js",
+      "enabled": true,
+      "hasSettings": true,
+      "logo": "https://www.google.com/s2/favicons?domain=filmmakinesi.to&sz=%size%",
+      "contentLanguage": [
+        "tr"
+      ],
+      "formats": [
+        "m3u8",
+        "mp4"
+      ],
+      "limited": false,
+      "disabledPlatforms": [],
+      "supportsExternalPlayer": true
+    },
+    {
+      "id": "dizibal",
+      "name": "DiziBal",
+      "description": "DiziBal üzerinden Türkçe dublaj ve altyazılı dizi & film arşivi.",
+      "version": "1.0.0",
+      "author": "AtlasStream",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "filename": "providers/dizibal.js",
+      "enabled": true,
+      "hasSettings": true,
+      "logo": "https://www.google.com/s2/favicons?domain=dizibal.com&sz=%size%",
+      "contentLanguage": [
+        "tr"
+      ],
+      "formats": [
+        "m3u8"
+      ],
+      "limited": false,
+      "disabledPlatforms": [],
+      "supportsExternalPlayer": true
+    },
+    {
+      "id": "dizifilm",
+      "name": "DiziFilm",
+      "description": "DiziFilm.life üzerinden Türkçe film ve yabancı diziler.",
+      "version": "1.0.0",
+      "author": "AtlasStream",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "filename": "providers/dizifilm.js",
+      "enabled": true,
+      "hasSettings": true,
+      "logo": "https://www.google.com/s2/favicons?domain=dizifilm.life&sz=%size%",
+      "contentLanguage": [
+        "tr"
+      ],
+      "formats": [
+        "m3u8"
+      ],
+      "limited": false,
+      "disabledPlatforms": [],
+      "supportsExternalPlayer": true
+    },
+    {
+      "id": "fullhdfilm",
+      "name": "FullHDFilmizlesene",
+      "description": "FullHDFilmizlesene üzerinden Türkçe dublaj ve altyazılı 1080p filmler.",
+      "version": "1.0.0",
+      "author": "AtlasStream",
+      "supportedTypes": [
+        "movie"
+      ],
+      "filename": "providers/fullhdfilm.js",
+      "enabled": true,
+      "hasSettings": true,
+      "logo": "https://www.google.com/s2/favicons?domain=fullhdfilmizlesene.pw&sz=%size%",
+      "contentLanguage": [
+        "tr"
+      ],
+      "formats": [
+        "m3u8",
+        "mp4"
+      ],
+      "limited": false,
+      "disabledPlatforms": [],
+      "supportsExternalPlayer": true
+    },
+    {
+      "id": "dizipal",
+      "name": "DiziPal",
+      "description": "DiziPal üzerinden güncel popüler dizi ve film akışları.",
+      "version": "1.0.0",
+      "author": "AtlasStream",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "filename": "providers/dizipal.js",
+      "enabled": true,
+      "hasSettings": true,
+      "logo": "https://www.google.com/s2/favicons?domain=dizipal.org&sz=%size%",
+      "contentLanguage": [
+        "tr"
+      ],
+      "formats": [
+        "m3u8",
+        "mp4"
+      ],
+      "limited": false,
+      "disabledPlatforms": [],
+      "supportsExternalPlayer": true
+    },
+    {
+      "id": "sinewix",
+      "name": "SineWix API",
+      "description": "SineWix doğrudan API üzerinden hızlı ve yüksek kaliteli akışlar.",
+      "version": "1.0.0",
+      "author": "AtlasStream",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "filename": "providers/sinewix.js",
+      "enabled": true,
+      "hasSettings": true,
+      "logo": "https://www.google.com/s2/favicons?domain=sinewix.org&sz=%size%",
+      "contentLanguage": [
+        "tr"
+      ],
+      "formats": [
+        "m3u8",
+        "mp4"
+      ],
+      "limited": false,
+      "disabledPlatforms": [],
+      "supportsExternalPlayer": true
+    },
+    {
+      "id": "sezonlukdizi",
+      "name": "Sezonluk Dizi",
+      "description": "SezonlukDizi.vip üzerinden zengin yabancı dizi arşivi.",
+      "version": "1.0.0",
+      "author": "AtlasStream",
+      "supportedTypes": [
+        "tv"
+      ],
+      "filename": "providers/sezonlukdizi.js",
+      "enabled": true,
+      "hasSettings": true,
+      "logo": "https://www.google.com/s2/favicons?domain=sezonlukdizi.vip&sz=%size%",
+      "contentLanguage": [
+        "tr"
+      ],
+      "formats": [
+        "m3u8",
+        "mp4"
+      ],
+      "limited": false,
+      "disabledPlatforms": [],
+      "supportsExternalPlayer": true
+    },
+    {
+      "id": "belgeselx",
+      "name": "BelgeselX",
+      "description": "BelgeselX üzerinden Türkçe belgesel arşivi.",
+      "version": "1.0.0",
+      "author": "AtlasStream",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "filename": "providers/belgeselx.js",
+      "enabled": true,
+      "hasSettings": true,
+      "logo": "https://www.google.com/s2/favicons?domain=belgeselx.com&sz=%size%",
+      "contentLanguage": [
+        "tr"
+      ],
+      "formats": [
+        "m3u8",
+        "mp4"
+      ],
+      "limited": false,
+      "disabledPlatforms": [],
+      "supportsExternalPlayer": true
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "atlasstream-nuvio",
+  "version": "1.0.0",
+  "description": "AtlasStream - Nuvio Universal Turkish Streaming Scrapers",
+  "main": "build.js",
+  "scripts": {
+    "build": "node build.js",
+    "build:watch": "node build.js --watch",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "nuvio",
+    "nuvio-addon",
+    "streaming",
+    "scraper",
+    "turkish"
+  ],
+  "author": "AtlasStream",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  },
+  "dependencies": {
+    "cheerio-without-node-native": "^0.20.2",
+    "crypto-js": "^4.2.0"
+  }
+}

@@ -7,7 +7,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "CSRepo"
+rootProject.name = "dev-workspace-tools"
 
 // Modüller
 include(":core-extractors")

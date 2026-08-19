@@ -18,6 +18,16 @@ import java.net.URLEncoder
 object SourceResolver {
     private const val TAG = "WB_Resolver"
 
+    private val externalProviders by lazy {
+        listOf(
+            com.keyiflerolsun.DiziMom(),
+            com.keyiflerolsun.KultFilmler(),
+            com.keyiflerolsun.SetFilmIzle(),
+            com.keyiflerolsun.TRanimaci(),
+            com.keyiflerolsun.WebteIzle()
+        )
+    }
+
     private val objectMapper by lazy {
         ObjectMapper().registerModule(KotlinModule.Builder().build()).apply {
             configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -61,6 +71,37 @@ object SourceResolver {
             }
             if (!media.isMovie && isProviderEnabled("SezonlukDizi")) {
                 jobs += async { resolveSezonlukDizi(cleanTr, cleanOrig, media.seasonNumber, media.episodeNumber, subtitleCallback, callback) }
+            // --- DÝNAMÝK EKLENEN DIÞ KAYNAKLAR ---
+            externalProviders.forEach { provider ->
+                if (isProviderEnabled(provider.name)) {
+                    if ((media.isMovie && provider.supportedTypes.contains(TvType.Movie)) ||
+                        (!media.isMovie && (provider.supportedTypes.contains(TvType.TvSeries) || provider.supportedTypes.contains(TvType.Cartoon)))
+                    ) {
+                        jobs += async {
+                            try {
+                                val searchRes = provider.search(cleanTr)
+                                val matched = searchRes.firstOrNull { 
+                                    SourceUtils.cleanTitle(it.name).equals(cleanTr, ignoreCase = true) || 
+                                    (cleanOrig != null && SourceUtils.cleanTitle(it.name).equals(cleanOrig, ignoreCase = true)) 
+                                }
+                                if (matched != null) {
+                                    val loadRes = provider.load(matched.url)
+                                    if (media.isMovie && loadRes is MovieLoadResponse) {
+                                        provider.loadLinks(loadRes.dataUrl, false, subtitleCallback, callback)
+                                    } else if (!media.isMovie && loadRes is TvSeriesLoadResponse) {
+                                        val ep = loadRes.episodes.firstOrNull { it.season == media.seasonNumber && it.episode == media.episodeNumber }
+                                        if (ep != null) {
+                                            provider.loadLinks(ep.data, false, subtitleCallback, callback)
+                                        }
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.e(TAG, "External Provider Error: ${provider.name}", e)
+                            }
+                        }
+                    }
+                }
+            }
             }
             }
             }
@@ -635,6 +676,8 @@ object SourceResolver {
         @JsonProperty("kind")     val kind: String?     = null
     )
 }
+
+
 
 
 

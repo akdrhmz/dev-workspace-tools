@@ -27,7 +27,12 @@ class AtlasStreamPlugin : Plugin() {
             "FullHDFilmizlesene" to "FullHDFilmizlesene (Film Odaklý)",
             "FilmModu"         to "FilmModu (Film Odaklý)",
             "SezonlukDizi"     to "SezonlukDizi (Dizi Odaklý)",
-            "CizgiMax"         to "CizgiMax (Çizgi Dizi/Film)"
+            "CizgiMax"         to "CizgiMax (Çizgi Dizi/Film)",
+            "DiziMom"          to "DiziMom (Dizi Odaklý)",
+            "WebteIzle"        to "WebteIzle (Geniþ Arþiv)",
+            "SetFilmIzle"      to "SetFilmIzle (Film Odaklý)",
+            "KultFilmler"      to "KültFilmler (Nostalji/Film)",
+            "TRanimaci"        to "TRanimaci (Çizgi Dizi)"
         )
     }
 
@@ -129,5 +134,6 @@ class AtlasStreamPlugin : Plugin() {
             .show()
     }
 }
+
 
 

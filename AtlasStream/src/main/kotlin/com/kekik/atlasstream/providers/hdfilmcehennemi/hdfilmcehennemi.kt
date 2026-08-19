@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.hdfilmcehennemi
+package com.kekik.atlasstream.providers.hdfilmcehennemi
 
 // ! https://github.com/hexated/cloudstream-extensions-hexated/blob/master/Hdfilmcehennemi/src/main/kotlin/com/hexated/Hdfilmcehennemi.kt
 
@@ -70,7 +70,7 @@ class HDFilmCehennemi : MainAPI() {
             val doc = Jsoup.parse(response.peekBody(1024 * 1024).string())
 
             if (doc.select("title").text() == "Just a moment..." || doc.select("title")
-                    .text() == "Bir dakika lÃ¼tfen..."
+                    .text() == "Bir dakika lütfen..."
             ) {
                 return cloudflareKiller.intercept(chain)
             }
@@ -81,12 +81,12 @@ class HDFilmCehennemi : MainAPI() {
 
     override val mainPage = mainPageOf(
         "${mainUrl}/load/page/sayfano/home/" to "Yeni Eklenen Filmler",
-        "${mainUrl}/load/page/sayfano/categories/nette-ilk-filmler/" to "Nette Ä°lk Filmler",
+        "${mainUrl}/load/page/sayfano/categories/nette-ilk-filmler/" to "Nette İlk Filmler",
         "${mainUrl}/load/page/sayfano/home-series/" to "Yeni Eklenen Diziler",
         "${mainUrl}/load/page/sayfano/categories/tavsiye-filmler-izle2/" to "Tavsiye Filmler",
         "${mainUrl}/load/page/sayfano/imdb7/" to "IMDB 7+ Filmler",
-        "${mainUrl}/load/page/sayfano/mostCommented/" to "En Ã‡ok Yorumlananlar",
-        "${mainUrl}/load/page/sayfano/mostLiked/" to "En Ã‡ok BeÄŸenilenler",
+        "${mainUrl}/load/page/sayfano/mostCommented/" to "En Çok Yorumlananlar",
+        "${mainUrl}/load/page/sayfano/mostLiked/" to "En Çok Beğenilenler",
         "${mainUrl}/load/page/sayfano/genres/aile-filmleri-izleyin-6/" to "Aile Filmleri",
         "${mainUrl}/load/page/sayfano/genres/aksiyon-filmleri-izleyin-5/" to "Aksiyon Filmleri",
         "${mainUrl}/load/page/sayfano/genres/animasyon-filmlerini-izleyin-5/" to "Animasyon Filmleri",
@@ -95,7 +95,7 @@ class HDFilmCehennemi : MainAPI() {
         "${mainUrl}/load/page/sayfano/genres/komedi-filmlerini-izleyin-1/" to "Komedi Filmleri",
         "${mainUrl}/load/page/sayfano/genres/korku-filmlerini-izle-4/" to "Korku Filmleri",
         "${mainUrl}/load/page/sayfano/genres/romantik-filmleri-izle-2/" to "Romantik Filmleri",
-        "${mainUrl}/load/page/sayfano/genres/suc-filmleri-izle-3/" to "SuÃ§ Filmleri",
+        "${mainUrl}/load/page/sayfano/genres/suc-filmleri-izle-3/" to "Suç Filmleri",
         "${mainUrl}/load/page/sayfano/genres/tarih-filmleri-izle-4/" to "Tarih Filmleri"
     )
 
@@ -110,7 +110,7 @@ class HDFilmCehennemi : MainAPI() {
         )
         val doc = app.get(url, headers = headers, referer = mainUrl, interceptor = interceptor)
         val home: List<SearchResponse>?
-        if (!doc.toString().contains("Sayfa BulunamadÄ±")) {
+        if (!doc.toString().contains("Sayfa Bulunamadı")) {
             val aa: HDFC = objectMapper.readValue(doc.toString())
             val document = Jsoup.parse(aa.html)
 
@@ -202,7 +202,7 @@ class HDFilmCehennemi : MainAPI() {
                 val epName = it.selectFirst("h4")?.text()?.trim() ?: return@mapNotNull null
                 val epHref = fixUrlNull(it.attr("href")) ?: return@mapNotNull null
                 val epEpisode =
-                    Regex("""(\d+)\. ?BÃ¶lÃ¼m""").find(epName)?.groupValues?.get(1)?.toIntOrNull()
+                    Regex("""(\d+)\. ?Bölüm""").find(epName)?.groupValues?.get(1)?.toIntOrNull()
                 val epSeason =
                     Regex("""(\d+)\. ?Sezon""").find(epName)?.groupValues?.get(1)?.toIntOrNull()
                         ?: 1
@@ -297,7 +297,7 @@ class HDFilmCehennemi : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("HDCH", "data Â» $data")
+        Log.d("HDCH", "data » $data")
         val document = app.get(data, interceptor = interceptor).document
 
         document.select("div.alternative-links").map { element ->
@@ -318,16 +318,16 @@ class HDFilmCehennemi : MainAPI() {
                 Log.d("HDCH", "Found videoID: $videoID")
                 var iframe = Regex("""data-src=\\"([^"]+)""").find(apiGet)?.groupValues?.get(1)!!
                     .replace("\\", "")
-                Log.d("HDCH", "iframe Â» $iframe")
+                Log.d("HDCH", "iframe » $iframe")
                 iframe = iframe.replace("{rapidrame_id}", "")
-                Log.d("HDCH", "iframe Â» $iframe")
+                Log.d("HDCH", "iframe » $iframe")
                 /*if (iframe.contains("hdfilmcehennemi.mobi")){
                     loadExtractor(iframe, data, subtitleCallback, callback)
                 } else {
                     invokeLocalSource(source, iframe, subtitleCallback, callback)
                 }*/
                 loadExtractor(iframe, data, subtitleCallback, callback)
-                Log.d("HDCH", "$source Â» $videoID Â» $iframe")
+                Log.d("HDCH", "$source » $videoID » $iframe")
             }
         }
         return true

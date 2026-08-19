@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.webteizle
+package com.kekik.atlasstream.providers.webteizle
 
 import android.util.Log
 import com.fasterxml.jackson.annotation.JsonProperty

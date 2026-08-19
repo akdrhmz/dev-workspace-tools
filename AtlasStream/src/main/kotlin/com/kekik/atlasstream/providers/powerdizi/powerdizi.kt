@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.powerdizi
+package com.kekik.atlasstream.providers.powerdizi
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -73,9 +73,9 @@ class powerDizi : MainAPI() {
     override suspend fun load(url: String): LoadResponse {
         val loadData = fetchDataFromUrlOrJson(url)
         val nation:String = if (loadData.group == "NSFW") {
-            "âš ï¸ğŸ”ğŸ”ğŸ” Â» ${loadData.group} | ${loadData.nation} Â« ğŸ”ğŸ”ğŸ”âš ï¸"
+            "⚠️🔞🔞🔞 » ${loadData.group} | ${loadData.nation} « 🔞🔞🔞⚠️"
         } else {
-            "Â» ${loadData.group} | ${loadData.nation} Â«"
+            "» ${loadData.group} | ${loadData.nation} «"
         }
 
         val kanallar        = IptvPlaylistParser().parseM3U(app.get(mainUrl).text)
@@ -113,11 +113,11 @@ class powerDizi : MainAPI() {
 
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
         val loadData = fetchDataFromUrlOrJson(data)
-        Log.d("IPTV", "loadData Â» $loadData")
+        Log.d("IPTV", "loadData » $loadData")
 
         val kanallar = IptvPlaylistParser().parseM3U(app.get(mainUrl).text)
         val kanal    = kanallar.items.first { it.url == loadData.url }
-        Log.d("IPTV", "kanal Â» $kanal")
+        Log.d("IPTV", "kanal » $kanal")
 
         callback.invoke(
             newExtractorLink(

@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.fullhdfilmizlesene
+package com.kekik.atlasstream.providers.fullhdfilmizlesene
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -32,7 +32,7 @@ open class RapidVid : ExtractorApi() {
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             val tracks: List<CaptionData> = objectMapper.readValue(jwTrack)
             tracks.forEach { track ->
-                val lang = track.label?.replace("\\u0131", "Ä±")?.replace("\\u0130", "Ä°")?.replace("\\u00fc", "Ã¼")?.replace("\\u00e7", "Ã§")
+                val lang = track.label?.replace("\\u0131", "ı")?.replace("\\u0130", "İ")?.replace("\\u00fc", "ü")?.replace("\\u00e7", "ç")
                 val url  = (track.file.replace("\\", ""))
                 if (lang != null){
                     subtitleCallback.invoke(

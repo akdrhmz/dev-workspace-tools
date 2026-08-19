@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.dizimag
+package com.kekik.atlasstream.providers.dizimag
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.lagradost.api.Log
@@ -60,8 +60,8 @@ class DiziMag : MainAPI() {
         "${mainUrl}/dizi/tur/dram" to "Dram",
         "${mainUrl}/dizi/tur/gizem" to "Gizem",
         "${mainUrl}/dizi/tur/komedi" to "Komedi",
-        "${mainUrl}/dizi/tur/savas-politik" to "SavaÅŸ Politik",
-        "${mainUrl}/dizi/tur/suc" to "SuÃ§",
+        "${mainUrl}/dizi/tur/savas-politik" to "Savaş Politik",
+        "${mainUrl}/dizi/tur/suc" to "Suç",
 
         "${mainUrl}/film/tur/aile" to "Aile Film",
         "${mainUrl}/film/tur/animasyon" to "Animasyon Film",
@@ -74,10 +74,10 @@ class DiziMag : MainAPI() {
         "${mainUrl}/film/tur/korku" to "Korku Film",
         "${mainUrl}/film/tur/macera" to "Macera Film",
         "${mainUrl}/film/tur/romantik" to "Romantik Film",
-        "${mainUrl}/film/tur/savas" to "SavaÅŸ Film",
-        "${mainUrl}/film/tur/suc" to "SuÃ§ Film",
+        "${mainUrl}/film/tur/savas" to "Savaş Film",
+        "${mainUrl}/film/tur/suc" to "Suç Film",
         "${mainUrl}/film/tur/tarih" to "Tarih Film",
-        "${mainUrl}/film/tur/vahsi-bati" to "VahÅŸi BatÄ± Film",
+        "${mainUrl}/film/tur/vahsi-bati" to "Vahşi Batı Film",
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -179,7 +179,7 @@ class DiziMag : MainAPI() {
                 ?.toIntOrNull()
         val rating = document.selectFirst("span.color-imdb")?.text()?.trim()
         val duration =
-            document.selectXpath("//span[text()='SÃ¼re']//following-sibling::p").text().trim()
+            document.selectXpath("//span[text()='Süre']//following-sibling::p").text().trim()
                 .split(" ").first().toIntOrNull()
         val description = document.selectFirst("div.series-profile-summary p")?.text()?.trim()
         val tags = document.selectFirst("div.series-profile-type")?.select("a")
@@ -303,4 +303,3 @@ class DiziMag : MainAPI() {
         return true
     }
 }
-

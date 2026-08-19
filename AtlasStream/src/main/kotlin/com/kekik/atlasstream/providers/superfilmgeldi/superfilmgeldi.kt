@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.superfilmgeldi
+package com.kekik.atlasstream.providers.superfilmgeldi
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -48,9 +48,9 @@ class SuperFilmGeldi : MainAPI() {
         "${mainUrl}/hdizle/category/komedi-filmleri/page/" to "Komedi Filmleri",
         "${mainUrl}/hdizle/category/macera/page/" to "Macera",
         "${mainUrl}/hdizle/category/gerilim/page/" to "Gerilim",
-        "${mainUrl}/hdizle/category/suc/page/" to "SuÃ§",
+        "${mainUrl}/hdizle/category/suc/page/" to "Suç",
         "${mainUrl}/hdizle/category/karete-filmleri/page/" to "Karate Filmleri",
-        "${mainUrl}/hdizle/category/yesilcam-erotik-izle/page/" to "YeÅŸilÃ§am Erotik",
+        "${mainUrl}/hdizle/category/yesilcam-erotik-izle/page/" to "Yeşilçam Erotik",
         "${mainUrl}/hdizle/category/hd-erotik-filmler-izle/page/" to "Erotik Filmler"
     )
 
@@ -66,15 +66,15 @@ class SuperFilmGeldi : MainAPI() {
             " izle",
             " full film",
             " filmini full",
-            " full tÃ¼rkÃ§e",
-            " alt yazÄ±lÄ±",
-            " altyazÄ±lÄ±",
+            " full türkçe",
+            " alt yazılı",
+            " altyazılı",
             " tr dublaj",
-            " hd tÃ¼rkÃ§e",
-            " tÃ¼rkÃ§e dublaj",
-            " yeÅŸilÃ§am ",
+            " hd türkçe",
+            " türkçe dublaj",
+            " yeşilçam ",
             " erotik fil",
-            " tÃ¼rkÃ§e",
+            " türkçe",
             " yerli",
         )
 
@@ -142,11 +142,11 @@ class SuperFilmGeldi : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("SFG", "data Â» $data")
+        Log.d("SFG", "data » $data")
         val document = app.get(data).document
         val iframe =
             fixUrlNull(document.selectFirst("div#vast iframe")?.attr("src")) ?: return false
-        Log.d("SFG", "iframe Â» $iframe")
+        Log.d("SFG", "iframe » $iframe")
 
         if (iframe.contains("mix") and iframe.contains("index.php?data=")) {
             val iSource = app.get(iframe, referer = "${mainUrl}/").text
@@ -163,7 +163,7 @@ class SuperFilmGeldi : MainAPI() {
             }
 
             val m3uLink = iframe.substringBefore("/player") + mixPoint + endPoint
-            Log.d("SFG", "m3uLink Â» $m3uLink")
+            Log.d("SFG", "m3uLink » $m3uLink")
 
             callback.invoke(
                 newExtractorLink(

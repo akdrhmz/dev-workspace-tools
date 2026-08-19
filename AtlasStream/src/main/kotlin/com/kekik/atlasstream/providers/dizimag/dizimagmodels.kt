@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.dizimag
+package com.kekik.atlasstream.providers.dizimag
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

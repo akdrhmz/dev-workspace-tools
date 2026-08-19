@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.rarefilmm
+package com.kekik.atlasstream.providers.rarefilmm
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -15,7 +15,7 @@ open class Odnoklassniki : ExtractorApi() {
     override val requiresReferer = false
 
     override suspend fun getUrl(url: String, referer: String?, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit) {
-        Log.d("Kekik_${this.name}", "url Â» $url")
+        Log.d("Kekik_${this.name}", "url » $url")
 
         val userAgent = mapOf("User-Agent" to "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36")
 
@@ -27,7 +27,7 @@ open class Odnoklassniki : ExtractorApi() {
         val videos    = AppUtils.tryParseJson<List<OkRuVideo>>(videosStr) ?: throw ErrorLoadingException("Video not found")
 
         for (video in videos) {
-            Log.d("Kekik_${this.name}", "video Â» $video")
+            Log.d("Kekik_${this.name}", "video » $video")
 
             val videoUrl = if (video.url.startsWith("//")) "https:${video.url}" else video.url
 

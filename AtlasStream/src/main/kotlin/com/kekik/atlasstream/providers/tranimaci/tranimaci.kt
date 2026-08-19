@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.tranimaci
+package com.kekik.atlasstream.providers.tranimaci
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -27,7 +27,7 @@ class TRanimaci : MainAPI() {
     override val mainPage = mainPageOf(
         "${mainUrl}/category/action"                                   to "Aksiyon",
         "${mainUrl}/category/cars"                                     to "Arabalar",
-        "${mainUrl}/category/supernatural"                             to "DoÄŸaÃ¼stÃ¼",
+        "${mainUrl}/category/supernatural"                             to "Doğaüstü",
         "${mainUrl}/category/drama"                                    to "Dram",
         "${mainUrl}/category/ecchi"                                    to "Ecchi",
         "${mainUrl}/category/fantasy"                                  to "Fantastik",
@@ -36,7 +36,7 @@ class TRanimaci : MainAPI() {
         "${mainUrl}/category/horror"                                   to "Korku",
         "${mainUrl}/category/adventure"                                to "Macera",
         "${mainUrl}/category/mecha"                                    to "Mecha",
-        "${mainUrl}/category/music"                                    to "MÃ¼zik",
+        "${mainUrl}/category/music"                                    to "Müzik",
         "${mainUrl}/category/romance"                                  to "Romantik",
         "${mainUrl}/category/sports"                                   to "Spor",
 
@@ -78,7 +78,7 @@ class TRanimaci : MainAPI() {
         for (bolum in document.select("div.eplister ul li a")) {
             val epHref = fixUrlNull(bolum.attr("href")) ?: continue
             val epName = bolum.selectFirst(".epl-title")?.text()?.trim() ?: continue
-            val epEpisode = epName.replace("BÃ¶lÃ¼m", "").trim().toIntOrNull()
+            val epEpisode = epName.replace("Bölüm", "").trim().toIntOrNull()
 	
                 val newEpisode = newEpisode(epHref) {
                     this.name = epName
@@ -100,15 +100,15 @@ override suspend fun loadLinks(
     subtitleCallback: (SubtitleFile) -> Unit,
     callback: (ExtractorLink) -> Unit
 ): Boolean {
-    Log.d("ANI", "data Â» $data")
+    Log.d("ANI", "data » $data")
     val document = app.get(data).document
 
-    // 1. video_source iÃ§eren <script> etiketi
+    // 1. video_source içeren <script> etiketi
     val scriptContent = document.select("script").firstOrNull {
         it.html().contains("video_source")
     }?.html() ?: return false
 
-    // 2. video_source iÃ§indeki JSON arrayâ€™i Ã§ek
+    // 2. video_source içindeki JSON array’i çek
     val videoSourceJson = Regex("""video_source\s*=\s*`(\[.*?])`""", RegexOption.DOT_MATCHES_ALL)
         .find(scriptContent)
         ?.groups?.get(1)
@@ -121,14 +121,14 @@ override suspend fun loadLinks(
     for (i in 0 until videoSourceArray.length()) {
         val source = videoSourceArray.getJSONObject(i)
         val apiUrl = source.getString("url")
-        Log.d("ANI", "apiUrl Â» $apiUrl")
+        Log.d("ANI", "apiUrl » $apiUrl")
 
-        // 4. API sayfasÄ±nÄ± Ã§ek
+        // 4. API sayfasını çek
         val apiHtml = app.get(apiUrl, headers = mapOf("Referer" to "https://tranimaci.com/")).text
         val apiDoc = Jsoup.parse(apiHtml)
-        Log.d("ANI", "apiDoc Â» $apiDoc")
+        Log.d("ANI", "apiDoc » $apiDoc")
 
-        // 5. const sources = [...] iÃ§eren <script> bul
+        // 5. const sources = [...] içeren <script> bul
         val sourcesScript = apiDoc.select("script").firstOrNull {
             it.html().contains("const sources")
         } ?: continue
@@ -141,7 +141,7 @@ override suspend fun loadLinks(
 
         // 6. MP4 linklerini JSON olarak parse et
         val mp4Array = JSONArray(sourcesArrayRaw)
-        Log.d("ANI", "mp4Array Â» $mp4Array")
+        Log.d("ANI", "mp4Array » $mp4Array")
 
         for (j in 0 until mp4Array.length()) {
             val mp4 = mp4Array.getJSONObject(j)

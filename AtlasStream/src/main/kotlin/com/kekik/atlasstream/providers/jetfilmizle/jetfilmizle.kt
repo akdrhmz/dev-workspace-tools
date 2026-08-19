@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.jetfilmizle
+package com.kekik.atlasstream.providers.jetfilmizle
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -47,10 +47,10 @@ class JetFilmizle : MainAPI() {
     override val mainPage = mainPageOf(
         mainUrl to "Son Filmler",
         "${mainUrl}/netflix" to "Netflix",
-        "${mainUrl}/editorun-secimi" to "EditÃ¶rÃ¼n SeÃ§imi",
-        "${mainUrl}/turk-film-full-hd-izle" to "TÃ¼rk Filmleri",
-        "${mainUrl}/cizgi-filmler-full-izle" to "Ã‡izgi Filmler",
-        "${mainUrl}/kategoriler/yesilcam-filmleri-full-izle" to "YeÅŸilÃ§am Filmleri"
+        "${mainUrl}/editorun-secimi" to "Editörün Seçimi",
+        "${mainUrl}/turk-film-full-hd-izle" to "Türk Filmleri",
+        "${mainUrl}/cizgi-filmler-full-izle" to "Çizgi Filmler",
+        "${mainUrl}/kategoriler/yesilcam-filmleri-full-izle" to "Yeşilçam Filmleri"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -104,7 +104,7 @@ class JetFilmizle : MainAPI() {
         val poster = fixUrlNull(document.selectFirst("section.movie-exp img")?.attr("data-src"))
             ?: fixUrlNull(document.selectFirst("section.movie-exp img")?.attr("src"))
         val yearDiv =
-            document.selectXpath("//div[@class='yap' and contains(strong, 'Vizyon') or contains(strong, 'YapÄ±m')]")
+            document.selectXpath("//div[@class='yap' and contains(strong, 'Vizyon') or contains(strong, 'Yapım')]")
                 .text().trim()
         val year = Regex("""(\d{4})""").find(yearDiv)?.groupValues?.get(1)?.toIntOrNull()
         val description = document.selectFirst("section.movie-exp p.aciklama")?.text()?.trim()
@@ -149,7 +149,7 @@ class JetFilmizle : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("JTF", "data Â» $data")
+        Log.d("JTF", "data » $data")
         val document = app.get(data).document
 
         val iframes = mutableListOf<String>()
@@ -159,7 +159,7 @@ class JetFilmizle : MainAPI() {
             ) ?: fixUrlNull(document.selectFirst("div#movie iframe")?.attr("data")) ?: fixUrlNull(
                 document.selectFirst("div#movie iframe")?.attr("src")
             )
-        Log.d("JTF", "mainIframe Â» $mainIframe")
+        Log.d("JTF", "mainIframe » $mainIframe")
         if (mainIframe != null) {
             iframes.add(mainIframe)
         }
@@ -173,7 +173,7 @@ class JetFilmizle : MainAPI() {
                 fixUrlNull(movDoc.selectFirst("div#movie iframe")?.attr("data-src")) ?: fixUrlNull(
                     movDoc.selectFirst("div#movie iframe")?.attr("data")
                 ) ?: fixUrlNull(movDoc.selectFirst("div#movie iframe")?.attr("src"))
-            Log.d("JTF", "iframe Â» $iframe")
+            Log.d("JTF", "iframe » $iframe")
 
             if (iframe != null) {
                 iframes.add(iframe)
@@ -190,10 +190,10 @@ class JetFilmizle : MainAPI() {
         iframes.forEach { iframe ->
             try {
                 if (iframe.contains("jetv.xyz")) {
-                    Log.d("JTF", "jetv Â» $iframe")
+                    Log.d("JTF", "jetv » $iframe")
                     val jetvDoc = app.get(iframe).document
                     /*val jetvIframe = fixUrlNull(jetvDoc.selectFirst("iframe")?.attr("src")) ?: return@forEach
-                    Log.d("JTF", "jetvIframe Â» $jetvIframe")
+                    Log.d("JTF", "jetvIframe » $jetvIframe")
                     loadExtractor(jetvIframe, "${mainUrl}/", subtitleCallback, callback)*/
                     val script =
                         jetvDoc.select("script").find { it.data().contains("\"sources\": [") }

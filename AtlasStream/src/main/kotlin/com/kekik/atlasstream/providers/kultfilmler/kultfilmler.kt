@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.kultfilmler
+package com.kekik.atlasstream.providers.kultfilmler
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -55,17 +55,17 @@ class KultFilmler : MainAPI() {
         "${mainUrl}/category/gerilim-filmleri-izle/page/" to "Gerilim",
         "${mainUrl}/category/gizem-filmleri-izle/page/" to "Gizem",
         "${mainUrl}/category/kara-filmleri-izle/page/" to "Kara",
-        "${mainUrl}/category/kisa-film-izle/page/" to "KÄ±sa MetrajlÄ±",
+        "${mainUrl}/category/kisa-film-izle/page/" to "Kısa Metrajlı",
         "${mainUrl}/category/komedi-filmleri-izle/page/" to "Komedi",
         "${mainUrl}/category/korku-filmleri-izle/page/" to "Korku",
         "${mainUrl}/category/macera-filmleri-izle/page/" to "Macera",
-        "${mainUrl}/category/muzik-filmleri-izle/page/" to "MÃ¼zik",
+        "${mainUrl}/category/muzik-filmleri-izle/page/" to "Müzik",
         "${mainUrl}/category/polisiye-filmleri-izle/page/" to "Polisiye",
         "${mainUrl}/category/politik-filmleri-izle/page/" to "Politik",
         "${mainUrl}/category/romantik-filmleri-izle/page/" to "Romantik",
-        "${mainUrl}/category/savas-filmleri-izle/page/" to "SavaÅŸ",
+        "${mainUrl}/category/savas-filmleri-izle/page/" to "Savaş",
         "${mainUrl}/category/spor-filmleri-izle/page/" to "Spor",
-        "${mainUrl}/category/suc-filmleri-izle/page/" to "SuÃ§",
+        "${mainUrl}/category/suc-filmleri-izle/page/" to "Suç",
         "${mainUrl}/category/tarih-filmleri-izle/page/" to "Tarih",
         "${mainUrl}/category/yerli-filmleri-izle/page/" to "Yerli"
     )
@@ -192,7 +192,7 @@ class KultFilmler : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("KLT", "data Â» $data")
+        Log.d("KLT", "data » $data")
         val document = app.get(data).document
         val iframes = mutableSetOf<String>()
 
@@ -209,7 +209,7 @@ class KultFilmler : MainAPI() {
         }
 
         for (iframe in iframes) {
-            Log.d("KLT", "iframe Â» $iframe")
+            Log.d("KLT", "iframe » $iframe")
             if (iframe.contains("vidmoly")) {
                 val headers = mapOf(
                     "User-Agent" to "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
@@ -219,7 +219,7 @@ class KultFilmler : MainAPI() {
                 val m3uLink = Regex("""file:"([^"]+)""").find(iSource)?.groupValues?.get(1)
                     ?: throw ErrorLoadingException("m3u link not found")
 
-                Log.d("Kekik_VidMoly", "m3uLink Â» $m3uLink")
+                Log.d("Kekik_VidMoly", "m3uLink » $m3uLink")
 
                 callback.invoke(
                     newExtractorLink(

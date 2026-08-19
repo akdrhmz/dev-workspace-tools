@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.yabancidizi
+package com.kekik.atlasstream.providers.yabancidizi
 
 import android.util.Base64
 import java.security.MessageDigest

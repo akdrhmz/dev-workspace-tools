@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.hdfilmsitesi
+package com.kekik.atlasstream.providers.hdfilmsitesi
 
 import android.util.Log
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -57,8 +57,8 @@ class HDFilmSitesi : MainAPI() {
         "${mainUrl}/filmizle/korku-filmleri-izle" to "Korku",
         "${mainUrl}/filmizle/macera-filmleri-izle" to "Macera",
         "${mainUrl}/filmizle/romantik-filmler-hd-izle" to "Romantik",
-        "${mainUrl}/filmizle/savas-filmleri-izle" to "SavaÅŸ",
-        "${mainUrl}/filmizle/suc-filmleri-izle" to "SuÃ§",
+        "${mainUrl}/filmizle/savas-filmleri-izle" to "Savaş",
+        "${mainUrl}/filmizle/suc-filmleri-izle" to "Suç",
         "${mainUrl}/filmizle/western-filmler-hd-izle-2" to "Western",
     )
 
@@ -96,7 +96,7 @@ class HDFilmSitesi : MainAPI() {
             document.selectFirst("h1 span")?.text()?.substringBefore(" izle")?.trim() ?: return null
         val poster = fixUrlNull(document.selectFirst("[property='og:image']")?.attr("content"))
         val description =
-            document.selectFirst("div[itemprop='description']")?.text()?.substringAfter("â­")
+            document.selectFirst("div[itemprop='description']")?.text()?.substringAfter("⭐")
                 ?.substringAfter("izleyin.")?.substringAfter("konusu:")?.trim()
         val year = document.selectFirst("span[itemprop='name']")?.text()?.trim()?.toIntOrNull()
         val tags =
@@ -137,7 +137,7 @@ class HDFilmSitesi : MainAPI() {
 
                 episodes.add(
                     newEpisode(iframeLink) {
-                        this.name = "${sz_num}. Sezon ${ep_num}. BÃ¶lÃ¼m"
+                        this.name = "${sz_num}. Sezon ${ep_num}. Bölüm"
                         this.season = sz_num
                         this.episode = ep_num
                     }

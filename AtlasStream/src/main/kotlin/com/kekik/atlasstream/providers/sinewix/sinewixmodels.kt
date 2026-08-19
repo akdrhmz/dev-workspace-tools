@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.sinewix
+package com.kekik.atlasstream.providers.sinewix
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

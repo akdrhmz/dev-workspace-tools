@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.setfilmizle
+package com.kekik.atlasstream.providers.setfilmizle
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -24,7 +24,7 @@ open class SetPrime : ExtractorApi() {
         }
 
         val m3uLink = "${mainUrl}${links}"
-        Log.d("Kekik_${this.name}", "m3uLink Â» $m3uLink")
+        Log.d("Kekik_${this.name}", "m3uLink » $m3uLink")
 
         callback.invoke(
             newExtractorLink(

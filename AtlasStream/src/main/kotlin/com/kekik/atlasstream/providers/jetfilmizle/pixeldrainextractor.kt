@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.jetfilmizle
+package com.kekik.atlasstream.providers.jetfilmizle
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -16,7 +16,7 @@ open class PixelDrain : ExtractorApi() {
     override suspend fun getUrl(url: String, referer: String?, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit) {
         val pixelId      = Regex("""([^/]+)(?=\?download)""").find(url)?.groupValues?.get(1)
         val downloadLink = "${mainUrl}/api/file/${pixelId}?download"
-        Log.d("Kekik_${this.name}", "downloadLink Â» $downloadLink")
+        Log.d("Kekik_${this.name}", "downloadLink » $downloadLink")
 
         callback.invoke(
             newExtractorLink(

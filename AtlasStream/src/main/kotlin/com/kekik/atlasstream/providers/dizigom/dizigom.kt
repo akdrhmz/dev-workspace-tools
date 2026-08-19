@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.dizigom
+package com.kekik.atlasstream.providers.dizigom
 
 import android.util.Log
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -56,8 +56,8 @@ class DiziGom : MainAPI() {
         "${mainUrl}/tur/macera/" to "Macera",
         "${mainUrl}/tur/polisiye/" to "Polisiye",
         "${mainUrl}/tur/romantik/" to "Romantik",
-        "${mainUrl}/tur/savas/" to "SavaÅŸ",
-        "${mainUrl}/tur/suc/" to "SuÃ§",
+        "${mainUrl}/tur/savas/" to "Savaş",
+        "${mainUrl}/tur/suc/" to "Suç",
         "${mainUrl}/tur/tarih/" to "Tarih",
     )
 
@@ -185,12 +185,12 @@ class DiziGom : MainAPI() {
     ): Boolean {
         val objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        Log.d("DZG", "data Â» ${data}")
+        Log.d("DZG", "data » ${data}")
         val document = app.get(data, referer = "$mainUrl/").document
         Log.d("Docum", document.toString())
         val embed = document.selectFirst("div#content")?.selectFirst("script")?.data()
         val contentJson: Gof = objectMapper.readValue(embed!!)
-        Log.d("DZG", "iframe Â» ${contentJson.contentUrl}")
+        Log.d("DZG", "iframe » ${contentJson.contentUrl}")
         val iframeDocument = app.get(
             contentJson.contentUrl.replace("https://", "https://play."),
             referer = "$mainUrl/"
@@ -201,7 +201,7 @@ class DiziGom : MainAPI() {
                 ?: ""
         val unpack = JsUnpacker(script).unpack()
         val sourceJ = unpack?.substringAfter("sources:[")?.substringBefore("]")?.replace("\\/", "/")
-        Log.d("DZG", "sourceJ Â» ${sourceJ}")
+        Log.d("DZG", "sourceJ » ${sourceJ}")
 
         val source: Go = objectMapper.readValue(sourceJ!!)
         callback.invoke(

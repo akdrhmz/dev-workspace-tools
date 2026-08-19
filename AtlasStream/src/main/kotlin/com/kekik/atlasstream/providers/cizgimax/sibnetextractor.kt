@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.cizgimax
+package com.kekik.atlasstream.providers.cizgimax
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -19,7 +19,7 @@ open class SibNet : ExtractorApi() {
         var m3uLink = Regex("""player.src\(\[\{src: "([^"]+)""").find(iSource)?.groupValues?.get(1) ?: throw ErrorLoadingException("m3u link not found")
 
         m3uLink = "${mainUrl}${m3uLink}"
-        Log.d("Kekik_${this.name}", "m3uLink Â» $m3uLink")
+        Log.d("Kekik_${this.name}", "m3uLink » $m3uLink")
 
         callback.invoke(
             newExtractorLink(

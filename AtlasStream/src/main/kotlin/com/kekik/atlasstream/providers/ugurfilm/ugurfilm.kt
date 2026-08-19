@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.ugurfilm
+package com.kekik.atlasstream.providers.ugurfilm
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -19,10 +19,10 @@ class UgurFilm : MainAPI() {
     override val supportedTypes      = setOf(TvType.Movie)
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/turkce-altyazili-filmler/page/" to "TÃ¼rkÃ§e AltyazÄ±lÄ± Filmler",
+        "${mainUrl}/turkce-altyazili-filmler/page/" to "Türkçe Altyazılı Filmler",
         "${mainUrl}/yerli-filmler/page/"            to "Yerli Filmler",
-        "${mainUrl}/en-cok-izlenen-filmler/page/"   to "En Ã‡ok Ä°zlenen Filmler",
-        "${mainUrl}/category/kisa-film/page/"      to "KÄ±sa Film",
+        "${mainUrl}/en-cok-izlenen-filmler/page/"   to "En Çok İzlenen Filmler",
+        "${mainUrl}/category/kisa-film/page/"      to "Kısa Film",
         "${mainUrl}/category/aksiyon/page/"        to "Aksiyon",
         "${mainUrl}/category/bilim-kurgu/page/"    to "Bilim Kurgu",
         "${mainUrl}/category/belgesel/page/"       to "Belgesel",
@@ -63,7 +63,7 @@ class UgurFilm : MainAPI() {
         val description    = document.selectFirst("div.bilgi div.slayt-aciklama")?.text()?.trim()
         val tags           = document.select("div.bilgi p.tur a[href*='/category/']").map { it.text() }
         val rating         = document.selectFirst("div#slayt span.puan")?.text()?.split(":")?.lastOrNull()?.trim()
-        val duration       = document.selectFirst("div.bilgi p:contains(SÃ¼re:) b")?.text()?.split(" ")?.firstOrNull()?.trim()?.toIntOrNull()
+        val duration       = document.selectFirst("div.bilgi p:contains(Süre:) b")?.text()?.split(" ")?.firstOrNull()?.trim()?.toIntOrNull()
         val actors         = document.select("li.oyuncu-k").mapNotNull {
             val name = it.selectFirst("span.isim")?.text()
             val image = it.selectFirst("img")?.attr("src")

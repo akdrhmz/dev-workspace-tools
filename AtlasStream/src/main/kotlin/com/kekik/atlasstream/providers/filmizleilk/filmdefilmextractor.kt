@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.filmizleilk
+package com.kekik.atlasstream.providers.filmizleilk
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -23,7 +23,7 @@ open class FilmdeFilmExtractor : ExtractorApi() {
             url.substringAfter("?data=")
         }
         val postUrl = "${mainUrl}/player/index.php?data=${vidId}&do=getVideo"
-        Log.d("Kekik_${this.name}", "postUrl Â» $postUrl")
+        Log.d("Kekik_${this.name}", "postUrl » $postUrl")
 
         val response = app.post(
             postUrl,

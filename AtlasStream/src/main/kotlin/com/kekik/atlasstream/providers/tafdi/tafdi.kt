@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.tafdi
+package com.kekik.atlasstream.providers.tafdi
 
 import android.util.Log
 import org.jsoup.nodes.Element
@@ -34,8 +34,8 @@ class Tafdi : MainAPI() {
         "${mainUrl}/category/polisiye-filmleri/" to "Polisiye",
         "${mainUrl}/category/psikolojik-filmler/" to "Psikolojik",
         "${mainUrl}/category/romantik-filmler/" to "Romantik",
-        "${mainUrl}/category/savas-filmleri/" to "SavaÅŸ",
-        "${mainUrl}/category/suc-filmleri/" to "SuÃ§",
+        "${mainUrl}/category/savas-filmleri/" to "Savaş",
+        "${mainUrl}/category/suc-filmleri/" to "Suç",
         "${mainUrl}/category/tarih-filmleri/" to "Tarih",
         "${mainUrl}/category/western-filmler/" to "Western",
         "${mainUrl}/category/yerli-filmler/" to "Yerli",
@@ -82,7 +82,7 @@ class Tafdi : MainAPI() {
         val description = document.selectFirst("div#film-aciklama")?.text()?.trim()
         var year = document.selectFirst("div.release a")?.text()?.trim()?.toIntOrNull()
         val tags = document.select("div#listelements a").map { it.text() }
-        var rating = document.selectFirst("div.imdb")?.text()?.replace("IMDb PuanÄ±:", "")
+        var rating = document.selectFirst("div.imdb")?.text()?.replace("IMDb Puanı:", "")
             ?.split("/")?.first()?.trim()
         var actors = document.select("div.actor a").map { it.text() }
         val trailer = document.selectFirst("div.container iframe")?.attr("src")
@@ -121,7 +121,7 @@ class Tafdi : MainAPI() {
     }
 
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
-        Log.d("TFD", "data Â» ${data}")
+        Log.d("TFD", "data » ${data}")
         val document = app.get(data).document
         val iframe = document.selectFirst("iframe")?.attr("src") ?: ""
         Log.d("TFD", iframe)

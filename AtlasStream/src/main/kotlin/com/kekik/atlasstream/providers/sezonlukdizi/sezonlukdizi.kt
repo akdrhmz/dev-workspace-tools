@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.sezonlukdizi
+package com.kekik.atlasstream.providers.sezonlukdizi
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -47,7 +47,7 @@ class SezonlukDizi : MainAPI() {
         "${mainUrl}/diziler.asp?siralama_tipi=id&s=" to "Son Eklenenler",
         "${mainUrl}/diziler.asp?siralama_tipi=id&tur=mini&s=" to "Mini Diziler",
         "${mainUrl}/diziler.asp?siralama_tipi=id&kat=2&s=" to "Yerli Diziler",
-        "${mainUrl}/diziler.asp?siralama_tipi=id&kat=1&s=" to "YabancÄ± Diziler",
+        "${mainUrl}/diziler.asp?siralama_tipi=id&kat=1&s=" to "Yabancı Diziler",
         "${mainUrl}/diziler.asp?siralama_tipi=id&kat=3&s=" to "Asya Dizileri",
         "${mainUrl}/diziler.asp?siralama_tipi=id&kat=4&s=" to "Animasyonlar",
         "${mainUrl}/diziler.asp?siralama_tipi=id&kat=5&s=" to "Animeler",
@@ -114,7 +114,7 @@ class SezonlukDizi : MainAPI() {
                 val epHref =
                     fixUrlNull(bolum.selectFirst("td:nth-of-type(4) a")?.attr("href")) ?: continue
                 val epEpisode =
-                    bolum.selectFirst("td:nth-of-type(3)")?.text()?.substringBefore(".BÃ¶lÃ¼m")
+                    bolum.selectFirst("td:nth-of-type(3)")?.text()?.substringBefore(".Bölüm")
                         ?.trim()?.toIntOrNull()
                 val epSeason =
                     bolum.selectFirst("td:nth-of-type(2)")?.text()?.substringBefore(".Sezon")
@@ -146,11 +146,11 @@ class SezonlukDizi : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("SZD", "data Â» $data")
+        Log.d("SZD", "data » $data")
         val document = app.get(data).document
         val aspData = getAspData()
         val bid = document.selectFirst("div#dilsec")?.attr("data-id") ?: return false
-        Log.d("SZD", "bid Â» $bid")
+        Log.d("SZD", "bid » $bid")
 
         val altyaziResponse = app.post(
             "${mainUrl}/ajax/dataAlternatif${aspData.alternatif}.asp",
@@ -161,7 +161,7 @@ class SezonlukDizi : MainAPI() {
             )
         ).parsedSafe<Kaynak>()
         altyaziResponse?.takeIf { it.status == "success" }?.data?.forEach { veri ->
-            Log.d("SZD", "dilÂ»1 | veri.baslik Â» ${veri.baslik}")
+            Log.d("SZD", "dil»1 | veri.baslik » ${veri.baslik}")
 
             val veriResponse = app.post(
                 "${mainUrl}/ajax/dataEmbed${aspData.embed}.asp",
@@ -171,15 +171,15 @@ class SezonlukDizi : MainAPI() {
 
             val iframe =
                 fixUrlNull(veriResponse.selectFirst("iframe")?.attr("src")) ?: return@forEach
-            Log.d("SZD", "dilÂ»1 | iframe Â» $iframe")
+            Log.d("SZD", "dil»1 | iframe » $iframe")
             if (iframe.contains("ruby")) {
-                extractRuby(iframe, callback, veri, "AltyazÄ±")
+                extractRuby(iframe, callback, veri, "Altyazı")
             } else {
                 loadExtractor(iframe, "${mainUrl}/", subtitleCallback) { link ->
                     callback.invoke(
                         ExtractorLink(
-                            source = "AltYazÄ± - ${veri.baslik}",
-                            name = "AltYazÄ± - ${veri.baslik}",
+                            source = "AltYazı - ${veri.baslik}",
+                            name = "AltYazı - ${veri.baslik}",
                             url = link.url,
                             referer = link.referer,
                             quality = link.quality,
@@ -201,7 +201,7 @@ class SezonlukDizi : MainAPI() {
             )
         ).parsedSafe<Kaynak>()
         dublajResponse?.takeIf { it.status == "success" }?.data?.forEach { veri ->
-            Log.d("SZD", "dilÂ»0 | veri.baslik Â» ${veri.baslik}")
+            Log.d("SZD", "dil»0 | veri.baslik » ${veri.baslik}")
 
             val veriResponse = app.post(
                 "${mainUrl}/ajax/dataEmbed${aspData.embed}.asp",
@@ -211,7 +211,7 @@ class SezonlukDizi : MainAPI() {
 
             val iframe =
                 fixUrlNull(veriResponse.selectFirst("iframe")?.attr("src")) ?: return@forEach
-            Log.d("SZD", "dilÂ»0 | iframe Â» $iframe")
+            Log.d("SZD", "dil»0 | iframe » $iframe")
 
             if (iframe.contains("ruby")) {
                 extractRuby(iframe, callback, veri, "Dublaj")

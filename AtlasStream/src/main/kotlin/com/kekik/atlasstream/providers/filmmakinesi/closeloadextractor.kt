@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.filmmakinesi
+package com.kekik.atlasstream.providers.filmmakinesi
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -22,7 +22,7 @@ open class CloseLoadExtractor : ExtractorApi() {
 
     override suspend fun getUrl(url: String, referer: String?, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit) {
         val extRef = referer ?: ""
-        Log.d("Kekik_${this.name}", "url Â» $url")
+        Log.d("Kekik_${this.name}", "url » $url")
 
         val iSource = app.get(url, referer = extRef)
         val obfuscatedScript = iSource.document.select("script").find { it.data().contains("eval(function(p,a,c,k,e") }?.data()?.trim()
@@ -72,16 +72,16 @@ open class CloseLoadExtractor : ExtractorApi() {
         val groupValues = match!!.groupValues[1]
 
         val lastUrl = if (helloVarmi) {
-            Log.d("Kekik_${this.name}", "groupValues Â» $groupValues")
+            Log.d("Kekik_${this.name}", "groupValues » $groupValues")
             val dcUrl = dcHello(groupValues).substringAfter("http")
-            Log.d("Kekik_${this.name}", "dcUrl Â» $dcUrl")
+            Log.d("Kekik_${this.name}", "dcUrl » $dcUrl")
             dcUrl
         } else{
             val parts = groupValues.split(",")
                 .map { it.trim().removeSurrounding("\"") }
-            Log.d("Kekik_${this.name}", "parts Â» $parts")
+            Log.d("Kekik_${this.name}", "parts » $parts")
             val dcUrl = dcNew(parts)
-            Log.d("Kekik_${this.name}", "dcUrl Â» $dcUrl")
+            Log.d("Kekik_${this.name}", "dcUrl » $dcUrl")
             dcUrl
         }
         callback.invoke(

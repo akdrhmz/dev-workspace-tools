@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.webteizle
+package com.kekik.atlasstream.providers.webteizle
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -73,7 +73,7 @@ class WebteIzle : MainAPI() {
     }
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/film-izle/" to "GÃ¼ncel",
+        "${mainUrl}/film-izle/" to "Güncel",
         "${mainUrl}/yeni-filmler/" to "Yeni",
         "${mainUrl}/tavsiye-filmler/" to "Tavsiye",
         "${mainUrl}/filtre/SAYFA?tur=Aile" to "Aile",
@@ -147,7 +147,7 @@ class WebteIzle : MainAPI() {
         val tags = document.selectXpath("//a[@itemgroup='genre']").map { it.text() }
         val rating = document.selectFirst("div.detail")?.text()?.trim()?.replace(",", ".")
         val duration =
-            document.selectXpath("//td[contains(text(), 'SÃ¼re')]/following-sibling::td").text()
+            document.selectXpath("//td[contains(text(), 'Süre')]/following-sibling::td").text()
                 .trim().split(" ").first().toIntOrNull()
         val trailer = document.selectFirst("button#fragman")?.attr("data-ytid")
         val actors = document.selectXpath("//div[@data-tab='oyuncular']//a").map {
@@ -175,11 +175,11 @@ class WebteIzle : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("WBTI", "data Â» $data")
+        Log.d("WBTI", "data » $data")
         val document = app.get(data).document
 
         val filmId = document.selectFirst("button#wip")?.attr("data-id") ?: return false
-        Log.d("WBTI", "filmId Â» $filmId")
+        Log.d("WBTI", "filmId » $filmId")
 
         val dilList = mutableListOf<String>()
         if (document.selectFirst("div.golge a[href*=dublaj]")?.attr("src") != null) {
@@ -191,7 +191,7 @@ class WebteIzle : MainAPI() {
         }
 
         dilList.forEach {
-            val dilAd = if (it == "0") "Dublaj" else "AltyazÄ±"
+            val dilAd = if (it == "0") "Dublaj" else "Altyazı"
 
             val playerApi = app.post(
                 "${mainUrl}/ajax/dataAlternatif3.asp",
@@ -222,7 +222,7 @@ class WebteIzle : MainAPI() {
                         Regex("""(vidmoly|okru|filemoon|pixel|sruby)\('([\d\w]+)','""").find(scriptSource)
 
                     if (matchResult == null) {
-                        Log.d("WBTI", "scriptSource Â» $scriptSource")
+                        Log.d("WBTI", "scriptSource » $scriptSource")
                         if (thisEmbed.baslik.contains("Dzen")) {
                             val dzenId =
                                 scriptSource.substringAfter("var vid = '").substringBefore("';")
@@ -232,7 +232,7 @@ class WebteIzle : MainAPI() {
                     } else {
                         val platform = matchResult.groupValues[1]
                         val vidId = matchResult.groupValues[2]
-                        Log.d("WBTI", "platform Â» $platform")
+                        Log.d("WBTI", "platform » $platform")
                         iframe = when (platform) {
                             "vidmoly" -> "https://vidmoly.net/embed-${vidId}.html"
                             "okru" -> "https://odnoklassniki.ru/videoembed/${vidId}"
@@ -243,7 +243,7 @@ class WebteIzle : MainAPI() {
                         }
                     }
                 } else if (iframe.contains(mainUrl)) {
-                    Log.d("WBTI", "iframe Â» $iframe")
+                    Log.d("WBTI", "iframe » $iframe")
                     val iSource = app.get(iframe, referer = data).text
 
                     val encoded =
@@ -251,7 +251,7 @@ class WebteIzle : MainAPI() {
                     val bytes = encoded.split("\\x").filter { str -> str.isNotEmpty() }
                         .map { char -> char.toInt(16).toByte() }.toByteArray()
                     val m3uLink = String(bytes, Charsets.UTF_8)
-                    Log.d("WBTI", "m3uLink Â» $m3uLink")
+                    Log.d("WBTI", "m3uLink » $m3uLink")
 
                     val trackStr =
                         Regex("""tracks = \[([^]]+)""").find(iSource)?.groupValues?.get(1)
@@ -264,9 +264,9 @@ class WebteIzle : MainAPI() {
 
                             subtitleCallback.invoke(
                                 SubtitleFile(
-                                    lang = track.label.replace("\\u0131", "Ä±")
-                                        .replace("\\u0130", "Ä°").replace("\\u00fc", "Ã¼")
-                                        .replace("\\u00e7", "Ã§"),
+                                    lang = track.label.replace("\\u0131", "ı")
+                                        .replace("\\u0130", "İ").replace("\\u00fc", "ü")
+                                        .replace("\\u00e7", "ç"),
                                     url = fixUrl(track.file).replace("\\", "")
                                 )
                             )
@@ -299,9 +299,9 @@ class WebteIzle : MainAPI() {
                             if (track.label.contains("Forced")) continue
                             subtitleCallback.invoke(
                                 SubtitleFile(
-                                    lang = track.label.replace("\\u0131", "Ä±")
-                                        .replace("\\u0130", "Ä°").replace("\\u00fc", "Ã¼")
-                                        .replace("\\u00e7", "Ã§"),
+                                    lang = track.label.replace("\\u0131", "ı")
+                                        .replace("\\u0130", "İ").replace("\\u00fc", "ü")
+                                        .replace("\\u00e7", "ç"),
                                     url = fixUrl(track.file).replace("\\", "")
                                 )
                             )
@@ -327,7 +327,7 @@ class WebteIzle : MainAPI() {
                 }
 
                 if (iframe != null) {
-                    Log.d("WBTI", "iframe Â» $iframe")
+                    Log.d("WBTI", "iframe » $iframe")
                     loadExtractor(iframe, "${mainUrl}/", subtitleCallback) { link ->
                         callback.invoke(
                             ExtractorLink(

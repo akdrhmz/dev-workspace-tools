@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.dizipal
+package com.kekik.atlasstream.providers.dizipal
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 

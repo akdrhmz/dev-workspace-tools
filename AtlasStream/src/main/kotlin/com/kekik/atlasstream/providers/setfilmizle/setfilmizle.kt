@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.setfilmizle
+package com.kekik.atlasstream.providers.setfilmizle
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -56,19 +56,19 @@ class SetFilmIzle : MainAPI() {
         "${mainUrl}/tur/dini/" to "Dini",
         "${mainUrl}/tur/dram/" to "Dram",
         "${mainUrl}/tur/fantastik/" to "Fantastik",
-        "${mainUrl}/tur/genclik/" to "GenÃ§lik",
+        "${mainUrl}/tur/genclik/" to "Gençlik",
         "${mainUrl}/tur/gerilim/" to "Gerilim",
         "${mainUrl}/tur/gizem/" to "Gizem",
         "${mainUrl}/tur/komedi/" to "Komedi",
         "${mainUrl}/tur/korku/" to "Korku",
         "${mainUrl}/tur/macera/" to "Macera",
         "${mainUrl}/tur/mini-dizi/" to "Mini Dizi",
-        "${mainUrl}/tur/muzik/" to "MÃ¼zik",
+        "${mainUrl}/tur/muzik/" to "Müzik",
         "${mainUrl}/tur/program/" to "Program",
         "${mainUrl}/tur/romantik/" to "Romantik",
-        "${mainUrl}/tur/savas/" to "SavaÅŸ",
+        "${mainUrl}/tur/savas/" to "Savaş",
         "${mainUrl}/tur/spor/" to "Spor",
-        "${mainUrl}/tur/suc/" to "SuÃ§",
+        "${mainUrl}/tur/suc/" to "Suç",
         "${mainUrl}/tur/tarih/" to "Tarih",
         "${mainUrl}/tur/western/" to "Western"
     )
@@ -162,7 +162,7 @@ class SetFilmIzle : MainAPI() {
                     ?: return@mapNotNull null
                 val epSeason = epDetail.substringBefore(". Sezon").toIntOrNull()
                 val epEpisode =
-                    epDetail.split("Sezon ").last().substringBefore(". BÃ¶lÃ¼m").toIntOrNull()
+                    epDetail.split("Sezon ").last().substringBefore(". Bölüm").toIntOrNull()
 
                 newEpisode(epHref) {
                     this.name = epName
@@ -251,8 +251,8 @@ class SetFilmIzle : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("STF", "data Â» $data")
-        println("STF data Â» $data")
+        Log.d("STF", "data » $data")
+        println("STF data » $data")
         val document = app.get(data).document
 
         document.select("nav.player a").map { element ->
@@ -274,8 +274,8 @@ class SetFilmIzle : MainAPI() {
             Log.d("STf", "sourceBody -> $sourceBody")
             val sourceIframe =
                 JSONObject(sourceBody).optJSONObject("data")?.optString("url") ?: return@forEach
-            Log.d("STF", "iframe Â» $sourceIframe")
-            println("STF iframe Â» $sourceIframe")
+            Log.d("STF", "iframe » $sourceIframe")
+            println("STF iframe » $sourceIframe")
 
             if (sourceIframe.contains("vctplay.site")) {
                 val vctId = sourceIframe.split("/").last()

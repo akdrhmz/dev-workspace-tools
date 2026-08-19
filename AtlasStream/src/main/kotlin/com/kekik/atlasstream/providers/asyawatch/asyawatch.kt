@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.asyawatch
+package com.kekik.atlasstream.providers.asyawatch
 
 import android.util.Log
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -57,8 +57,8 @@ class AsyaWatch : MainAPI() {
         "63" to "Korku Film",
         "45" to "Komedi Film",
         "65" to "Romantik Film",
-        "46" to "SuÃ§ Film",
-        "69" to "SavaÅŸ Film",
+        "46" to "Suç Film",
+        "69" to "Savaş Film",
         "78" to "Western Film",
 
         "" to "Yeni Eklenen Diziler",
@@ -73,8 +73,8 @@ class AsyaWatch : MainAPI() {
         "8" to "Korku Dizi",
         "4" to "Komedi Dizi",
         "7" to "Romantik Dizi",
-        "1" to "SuÃ§ Dizi",
-        "26" to "SavaÅŸ Dizi",
+        "1" to "Suç Dizi",
+        "26" to "Savaş Dizi",
         "11" to "Western Dizi",
     )
 
@@ -239,7 +239,7 @@ class AsyaWatch : MainAPI() {
         }
         var trailer = ""
         if (root.relatedResults.getContentTrailers?.state == true && root.relatedResults.getContentTrailers.result?.size!! > 0) {
-            Log.d("SFX", "getContentTrailers null deÄŸil")
+            Log.d("SFX", "getContentTrailers null değil")
             Log.d(
                 "SFX",
                 "getContentTrailers ->  ${root.relatedResults.getContentTrailers.result}"
@@ -248,7 +248,7 @@ class AsyaWatch : MainAPI() {
         }
 
         if (root.relatedResults.getSerieSeasonAndEpisodes != null) {
-            Log.d("SFX", "getSerieSeasonAndEpisodes null deÄŸil")
+            Log.d("SFX", "getSerieSeasonAndEpisodes null değil")
             Log.d(
                 "SFX",
                 "getSerieSeasonAndEpisodes ->  ${root.relatedResults.getSerieSeasonAndEpisodes}"
@@ -297,7 +297,7 @@ class AsyaWatch : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("SFX", "data Â» $data")
+        Log.d("SFX", "data » $data")
         val objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         val encodedDoc = app.get(data).document
@@ -340,7 +340,7 @@ class AsyaWatch : MainAPI() {
         Log.d("SFX", "iframes -> $iframes")
         iframes.forEach { it ->
             val iframe = fixUrlNull(Jsoup.parse(it.sourceContent).select("iframe").attr("src"))
-            Log.d("SFX", "iframe Â» $iframe")
+            Log.d("SFX", "iframe » $iframe")
             loadExtractor(iframe!!, "${mainUrl}/", subtitleCallback, callback)
         }
 

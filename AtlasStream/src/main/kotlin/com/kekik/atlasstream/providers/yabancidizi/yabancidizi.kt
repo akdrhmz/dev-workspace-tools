@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.yabancidizi
+package com.kekik.atlasstream.providers.yabancidizi
 
 import android.util.Log
 import com.lagradost.cloudstream3.Actor
@@ -61,7 +61,7 @@ class YabanciDizi : MainAPI() {
             val response = chain.proceed(request)
             val doc      = Jsoup.parse(response.peekBody(1024 * 1024).string())
 
-            if (doc.text().contains("GÃ¼venlik taramasÄ±ndan geÃ§iriliyorsunuz. LÃ¼tfen bekleyiniz..")) {
+            if (doc.text().contains("Güvenlik taramasından geçiriliyorsunuz. Lütfen bekleyiniz..")) {
                 return cloudflareKiller.intercept(chain)
             }
 
@@ -83,7 +83,7 @@ class YabanciDizi : MainAPI() {
         "${mainUrl}/dizi/tur/korku-izle" to "Korku",
         "${mainUrl}/dizi/tur/macera-izle" to "Macera",
         "${mainUrl}/dizi/tur/romantik-izle-1" to "Dram",
-        "${mainUrl}/dizi/tur/suc" to "SuÃ§",
+        "${mainUrl}/dizi/tur/suc" to "Suç",
         "${mainUrl}/dizi/tur/kore-dizileri" to "Kore Dizileri",
         "${mainUrl}/dizi/tur/stand-up" to "Stand Up",
     )
@@ -167,7 +167,7 @@ class YabanciDizi : MainAPI() {
         }
         val rating = document.selectFirst("div.color-imdb")?.text()?.trim()
         val duration =
-            document.selectXpath("//div[text()='SÃ¼re']//following-sibling::div").text().trim()
+            document.selectXpath("//div[text()='Süre']//following-sibling::div").text().trim()
                 .split(" ").first().toIntOrNull()
         val trailer = document.selectFirst("div.media-trailer")?.attr("data-yt")
         val actors = document.selectFirst("div.global-box")?.select("div.item")?.map {
@@ -184,7 +184,7 @@ class YabanciDizi : MainAPI() {
                     epEpisode++
                     episodes.add(
                         newEpisode(epHref){
-                            this.name = "${epSeason}. Sezon ${epEpisode}. BÃ¶lÃ¼m"
+                            this.name = "${epSeason}. Sezon ${epEpisode}. Bölüm"
                             this.season = epSeason
                             this.episode = epEpisode
                         }
@@ -222,7 +222,7 @@ class YabanciDizi : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("YBD", "data Â» ${data}")
+        Log.d("YBD", "data » ${data}")
         val document = app.get(data).document
         val timestampMillis = (System.currentTimeMillis() - 50000)
         var dilAd = ""
@@ -230,7 +230,7 @@ class YabanciDizi : MainAPI() {
             val dataEid = it.attr("data-eid")
             Log.d("YBD", "dataEid -> $dataEid")
             val dataType = it.attr("data-type")
-            val dilAd = if (dataType == "2") "Dublaj" else "AltyazÄ±"
+            val dilAd = if (dataType == "2") "Dublaj" else "Altyazı"
             val doc = app.post("$mainUrl/ajax/service", referer = data, headers =
             mapOf("user-agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0",
                 "Accept" to "application/json, text/javascript, */*; q=0.01", "Cookie" to "udys=$timestampMillis",
@@ -255,7 +255,7 @@ class YabanciDizi : MainAPI() {
                     ).document
                     var subFrame = mac.selectFirst("iframe")?.attr("src") ?: ""
                     if (subFrame.isEmpty()) {
-                        Log.d("YBD", "subFrame boÅŸ drives denenecek")
+                        Log.d("YBD", "subFrame boş drives denenecek")
                         val timestampInSeconds = System.currentTimeMillis() / 1000
                         Log.d("YBD", "timestampInSeconds -> $timestampInSeconds")
                         val drives = app.get(
@@ -402,4 +402,3 @@ class YabanciDizi : MainAPI() {
 }
 
 data class StreamInfo(val resolution: String, val link: String)
-

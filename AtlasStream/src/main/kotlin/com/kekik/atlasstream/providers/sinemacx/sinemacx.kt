@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.sinemacx
+package com.kekik.atlasstream.providers.sinemacx
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -102,7 +102,7 @@ class SinemaCX : MainAPI() {
         val tags = document.select("div.f-bilgi div.tur a").map { it.text() }
         val rating = document.selectFirst("b#puandegistir")?.text()?.trim()
         val duration =
-            Regex("""SÃ¼re: </span>(\d+) Dakika</li>""").find(document.html())?.groupValues?.get(1)
+            Regex("""Süre: </span>(\d+) Dakika</li>""").find(document.html())?.groupValues?.get(1)
                 ?.toIntOrNull()
         val actors = document.select("li.oync li.oyuncu-k").map {
             Actor(it.selectFirst("span.isim")!!.text(), it.selectFirst("img")!!.attr("data-src"))
@@ -125,12 +125,12 @@ class SinemaCX : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("SCX", "data Â» $data")
+        Log.d("SCX", "data » $data")
         val document = app.get(data).document
         val iframe =
             fixUrlNull(document.selectFirst("iframe")?.attr("data-vsrc"))?.substringBefore("?img=")
                 ?: return false
-        Log.d("SCX", "iframe Â» $iframe")
+        Log.d("SCX", "iframe » $iframe")
 
         val iframeSource = app.get(iframe, referer = "${mainUrl}/").document
         val subtitleSectionRegex = Regex("""playerjsSubtitle\s*=\s*"(.+?)"""")

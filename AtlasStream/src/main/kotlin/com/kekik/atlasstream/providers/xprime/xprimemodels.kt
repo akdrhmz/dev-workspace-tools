@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.xprime
+package com.kekik.atlasstream.providers.xprime
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

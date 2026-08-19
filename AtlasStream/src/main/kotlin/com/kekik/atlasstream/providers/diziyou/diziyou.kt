@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.diziyou
+package com.kekik.atlasstream.providers.diziyou
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -51,9 +51,9 @@ class DiziYou : MainAPI() {
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Komedi" to "Komedi",
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Korku" to "Korku",
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Macera" to "Macera",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Sava%C5%9F" to "SavaÅŸ",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Su%C3%A7" to "SuÃ§",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Vah%C5%9Fi+Bat%C4%B1" to "VahÅŸi BatÄ±"
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Sava%C5%9F" to "Savaş",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Su%C3%A7" to "Suç",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur=Vah%C5%9Fi+Bat%C4%B1" to "Vahşi Batı"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -91,7 +91,7 @@ class DiziYou : MainAPI() {
         val poster = fixUrlNull(document.selectFirst("div.category_image img")?.attr("src"))
         val description = document.selectFirst("div.diziyou_desc")?.ownText()?.trim()
         val year =
-            document.selectFirst("span.dizimeta:contains(YapÄ±m YÄ±lÄ±)")?.nextSibling()?.toString()
+            document.selectFirst("span.dizimeta:contains(Yapım Yılı)")?.nextSibling()?.toString()
                 ?.trim()?.toIntOrNull()
         val tags = document.select("div.genres a").map { it.text() }
         val rating =
@@ -106,7 +106,7 @@ class DiziYou : MainAPI() {
             val epHref = it.closest("a")?.attr("href")?.let { href -> fixUrlNull(href) }
                 ?: return@mapNotNull null
             val epEpisode =
-                Regex("""(\d+)\. BÃ¶lÃ¼m""").find(epName)?.groupValues?.get(1)?.toIntOrNull()
+                Regex("""(\d+)\. Bölüm""").find(epName)?.groupValues?.get(1)?.toIntOrNull()
             val epSeason =
                 Regex("""(\d+)\. Sezon""").find(epName)?.groupValues?.get(1)?.toIntOrNull() ?: 1
 
@@ -136,13 +136,13 @@ class DiziYou : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("DZY", "data Â» $data")
+        Log.d("DZY", "data » $data")
         val document = app.get(data).document
 
         val itemId =
             document.selectFirst("iframe#diziyouPlayer")?.attr("src")?.split("/")?.lastOrNull()
                 ?.substringBefore(".html") ?: return false
-        Log.d("DZY", "itemId Â» $itemId")
+        Log.d("DZY", "itemId » $itemId")
 
         val subTitles = mutableListOf<DiziyouSubtitle>()
         val streamUrls = mutableListOf<DiziyouStream>()
@@ -174,7 +174,7 @@ class DiziYou : MainAPI() {
             if (optId == "turkceDublaj") {
                 streamUrls.add(
                     DiziyouStream(
-                        "TÃ¼rkÃ§e Dublaj",
+                        "Türkçe Dublaj",
                         "${storage}/episodes/${itemId}_tr/play.m3u8"
                     )
                 )

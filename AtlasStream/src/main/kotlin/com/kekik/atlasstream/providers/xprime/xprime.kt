@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.xprime
+package com.kekik.atlasstream.providers.xprime
 
 import android.util.Log
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -43,13 +43,13 @@ class XPrime : MainAPI() {
     private val backendUrl = "https://backend.xprime.tv"
     private val xUrl = "https://xprime.tv/"
     override val mainPage = mainPageOf(
-        "$mainUrl/trending/movie/week?api_key=$apiKey&language=tr-TR&page=SAYFA" to "PopÃ¼ler",
+        "$mainUrl/trending/movie/week?api_key=$apiKey&language=tr-TR&page=SAYFA" to "Popüler",
         "$mainUrl/movie/now_playing?api_key=$apiKey&language=tr-TR&page=SAYFA" to "Sinemalarda",
         "28" to "Aksiyon",
         "12" to "Macera",
         "16" to "Animasyon",
         "35" to "Komedi",
-        "80" to "SuÃ§",
+        "80" to "Suç",
         "99" to "Belgesel",
         "18" to "Dram",
         "10751" to "Aile",
@@ -60,14 +60,14 @@ class XPrime : MainAPI() {
         "10749" to "Romantik",
         "878" to "Bilim-Kurgu",
         "53" to "Gerilim",
-        "10752" to "SavaÅŸ",
-        "37" to "VahÅŸi BatÄ±",
+        "10752" to "Savaş",
+        "37" to "Vahşi Batı",
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         var url =
             "${mainUrl}/discover/movie?api_key=$apiKey&page=${page}&include_adult=false&with_watch_monetization_types=flatrate%7Cfree%7Cads&watch_region=TR&language=tr-TR&with_genres=${request.data}&sort_by=popularity.desc"
-        if (request.name == "PopÃ¼ler" || request.name == "Sinemalarda") {
+        if (request.name == "Popüler" || request.name == "Sinemalarda") {
             url = request.data.replace("SAYFA", page.toString())
         }
         Log.d("XPR", "URL -> $url")
@@ -158,7 +158,7 @@ class XPrime : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("XPR", "data Â» ${data}")
+        Log.d("XPR", "data » ${data}")
         val id = data.split("/").last()
         val movieUrl =
             "$mainUrl/movie/$id?api_key=$apiKey&language=tr-TR&append_to_response=credits,recommendations"

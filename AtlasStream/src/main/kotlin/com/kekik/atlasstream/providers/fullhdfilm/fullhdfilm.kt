@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.fullhdfilm
+package com.kekik.atlasstream.providers.fullhdfilm
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -38,8 +38,8 @@ class FullHDFilm : MainAPI() {
     override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries)
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/yabanci-dizi-izle/page" to "YabancÄ± Dizi",
-        "${mainUrl}/yabanci-film-izle/page" to "YabancÄ± Filmler",
+        "${mainUrl}/yabanci-dizi-izle/page" to "Yabancı Dizi",
+        "${mainUrl}/yabanci-film-izle/page" to "Yabancı Filmler",
         "${mainUrl}/yerli-film-izle/page" to "Yerli Film",
         "${mainUrl}/netflix-filmleri-izle/page" to "Netflix",
         "${mainUrl}/aile-filmleri/page" to "Aile",
@@ -57,8 +57,8 @@ class FullHDFilm : MainAPI() {
         "${mainUrl}/korku-filmleri-izle/page" to "Korku",
         "${mainUrl}/macera-filmleri-izle-hd/page" to "Macera",
         "${mainUrl}/romantik-filmler/page" to "Romantik",
-        "${mainUrl}/savas-filmleri-izle-hd/page" to "SavaÅŸ",
-        "${mainUrl}/suc-filmleri-izle/page" to "SuÃ§"
+        "${mainUrl}/savas-filmleri-izle-hd/page" to "Savaş",
+        "${mainUrl}/suc-filmleri-izle/page" to "Suç"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -94,7 +94,7 @@ class FullHDFilm : MainAPI() {
         val title = document.selectFirst("h1 span")?.text()?.trim() ?: return null
         val poster = fixUrlNull(document.selectFirst("[property='og:image']")?.attr("content"))
         val description =
-            document.selectFirst("div[itemprop='description']")?.text()?.substringAfter("â­")
+            document.selectFirst("div[itemprop='description']")?.text()?.substringAfter("⭐")
                 ?.substringAfter("izleyin.")?.substringAfter("konusu:")?.trim()
         val year =
             document.selectFirst("span[itemprop='dateCreated'] a")?.text()?.trim()?.toIntOrNull()
@@ -134,7 +134,7 @@ class FullHDFilm : MainAPI() {
                 val epNum = partName.substringBefore(".").trim().toIntOrNull() ?: 1
 
                 episodes.add(newEpisode(iframeLink) {
-                    this.name = "${szNum}. Sezon ${epNum}. BÃ¶lÃ¼m"
+                    this.name = "${szNum}. Sezon ${epNum}. Bölüm"
                     this.season = szNum
                     this.episode = epNum
                 })
@@ -171,7 +171,7 @@ class FullHDFilm : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("FHDF", "data Â» $data")
+        Log.d("FHDF", "data » $data")
 
         if (!data.contains(mainUrl)) {
             loadExtractor(data, "${mainUrl}/", subtitleCallback, callback)
@@ -199,14 +199,14 @@ class FullHDFilm : MainAPI() {
                     .contains("fragman")
             ) return@forEachIndexed
 
-            Log.d("FHDF", "partNumber Â» $partNumber") // ! fragman0
-            Log.d("FHDF", "partName   Â» $partName")   // ! Fragman
-            Log.d("FHDF", "key        Â» $key")        // ! prt_fragman0
-            // Log.d("FHDF", "value      Â» ${value}")      // ! Åifreli veri
+            Log.d("FHDF", "partNumber » $partNumber") // ! fragman0
+            Log.d("FHDF", "partName   » $partName")   // ! Fragman
+            Log.d("FHDF", "key        » $key")        // ! prt_fragman0
+            // Log.d("FHDF", "value      » ${value}")      // ! Şifreli veri
 
             val iframeData = iframeSkici.iframeCoz(value!!)
             val iframeLink = app.get(iframeData, referer = "${mainUrl}/").url
-            Log.d("FHDF", "iframeLink Â» $iframeLink")
+            Log.d("FHDF", "iframeLink » $iframeLink")
 
             loadExtractor(iframeLink, "${mainUrl}/", subtitleCallback) { extractor ->
                 callback.invoke(

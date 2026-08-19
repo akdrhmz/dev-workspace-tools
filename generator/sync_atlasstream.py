@@ -22,7 +22,8 @@ PROVIDERS_DIR = ATLAS_SRC_DIR / "providers"
 EXCLUDED_PROVIDERS = {
     "animecix", "asyaanimeleri", "turkanime", "canlitv", "inatbox",
     "rectv", "vavoospor", "selcukflix", "__temel", "gradle", ".github",
-    "tlc", "tlctr", "trasyalog", "fullhdfilmizlede", "wfilmizle", "dizipaloriginal", "hdfilmcehennemi2"
+    "tlc", "tlctr", "trasyalog", "fullhdfilmizlede", "wfilmizle", "dizipaloriginal", "hdfilmcehennemi2",
+    "4kfilmizlesene", "p4kfilmizlesene"
 }
 
 UPSTREAM_REPOS = [
@@ -53,15 +54,16 @@ def sync_upstreams():
     os.makedirs(temp_dir, exist_ok=True)
     os.makedirs(PROVIDERS_DIR, exist_ok=True)
 
+    git_cmd = shutil.which("git") or r"C:\Program Files\Git\bin\git.exe" or "git"
     cloned_paths = []
     for name, url in UPSTREAM_REPOS:
         target = temp_dir / name
         if not target.exists():
             print(f"[*] Klonlanıyor: {name} ({url})")
-            subprocess.run(["git", "clone", "--depth", "1", url, str(target)], check=False)
+            subprocess.run([git_cmd, "clone", "--depth", "1", url, str(target)], check=False)
         else:
             print(f"[*] Güncelleniyor: {name}")
-            subprocess.run(["git", "-C", str(target), "pull"], check=False)
+            subprocess.run([git_cmd, "-C", str(target), "pull"], check=False)
         if target.exists():
             cloned_paths.append(target)
 

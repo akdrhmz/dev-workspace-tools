@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.hdfilmcehennemi
+package com.kekik.atlasstream.providers.hdfilmcehennemi
 
 class HCRapidrameExtractor : HCCloseLoadExtractor() {
 

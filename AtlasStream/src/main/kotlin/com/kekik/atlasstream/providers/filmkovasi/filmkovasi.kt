@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.filmkovasi
+package com.kekik.atlasstream.providers.filmkovasi
 
 import android.util.Log
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -30,7 +30,7 @@ import org.jsoup.nodes.Element
 
 class FilmKovasi : MainAPI() {
     override var mainUrl = "https://filmkovasi.pw"
-    override var name = "FilmKovasÄ±"
+    override var name = "FilmKovası"
     override val hasMainPage = true
     override var lang = "tr"
     override val hasQuickSearch = false
@@ -52,10 +52,10 @@ class FilmKovasi : MainAPI() {
         "${mainUrl}/filmizle/korku/" to "Korku",
         "${mainUrl}/filmizle/macera-hd/" to "Macera",
         "${mainUrl}/filmizle/romantik-hd/" to "Romantik",
-        "${mainUrl}/filmizle/savas-hd/" to "SavaÅŸ",
-        "${mainUrl}/filmizle/suc-hd/" to "SuÃ§",
+        "${mainUrl}/filmizle/savas-hd/" to "Savaş",
+        "${mainUrl}/filmizle/suc-hd/" to "Suç",
         "${mainUrl}/filmizle/tarih/" to "Tarih",
-        "${mainUrl}/filmizle/vahsi-bati-hd/" to "VahÅŸi BatÄ±",
+        "${mainUrl}/filmizle/vahsi-bati-hd/" to "Vahşi Batı",
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -98,7 +98,7 @@ class FilmKovasi : MainAPI() {
         val description = document.selectFirst("div#film-aciklama")?.text()?.trim()
         var year = document.selectFirst("div.release a")?.text()?.trim()?.toIntOrNull()
         val tags = document.select("div#listelements a").map { it.text() }
-        var rating = document.selectFirst("div.imdb")?.text()?.replace("IMDb PuanÄ±:", "")
+        var rating = document.selectFirst("div.imdb")?.text()?.replace("IMDb Puanı:", "")
             ?.split("/")?.first()?.trim()
         var actors = document.select("div.actor a").map { it.text() }
         val trailer = document.selectFirst("div.film-afis iframe")?.attr("src")
@@ -142,7 +142,7 @@ class FilmKovasi : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("FKV", "data Â» ${data}")
+        Log.d("FKV", "data » ${data}")
         val document = app.get(data).document
         val iframe = document.selectFirst("iframe")?.attr("src")
         val fName = document.selectFirst("div.sources span")?.text() ?: this.name
@@ -166,7 +166,7 @@ class FilmKovasi : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ) {
         val ianaLink = iframe.substringBefore("/watch/")
-        Log.d("FKV", "ianaLink Â» $ianaLink")
+        Log.d("FKV", "ianaLink » $ianaLink")
         val idoc = app.get(iframe, referer = iframe).document
         val script = idoc.select("script").find { it.data().contains("sources:") }?.data() ?: ""
         val vidJson = script.substringAfter("var video = ").substringBefore(";")
@@ -178,15 +178,15 @@ class FilmKovasi : MainAPI() {
         val video: FKVSource = objectMapper.readValue(vidJson)
         val file: FileSource = objectMapper.readValue(source)
         val track: Track = objectMapper.readValue(tracks)
-        Log.d("FKV", "video Â» $video")
-        Log.d("FKV", "file Â» $file")
-        Log.d("FKV", "track Â» $track")
-        subtitleCallback.invoke(SubtitleFile(lang = "TÃ¼rkÃ§e AltyazÄ±", url = track.file!!))
+        Log.d("FKV", "video » $video")
+        Log.d("FKV", "file » $file")
+        Log.d("FKV", "track » $track")
+        subtitleCallback.invoke(SubtitleFile(lang = "Türkçe Altyazı", url = track.file!!))
 
         val sonLink = ianaLink + file.file?.replace("\${video.uid}", "${video.uid}")
             ?.replace("\${video.md5}", "${video.md5}")?.replace("\${video.id}", "${video.id}")
             ?.replace("\${video.status}", "${video.status}")
-        Log.d("FKV", "sonLink Â» $sonLink")
+        Log.d("FKV", "sonLink » $sonLink")
 
         callback.invoke(
             ExtractorLink(

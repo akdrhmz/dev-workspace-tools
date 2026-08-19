@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.superfilmgeldi
+package com.kekik.atlasstream.providers.superfilmgeldi
 
 import android.util.Log
 import com.lagradost.cloudstream3.ErrorLoadingException
@@ -31,7 +31,7 @@ class VidmolyNet : ExtractorApi() {
         val m3uLink = Regex("""file:"([^"]+)""").find(iSource)?.groupValues?.get(1)
             ?: throw ErrorLoadingException("m3u link not found")
 
-        Log.d("Kekik_${this.name}", "m3uLink Â» $m3uLink")
+        Log.d("Kekik_${this.name}", "m3uLink » $m3uLink")
 
         callback.invoke(
             newExtractorLink(

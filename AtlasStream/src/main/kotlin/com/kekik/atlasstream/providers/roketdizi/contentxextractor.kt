@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.roketdizi
+package com.kekik.atlasstream.providers.roketdizi
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -26,10 +26,10 @@ open class ContentXExtractor : ExtractorApi() {
         }else {
             referer ?: ""
         }
-        Log.d("Kekik_${this.name}", "url Â» $url")
+        Log.d("Kekik_${this.name}", "url » $url")
 
         val iSource = app.get(url, referer = extRef, headers = mapOf("User-Agent" to "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36")).text
-        Log.d("Kekik_${this.name}", "iSource Â» $iSource")
+        Log.d("Kekik_${this.name}", "iSource » $iSource")
         val iExtract = Regex("""window\.openPlayer\('([^']+)'""").find(iSource)!!.groups[1]?.value ?: throw ErrorLoadingException("iExtract is null")
 
         val subUrls = mutableSetOf<String>()
@@ -37,7 +37,7 @@ open class ContentXExtractor : ExtractorApi() {
             val (subUrlExt, subLangExt) = it.destructured
 
             val subUrl = subUrlExt.replace("\\/", "/").replace("\\u0026", "&").replace("\\", "")
-            val subLang = subLangExt.replace("\\u0131", "Ä±").replace("\\u0130", "Ä°").replace("\\u00fc", "Ã¼").replace("\\u00e7", "Ã§").replace("\\u011f", "ÄŸ").replace("\\u015f", "ÅŸ")
+            val subLang = subLangExt.replace("\\u0131", "ı").replace("\\u0130", "İ").replace("\\u00fc", "ü").replace("\\u00e7", "ç").replace("\\u011f", "ğ").replace("\\u015f", "ş")
 
             if (subUrl in subUrls) return@forEach
             subUrls.add(subUrl)
@@ -67,7 +67,7 @@ open class ContentXExtractor : ExtractorApi() {
             }
         )
 
-        val iDublaj = Regex(""","([^']+)","TÃ¼rkÃ§e""").find(iSource)?.groups?.get(1)?.value
+        val iDublaj = Regex(""","([^']+)","Türkçe""").find(iSource)?.groups?.get(1)?.value
         if (iDublaj != null) {
             val dublajSource = app.get("${mainUrl}/source2.php?v=${iDublaj}", referer = extRef).text
             val dublajExtract = Regex("""file":"([^"]+)""").find(dublajSource)!!.groups[1]?.value ?: throw ErrorLoadingException("dublajExtract is null")

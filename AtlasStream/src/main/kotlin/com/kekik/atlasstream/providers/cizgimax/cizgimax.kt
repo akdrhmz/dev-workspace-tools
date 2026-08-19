@@ -1,6 +1,6 @@
-﻿package com.kekik.atlasstream.providers.cizgimax
+package com.kekik.atlasstream.providers.cizgimax
 
-// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
 
 
@@ -23,7 +23,7 @@ class CizgiMax : MainAPI() {
         "?s_type&tur[0]=aksiyon-macera&orderby=date&order=DESC"      to "Aksyion",
         "?s_type&tur[0]=animasyon&orderby=date&order=DESC"           to "Animasyon",
         "?s_type&tur[0]=bilim-kurgu-fantazi&orderby=date&order=DESC" to "Bilim Kurgu",
-        "?s_type&tur[0]=cocuklar&orderby=date&order=DESC"            to "Ã‡ocuklar",
+        "?s_type&tur[0]=cocuklar&orderby=date&order=DESC"            to "Çocuklar",
         "?s_type&tur[0]=komedi&orderby=date&order=DESC"              to "Komedi",
     )
 
@@ -50,7 +50,7 @@ class CizgiMax : MainAPI() {
         val response = app.get("${mainUrl}/ajaxservice/index.php?qr=${query}").parsedSafe<SearchResult>()?.data?.result ?: return listOf()
 
         return response.mapNotNull { result ->
-            if (result.sName.contains(".BÃ¶lÃ¼m") || result.sName.contains(".Sezon") || result.sName.contains("-Sezon") || result.sName.contains("-izle")) {
+            if (result.sName.contains(".Bölüm") || result.sName.contains(".Sezon") || result.sName.contains("-Sezon") || result.sName.contains("-izle")) {
                 return@mapNotNull null
             }
 
@@ -79,7 +79,7 @@ class CizgiMax : MainAPI() {
         val episodes = document.select("div.asisotope div.ajax_post").mapNotNull {
             val epName     = it.selectFirst("span.episode-names")?.text()?.trim() ?: return@mapNotNull null
             val epHref     = fixUrlNull(it.selectFirst("a")?.attr("href")) ?: return@mapNotNull null
-            val epEpisode  = Regex("""(\d+)\.BÃ¶lÃ¼m""").find(epName)?.groupValues?.get(1)?.toIntOrNull()
+            val epEpisode  = Regex("""(\d+)\.Bölüm""").find(epName)?.groupValues?.get(1)?.toIntOrNull()
             val seasonName = it.selectFirst("span.season-name")?.text()?.trim() ?: ""
             val epSeason   = Regex("""(\d+)\.Sezon""").find(seasonName)?.groupValues?.get(1)?.toIntOrNull() ?: 1
 
@@ -99,12 +99,12 @@ class CizgiMax : MainAPI() {
     }
 
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
-        Log.d("CZGM", "data Â» $data")
+        Log.d("CZGM", "data » $data")
         val document = app.get(data).document
 
         document.select("ul.linkler li").forEach {
             val iframe = fixUrlNull(it.selectFirst("a")?.attr("data-frame")) ?: return@forEach
-            Log.d("CZGM", "iframe Â» $iframe")
+            Log.d("CZGM", "iframe » $iframe")
 
             loadExtractor(iframe, "${mainUrl}/", subtitleCallback, callback)
         }

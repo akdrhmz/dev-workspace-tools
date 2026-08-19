@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.hdfilmizle
+package com.kekik.atlasstream.providers.hdfilmizle
 
 import android.util.Log
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -28,7 +28,7 @@ import org.jsoup.nodes.Element
 
 class HDFilmIzle : MainAPI() {
     override var mainUrl = "https://www.hdfilmizle.to"
-    override var name = "HDFilmÄ°zle"
+    override var name = "HDFilmİzle"
     override val hasMainPage = true
     override var lang = "tr"
     override val hasQuickSearch = true
@@ -50,10 +50,10 @@ class HDFilmIzle : MainAPI() {
         "${mainUrl}/tur/korku/" to "Korku Filmleri",
         "${mainUrl}/tur/macera/" to "Macera Filmleri",
         "${mainUrl}/tur/romantik/" to "Romantik Filmler",
-        "${mainUrl}/tur/savas/" to "SavaÅŸ Filmleri",
-        "${mainUrl}/tur/suc/" to "SuÃ§ Filmleri",
+        "${mainUrl}/tur/savas/" to "Savaş Filmleri",
+        "${mainUrl}/tur/suc/" to "Suç Filmleri",
         "${mainUrl}/tur/tarih/" to "Tarih Filmleri",
-        "${mainUrl}/tur/vahsi-bati/" to "VahÅŸi BatÄ± Filmleri",
+        "${mainUrl}/tur/vahsi-bati/" to "Vahşi Batı Filmleri",
         "${mainUrl}/tur/yerli-film-izle/" to "Yerli Filmler",
     )
 
@@ -162,11 +162,11 @@ class HDFilmIzle : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("HDF", "data Â» ${data}")
+        Log.d("HDF", "data » ${data}")
         val document = app.get(data).document
 
         val iframe = document.selectFirst("iframe")?.attr("data-src") ?: ""
-        Log.d("HDF", "iframe Â» ${iframe}")
+        Log.d("HDF", "iframe » ${iframe}")
         loadExtractor(iframe, mainUrl, subtitleCallback, callback)
 
         return true
@@ -182,4 +182,3 @@ class HDFilmIzle : MainAPI() {
         @JsonProperty("results") val results: List<String> = arrayListOf()
     )
 }
-

@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.jetfilmizle
+package com.kekik.atlasstream.providers.jetfilmizle
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

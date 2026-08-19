@@ -1,9 +1,9 @@
-package com.kekik.atlasstream.providers.roketdizi
+package com.kekik.atlasstream.providers.filmizlesene
 
-import java.util.Arrays
 import android.util.Base64
 import java.security.MessageDigest
 import java.security.SecureRandom
+import java.util.Arrays
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.spec.IvParameterSpec
@@ -18,7 +18,7 @@ object CryptoJS {
 
     private const val KEY_SIZE    = 256
     private const val IV_SIZE     = 128
-    private const val HASH_CIPHER = "AES/CBC/PKCS7Padding"
+    private const val HASH_CIPHER = "AES/CBC/PKCS5Padding"
     private const val AES         = "AES"
     private const val KDF_DIGEST  = "MD5"
 
@@ -30,28 +30,7 @@ object CryptoJS {
      * @param password passphrase
      * @param plainText plain string
      */
-    fun encrypt(password: String, plainText: String): String {
-        val saltBytes = generateSalt(8)
-        val key       = ByteArray(KEY_SIZE / 8)
-        val iv        = ByteArray(IV_SIZE / 8)
-        evpkdf(password.toByteArray(), KEY_SIZE, IV_SIZE, saltBytes, key, iv)
 
-        val keyS   = SecretKeySpec(key, AES)
-        val cipher = Cipher.getInstance(HASH_CIPHER)
-        val ivSpec = IvParameterSpec(iv)
-        cipher.init(Cipher.ENCRYPT_MODE, keyS, ivSpec)
-
-        val cipherText = cipher.doFinal(plainText.toByteArray())
-        // Thanks kientux for this: https://gist.github.com/kientux/bb48259c6f2133e628ad
-        // Create CryptoJS-like encrypted!
-        val sBytes     = APPEND.toByteArray()
-        val b          = ByteArray(sBytes.size + saltBytes.size + cipherText.size)
-        System.arraycopy(sBytes, 0, b, 0, sBytes.size)
-        System.arraycopy(saltBytes, 0, b, sBytes.size, saltBytes.size)
-        System.arraycopy(cipherText, 0, b, sBytes.size + saltBytes.size, cipherText.size)
-
-        return Base64.encodeToString(b, Base64.DEFAULT)
-    }
 
     /**
      * Decrypt
@@ -59,6 +38,25 @@ object CryptoJS {
      * @param password passphrase
      * @param cipherText encrypted string
      */
+    fun decrypt(password: String, cipherText: String, iv: String, s:String): String {
+        val ctBytes         = Base64.decode(cipherText.toByteArray(), Base64.DEFAULT)
+        val saltBytes       = hexToBytes2(s)
+        println(saltBytes.size)
+        //val cipherTextBytes = Arrays.copyOfRange(ctBytes, 16, ctBytes.size)
+
+        val key = ByteArray(KEY_SIZE / 8)
+        val ivb  = hexToBytes2(iv)
+        //val pass = hexToBytes2(password)
+        evpkdf(password.toByteArray(), KEY_SIZE, IV_SIZE, saltBytes, key, ivb)
+
+        val cipher = Cipher.getInstance(HASH_CIPHER)
+        val keyS   = SecretKeySpec(key, AES)
+        cipher.init(Cipher.DECRYPT_MODE, keyS, IvParameterSpec(ivb))
+
+        val plainText = cipher.doFinal(ctBytes)
+        return String(plainText)
+    }
+
     fun decrypt(password: String, cipherText: String): String {
         val ctBytes         = Base64.decode(cipherText.toByteArray(), Base64.DEFAULT)
         val saltBytes       = Arrays.copyOfRange(ctBytes, 8, 16)
@@ -123,5 +121,14 @@ object CryptoJS {
         return ByteArray(length).apply {
             SecureRandom().nextBytes(this)
         }
+    }
+
+    fun hexToBytes2(hex: String): ByteArray {
+        val result = ByteArray(hex.length / 2)
+        for (i in result.indices) {
+            val index = i * 2
+            result[i] = hex.substring(index, index + 2).toInt(16).toByte()
+        }
+        return result
     }
 }

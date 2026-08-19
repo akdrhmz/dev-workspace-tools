@@ -1,4 +1,4 @@
-﻿package com.kekik.atlasstream.providers.filmizleilk
+package com.kekik.atlasstream.providers.filmizleilk
 
 import android.util.Base64
 import android.util.Log
@@ -32,7 +32,7 @@ import org.jsoup.nodes.Element
 
 class FilmIzleIlk : MainAPI() {
     override var mainUrl = "https://www.filmizleilk.site"
-    override var name = "FilmÄ°zleÄ°lk"
+    override var name = "Filmİzleİlk"
     override val hasMainPage = true
     override var lang = "tr"
     override val hasQuickSearch = false
@@ -44,12 +44,12 @@ class FilmIzleIlk : MainAPI() {
         "${mainUrl}/film/aksiyon-filmleri/page/" to "Aksiyon",
         "${mainUrl}/film/amazon-prime-filmleri/page/" to "Amazon Prime",
         "${mainUrl}/film/animasyon-filmleri/page/" to "Animasyon",
-        "${mainUrl}/film/ask-filmleri/page/" to "AÅŸk",
+        "${mainUrl}/film/ask-filmleri/page/" to "Aşk",
         "${mainUrl}/film/belgesel-filmleri/page/" to "Belgesel",
         "${mainUrl}/film/bilimkurgu-filmleri/page/" to "Bilim Kurgu",
         "${mainUrl}/film/biyografi-filmleri/page/" to "Biyografi",
-        "${mainUrl}/film/cizgi-filmler/page/" to "Ã‡izgi",
-        "${mainUrl}/film/cocuk-filmleri/page/" to "Ã‡ocuk",
+        "${mainUrl}/film/cizgi-filmler/page/" to "Çizgi",
+        "${mainUrl}/film/cocuk-filmleri/page/" to "Çocuk",
         "${mainUrl}/film/dram-filmleri/page/" to "Dram",
         "${mainUrl}/film/fantastik-filmler/page/" to "Fantastik",
         "${mainUrl}/film/gelecek-filmler/page/" to "Gelecek",
@@ -60,17 +60,17 @@ class FilmIzleIlk : MainAPI() {
         "${mainUrl}/film/kore-filmleri/page/" to "Kore",
         "${mainUrl}/film/korku-filmleri/page/" to "Korku",
         "${mainUrl}/film/macera-filmleri/page/" to "Macera",
-        "${mainUrl}/film/muzikal-filmler/page/" to "MÃ¼zikal",
+        "${mainUrl}/film/muzikal-filmler/page/" to "Müzikal",
         "${mainUrl}/film/netflix-filmleri/page/" to "Netflix",
-        "${mainUrl}/film/nette-ilk-filmler/page/" to "Nette Ä°lk",
+        "${mainUrl}/film/nette-ilk-filmler/page/" to "Nette İlk",
         "${mainUrl}/film/polisiye-filmler/page/" to "Polisiye",
         "${mainUrl}/film/romantik-filmler/page/" to "Romantik",
-        "${mainUrl}/film/savas-filmleri/page/" to "SavaÅŸ",
+        "${mainUrl}/film/savas-filmleri/page/" to "Savaş",
         "${mainUrl}/film/spor-filmleri/page/" to "Spor",
-        "${mainUrl}/film/suc-filmleri/page/" to "SuÃ§",
+        "${mainUrl}/film/suc-filmleri/page/" to "Suç",
         "${mainUrl}/film/tarihi-filmler/page/" to "Tarihi",
         "${mainUrl}/film/tavsiye-filmler/page/" to "Tavsiye",
-        "${mainUrl}/film/turk-filmleri/page/" to "TÃ¼rk",
+        "${mainUrl}/film/turk-filmleri/page/" to "Türk",
         "${mainUrl}/film/western-filmler/page/" to "Western",
     )
 
@@ -200,12 +200,12 @@ class FilmIzleIlk : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("FII", "data Â» $data")
+        Log.d("FII", "data » $data")
         val document = app.get(data).document
         val iframes = mutableSetOf<String>()
 
         val mainFrame = document.selectFirst("iframe")?.attr("src")
-        Log.d("FII", "mainFrame Â» $mainFrame")
+        Log.d("FII", "mainFrame » $mainFrame")
         iframes.add(mainFrame!!)
 
         document.select("div.parts-middle").forEach {
@@ -218,7 +218,7 @@ class FilmIzleIlk : MainAPI() {
         }
 
         for (iframe in iframes) {
-            Log.d("FII", "iframe Â» $iframe")
+            Log.d("FII", "iframe » $iframe")
             if (iframe.contains("vidmoly")) {
                 val headers = mapOf(
                     "User-Agent" to "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
@@ -228,7 +228,7 @@ class FilmIzleIlk : MainAPI() {
                 val m3uLink = Regex("""file:"([^"]+)""").find(iSource)?.groupValues?.get(1)
                     ?: throw ErrorLoadingException("m3u link not found")
 
-                Log.d("Kekik_VidMoly", "m3uLink Â» $m3uLink")
+                Log.d("Kekik_VidMoly", "m3uLink » $m3uLink")
 
                 callback.invoke(
                     newExtractorLink(

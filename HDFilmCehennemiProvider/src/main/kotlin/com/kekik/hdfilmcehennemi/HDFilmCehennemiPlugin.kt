@@ -1,12 +1,12 @@
 package com.kekik.hdfilmcehennemi
 
-import android.content.Context
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
 import com.lagradost.cloudstream3.plugins.Plugin
+import android.content.Context
 
 @CloudstreamPlugin
-class HDFilmCehennemiPlugin : Plugin() {
+class HDFilmCehennemiPlugin: Plugin() {
     override fun load(context: Context) {
-        registerMainAPI(HDFilmCehennemiProvider())
+        registerMainAPI(HDFilmCehennemi())
     }
 }

@@ -1,12 +1,19 @@
 package com.kekik.dizilla
 
-import android.content.Context
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
 import com.lagradost.cloudstream3.plugins.Plugin
+import android.content.Context
 
 @CloudstreamPlugin
-class DizillaPlugin : Plugin() {
+class DizillaPlugin: Plugin() {
     override fun load(context: Context) {
-        registerMainAPI(DizillaProvider())
+        registerMainAPI(Dizilla())
+        registerExtractorAPI(ContentX())
+        registerExtractorAPI(Hotlinger())
+        registerExtractorAPI(FourCX())
+        registerExtractorAPI(PlayRu())
+        registerExtractorAPI(FourPlayRu())
+        registerExtractorAPI(FourPichive())
+        registerExtractorAPI(Pichive())
     }
 }

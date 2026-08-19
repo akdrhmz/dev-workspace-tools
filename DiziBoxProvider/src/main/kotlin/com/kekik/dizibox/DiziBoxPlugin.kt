@@ -1,12 +1,12 @@
 package com.kekik.dizibox
 
-import android.content.Context
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
 import com.lagradost.cloudstream3.plugins.Plugin
+import android.content.Context
 
 @CloudstreamPlugin
-class DiziBoxPlugin : Plugin() {
+class DiziBoxPlugin: Plugin() {
     override fun load(context: Context) {
-        registerMainAPI(DiziBoxProvider())
+        registerMainAPI(DiziBox())
     }
 }

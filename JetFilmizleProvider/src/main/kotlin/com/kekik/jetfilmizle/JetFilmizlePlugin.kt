@@ -1,12 +1,13 @@
 package com.kekik.jetfilmizle
 
-import android.content.Context
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
 import com.lagradost.cloudstream3.plugins.Plugin
+import android.content.Context
 
 @CloudstreamPlugin
-class JetFilmizlePlugin : Plugin() {
+class JetFilmizlePlugin: Plugin() {
     override fun load(context: Context) {
-        registerMainAPI(JetFilmizleProvider())
+        registerMainAPI(JetFilmizle())
+        registerExtractorAPI(PixelDrain())
     }
 }

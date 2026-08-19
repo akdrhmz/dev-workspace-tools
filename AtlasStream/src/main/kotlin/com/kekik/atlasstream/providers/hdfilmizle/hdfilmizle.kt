@@ -1,6 +1,5 @@
 ﻿package com.kekik.atlasstream.providers.hdfilmizle
 
-import Video
 import android.util.Log
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -183,3 +182,4 @@ class HDFilmIzle : MainAPI() {
         @JsonProperty("results") val results: List<String> = arrayListOf()
     )
 }
+

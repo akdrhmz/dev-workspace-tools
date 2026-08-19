@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 AtlasStream Universal Smart Sync Script (Safe Identifier & Package Injection)
@@ -107,6 +107,7 @@ def sync_upstreams():
                     code = re.sub(r"(?m)^import\s+com\.keyiflerolsun\..*$", "", code)
                     code = re.sub(r"(?m)^import\s+com\.kekik\..*$", "", code)
                     code = re.sub(r"(?m)^import\s+com\.nikyokki\..*$", "", code)
+                    code = re.sub(r"(?m)^import\s+[A-Za-z0-9_]+\s*$", "", code)
                     
                     code = f"package com.kekik.atlasstream.providers.{safe_name}\n\n" + code.strip()
 

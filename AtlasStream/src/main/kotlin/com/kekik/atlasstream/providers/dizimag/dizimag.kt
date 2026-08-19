@@ -1,6 +1,5 @@
 ﻿package com.kekik.atlasstream.providers.dizimag
 
-import CryptoJS
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.lagradost.api.Log
 import com.lagradost.cloudstream3.Actor
@@ -304,3 +303,4 @@ class DiziMag : MainAPI() {
         return true
     }
 }
+

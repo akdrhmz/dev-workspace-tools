@@ -1,6 +1,5 @@
 ﻿package com.kekik.atlasstream.providers.yabancidizi
 
-import CryptoJS
 import android.util.Log
 import com.lagradost.cloudstream3.Actor
 import com.lagradost.cloudstream3.Episode
@@ -403,3 +402,4 @@ class YabanciDizi : MainAPI() {
 }
 
 data class StreamInfo(val resolution: String, val link: String)
+

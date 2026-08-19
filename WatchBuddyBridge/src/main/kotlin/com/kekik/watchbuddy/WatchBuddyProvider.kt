@@ -138,7 +138,7 @@ class WatchBuddyProvider : MainAPI() {
                         type = if (isM3u8) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
                     ) {
                         this.referer = res.referer ?: mainUrl
-                        this.quality = if (res.quality == "1080p") Qualities.Q1080p.value else Qualities.Unknown.value
+                        this.quality = if (res.quality == "1080p") Qualities.P1080.value else Qualities.Unknown.value
                         this.headers = res.headers ?: emptyMap()
                     }
                 )

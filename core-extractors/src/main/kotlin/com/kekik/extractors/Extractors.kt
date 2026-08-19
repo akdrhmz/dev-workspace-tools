@@ -50,7 +50,7 @@ open class RapidVid : ExtractorApi() {
                         type = ExtractorLinkType.VIDEO
                     ) {
                         this.referer = url
-                        this.quality = Qualities.Q1080p.value
+                        this.quality = Qualities.P1080.value
                     }
                 )
             }
@@ -166,7 +166,7 @@ open class CloseLoad : ExtractorApi() {
                         type = if (isM3u8) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
                     ) {
                         this.referer = url
-                        this.quality = Qualities.Q1080p.value
+                        this.quality = Qualities.P1080.value
                     }
                 )
             }

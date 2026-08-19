@@ -66,6 +66,7 @@ subprojects {
     dependencies {
         val cloudstreamVersion = "-SNAPSHOT"
         "implementation"("com.github.recloudstream:cloudstream:$cloudstreamVersion")
+        "implementation"("com.github.Blatzar:NiceHttp:0.4.11")
         "implementation"("org.jsoup:jsoup:1.17.2")
         "implementation"("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.1")
     }

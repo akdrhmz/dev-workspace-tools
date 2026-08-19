@@ -23,6 +23,37 @@ object SourceUtils {
     }
 
     /**
+     * TMDB başlıklarından site arama motorlarının bulabileceği varyasyonları (ana başlık, orijinal başlık, alt başlıksız hal) üretir.
+     * Örn: "Spartaküs: Kan ve Kum" -> ["Spartacus", "Spartaküs", "Spartacus Blood and Sand", "Spartaküs Kan ve Kum"]
+     */
+    fun getSearchQueries(titleTr: String, titleOrig: String?): List<String> {
+        val queries = linkedSetOf<String>()
+
+        fun addCandidates(raw: String) {
+            val clean = cleanTitle(raw)
+            if (clean.isNotBlank()) queries.add(clean)
+
+            // 1. İki nokta, tire, parantez veya slash öncesindeki ana başlık
+            val parts = raw.split(":", "-", "(", "/", "|").map { it.trim() }.filter { it.length >= 2 }
+            if (parts.isNotEmpty()) {
+                val mainPart = cleanTitle(parts[0])
+                if (mainPart.isNotBlank()) queries.add(mainPart)
+            }
+
+            // 2. Eğer başlıkta "Sezon", "Season", "Part", "Bölüm" gibi ekler varsa temizle
+            val noSeason = raw.replace(Regex("""(?i)\b(sezon|season|part|bölüm|bolum|\d+\.\s*sezon|\d+\.\s*bölüm)\b.*"""), "").trim()
+            val cleanNoSeason = cleanTitle(noSeason)
+            if (cleanNoSeason.isNotBlank()) queries.add(cleanNoSeason)
+        }
+
+        if (titleOrig != null) addCandidates(titleOrig)
+        addCandidates(titleTr)
+
+        // En kısa/en genel anahtar kelimeleri (ana başlıkları) önceliklendir, sonra detaylı olanları sırala
+        return queries.filter { it.length >= 2 }.sortedBy { it.length }
+    }
+
+    /**
      * Başlıktaki parantez içi yıl, ek kelimeler ve gürültüleri temizler, Türkçe karakterleri normalize eder.
      */
     fun normalizeTitle(input: String): String {

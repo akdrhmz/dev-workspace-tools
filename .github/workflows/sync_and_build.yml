@@ -87,6 +87,18 @@ jobs:
               print(f'[OK] Manifest olusturuldu: {len(plugins)} eklenti eklendi.')
           else:
               print('[OK] Gradle plugins.json korundu.')
+
+          repo_meta = {
+              'name': 'KekikStream / WatchBuddy TR',
+              'description': 'Otomatik Güncellenen Türkçe & Evrensel Cloudstream Eklenti Deposu (170+ Site)',
+              'manifestVersion': 1,
+              'pluginLists': [
+                  f'https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/plugins.json'
+              ]
+          }
+          with open('public/repo.json', 'w', encoding='utf-8') as rf:
+              json.dump(repo_meta, rf, indent=2, ensure_ascii=False)
+          print('[OK] repo.json olusturuldu.')
           "
 
       - name: GitHub Pages Uzerine Dagit

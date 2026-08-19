@@ -129,7 +129,7 @@ class WatchBuddyProvider : MainAPI() {
             // Subtitles
             res.subtitles?.forEach { sub ->
                 subtitleCallback.invoke(
-                    SubtitleFile(
+                    com.lagradost.cloudstream3.newSubtitleFile(
                         lang = sub.language ?: "tr",
                         url = sub.url
                     )

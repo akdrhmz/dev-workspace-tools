@@ -95,7 +95,7 @@ open class VidMoxy : ExtractorApi() {
             Regex("""file:\s*['"](https?://[^'"]+)['"].*?label:\s*['"]([^'"]+)['"]""")
                 .findAll(trackBlock.groupValues[1]).forEach { subMatch ->
                     subtitleCallback.invoke(
-                        SubtitleFile(
+                        com.lagradost.cloudstream3.newSubtitleFile(
                             lang = subMatch.groupValues[2],
                             url = subMatch.groupValues[1]
                         )

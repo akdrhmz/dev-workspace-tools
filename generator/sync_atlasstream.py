@@ -1,8 +1,13 @@
 ﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-AtlasStream Smart Upstream Auto-Sync Script (with Diff Check & Safety Verification)
-Sadece gerçekten değişen/güncellenen kaynakları tespit eder ve akıllıca günceller.
+AtlasStream Universal Smart Sync Script
+Tüm kaynakları (DiziBox, Dizilla, FilmMakinesi vb. dahil) upstream repolarından
+akıllıca (SHA-256 diff kontrolüyle) senkronize eder.
+
+KORUNAN ALANLAR (Asla bozulmaz):
+- TMDB Arayüzü, Kategorileri ve Ana Sayfa Mantığı (AtlasStreamProvider.kt, TmdbApi.kt)
+- Tek Eklenti Mimarisi (AtlasStreamPlugin.kt)
 """
 
 import os
@@ -20,13 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 ATLAS_SRC_DIR = BASE_DIR / "AtlasStream" / "src" / "main" / "kotlin" / "com" / "kekik" / "atlasstream"
 PROVIDERS_DIR = ATLAS_SRC_DIR / "providers"
 
-# Manuel olarak optimize ettiğimiz çekirdek kaynaklar (bunlar harici bot tarafından asla ezilmez)
-PROTECTED_CORE_SOURCES = {
-    "dizibox", "dizilla", "filmmakinesi", "hdfilmcehennemi",
-    "sinewix", "jetfilmizle", "dizipal", "fullhdfilmizlesene",
-    "filmmodu", "sezonlukdizi", "cizgimax"
-}
-
+# Sadece Anime, Canlı TV, Yetişkin ve sistem dizinleri elenir. Tüm film/dizi kaynakları güncellenmeye açıktır.
 EXCLUDED_PROVIDERS = {
     "animecix", "asyaanimeleri", "turkanime", "canlitv", "inatbox",
     "rectv", "vavoospor", "selcukflix", "__temel", "gradle", ".github"
@@ -81,14 +80,15 @@ def sync_upstreams():
             p_name = item.name
             safe_name = to_safe_ascii(p_name)
             
-            # Korumalı çekirdek kaynaklar veya engelli türler atlanır
-            if safe_name in PROTECTED_CORE_SOURCES or safe_name in EXCLUDED_PROVIDERS or safe_name in found_providers:
+            # Engelli türler atlanır
+            if safe_name in EXCLUDED_PROVIDERS or safe_name in found_providers:
                 continue
 
             kt_dir = item / "src" / "main" / "kotlin"
             if not kt_dir.exists():
                 continue
 
+            # Plugin.kt dosyaları tek eklenti kuralı gereği dahil edilmez
             kt_files = [f for f in kt_dir.rglob("*.kt") if not f.name.endswith("Plugin.kt")]
             if not kt_files:
                 continue
@@ -142,8 +142,7 @@ def sync_upstreams():
     print(f"[BİLGİ] {unchanged_count} kaynakta değişiklik yok (korundu).")
     print(f"[BİLGİ] {updated_count} kaynak güncellendi.")
 
-    if updated_count > 0:
-        update_plugin_and_resolver(found_providers)
+    update_plugin_and_resolver(found_providers)
 
     try:
         shutil.rmtree(temp_dir, ignore_errors=True)
@@ -151,51 +150,37 @@ def sync_upstreams():
         pass
 
 def update_plugin_and_resolver(providers: dict):
-    # 1. AtlasStreamPlugin.kt
+    # 1. AtlasStreamPlugin.kt (Tek Eklenti Mimarisi ve Ayarlar Listesi)
     plugin_kt = ATLAS_SRC_DIR / "AtlasStreamPlugin.kt"
     if plugin_kt.exists():
         with open(plugin_kt, "r", encoding="utf-8") as f:
             p_content = f.read()
 
-        core_sources = [
-            '            "DiziBox"          to "DiziBox (Yabanci Dizi)",\n',
-            '            "Dizilla"          to "Dizilla (Yabanci Dizi)",\n',
-            '            "FilmMakinesi"     to "FilmMakinesi (Film Odakli)",\n',
-            '            "HDFilmCehennemi"  to "HDFilmCehennemi (Genis Arsiv)",\n',
-            '            "SineWix"          to "SineWix (Dizi & Film)",\n',
-            '            "JetFilmizle"      to "JetFilmizle (Yerli/Yabanci Film)",\n',
-            '            "DiziPal"          to "DiziPal (Genis Arsiv)",\n',
-            '            "FullHDFilmizlesene" to "FullHDFilmizlesene (Film Odakli)",\n',
-            '            "FilmModu"         to "FilmModu (Film Odakli)",\n',
-            '            "SezonlukDizi"     to "SezonlukDizi (Dizi Odakli)",\n',
-            '            "CizgiMax"         to "CizgiMax (Cizgi Dizi/Film)",\n'
-        ]
+        all_sources_entries = []
+        for p in sorted(providers.values(), key=lambda x: x["name"].lower()):
+            all_sources_entries.append(f'            "{p["name"]}" to "{p["name"]}",\n')
 
-        dynamic_sources = []
-        for p in providers.values():
-            dynamic_sources.append(f'            "{p["name"]}" to "{p["name"]} (Dinamik Kaynak)",\n')
-
-        all_sources_block = "        val ALL_SOURCES = linkedMapOf(\n" + "".join(core_sources) + "".join(dynamic_sources) + "        )"
+        all_sources_block = "        val ALL_SOURCES = linkedMapOf(\n" + "".join(all_sources_entries) + "        )"
         p_content = re.sub(r"(?s)val ALL_SOURCES = linkedMapOf\(.*?\)", all_sources_block, p_content)
 
         with open(plugin_kt, "w", encoding="utf-8") as f:
             f.write(p_content)
-        print("[OK] AtlasStreamPlugin.kt akıllıca güncellendi.")
+        print("[OK] AtlasStreamPlugin.kt güncellendi.")
 
-    # 2. SourceResolver.kt
+    # 2. SourceResolver.kt (Tüm kaynakları dinamik olarak çağırır)
     resolver_kt = ATLAS_SRC_DIR / "SourceResolver.kt"
     if resolver_kt.exists():
         with open(resolver_kt, "r", encoding="utf-8") as f:
             r_content = f.read()
 
-        instantiations = [f"            {p['full_qualified']}()" for p in providers.values()]
+        instantiations = [f"            {p['full_qualified']}()" for p in sorted(providers.values(), key=lambda x: x["name"].lower())]
         inst_block = "    private val externalProviders by lazy {\n        listOf(\n" + ",\n".join(instantiations) + "\n        )\n    }"
 
         r_content = re.sub(r"(?s)private val externalProviders by lazy \{.*?\}", inst_block, r_content)
 
         with open(resolver_kt, "w", encoding="utf-8") as f:
             f.write(r_content)
-        print("[OK] SourceResolver.kt akıllıca güncellendi.")
+        print("[OK] SourceResolver.kt güncellendi.")
 
 if __name__ == "__main__":
     sync_upstreams()

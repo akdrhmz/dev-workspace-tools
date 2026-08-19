@@ -21,63 +21,39 @@ object SourceResolver {
 
     private val externalProviders: List<com.lagradost.cloudstream3.MainAPI> by lazy {
         listOf(
-            com.kekik.atlasstream.providers.altiyuzaltmisaltifilmizle.AltiYuzAltmisAltiFilmIzle(),
-            com.kekik.atlasstream.providers.animecix.AnimeciX(),
-            com.kekik.atlasstream.providers.asyaanimeleri.AsyaAnimeleri(),
-            com.kekik.atlasstream.providers.asyawatch.AsyaWatch(),
-            com.kekik.atlasstream.providers.belgeselx.BelgeselX(),
-            com.kekik.atlasstream.providers.canlitv.CanliTV(),
-            com.kekik.atlasstream.providers.cizgimax.CizgiMax(),
-            com.kekik.atlasstream.providers.ddizi.DDiziProvider(),
-            com.kekik.atlasstream.providers.dizibox.DiziBox(),
-            com.kekik.atlasstream.providers.dizigom.DiziGom(),
-            com.kekik.atlasstream.providers.dizikorea.DiziKorea(),
-            com.kekik.atlasstream.providers.dizilla.Dizilla(),
-            com.kekik.atlasstream.providers.dizimag.DiziMag(),
-            com.kekik.atlasstream.providers.dizimom.DiziMom(),
-            com.kekik.atlasstream.providers.dizipal.DiziPal(),
-            com.kekik.atlasstream.providers.diziyou.DiziYou(),
-            com.kekik.atlasstream.providers.dmax.DMax(),
-            com.kekik.atlasstream.providers.filmizleilk.FilmIzleIlk(),
-            com.kekik.atlasstream.providers.filmizlesene.FilmIzlesene(),
-            com.kekik.atlasstream.providers.filmkovasi.FilmKovasi(),
-            com.kekik.atlasstream.providers.filmmakinesi.FilmMakinesi(),
-            com.kekik.atlasstream.providers.filmmodu.FilmModu(),
-            com.kekik.atlasstream.providers.fullhdfilm.FullHDFilm(),
-            com.kekik.atlasstream.providers.fullhdfilmizlesene.FullHDFilmizlesene(),
-            com.kekik.atlasstream.providers.fullhdfilmizlede.FullHDFilmIzlede(),
-            com.kekik.atlasstream.providers.hdfilmcehennemi.HDFilmCehennemi(),
-            com.kekik.atlasstream.providers.hdfilmizle.HDFilmIzle(),
-            com.kekik.atlasstream.providers.hdfilmsitesi.HDFilmSitesi(),
-            com.kekik.atlasstream.providers.inatbox.InatBox(),
-            com.kekik.atlasstream.providers.jetfilmizle.JetFilmizle(),
-            com.kekik.atlasstream.providers.koreanturk.KoreanTurk(),
-            com.kekik.atlasstream.providers.kultfilmler.KultFilmler(),
-            com.kekik.atlasstream.providers.powerdizi.powerDizi(),
-            com.kekik.atlasstream.providers.powersinema.powerSinema(),
-            com.kekik.atlasstream.providers.rarefilmm.RareFilmm(),
-            com.kekik.atlasstream.providers.rectv.RecTV(),
-            com.kekik.atlasstream.providers.roketdizi.RoketDizi(),
-            com.kekik.atlasstream.providers.selcukflix.SelcukFlix(),
-            com.kekik.atlasstream.providers.setfilmizle.SetFilmIzle(),
-            com.kekik.atlasstream.providers.sezonlukdizi.SezonlukDizi(),
-            com.kekik.atlasstream.providers.sinemacx.SinemaCX(),
+            // 1. Doğrudan API ve TMDB Motorları
             com.kekik.atlasstream.providers.sinewix.SineWix(),
-            com.kekik.atlasstream.providers.superfilmgeldi.SuperFilmGeldi(),
-            com.kekik.atlasstream.providers.tafdi.Tafdi(),
-            com.kekik.atlasstream.providers.tlc.TLC(),
-            com.kekik.atlasstream.providers.tlctr.Tlctr(),
-            com.kekik.atlasstream.providers.tranimaci.TRanimaci(),
-            com.kekik.atlasstream.providers.trasyalog.TRasyalog(),
-            com.kekik.atlasstream.providers.turkanime.TurkAnime(),
-            com.kekik.atlasstream.providers.tvdiziler.TvDiziler(),
-            com.kekik.atlasstream.providers.ugurfilm.UgurFilm(),
-            com.kekik.atlasstream.providers.vavoospor.vavooSpor(),
-            com.kekik.atlasstream.providers.watch2movies.Watch2Movies(),
+            com.kekik.atlasstream.providers.selcukflix.SelcukFlix(),
+            com.kekik.atlasstream.providers.rectv.RecTV(),
+            com.kekik.atlasstream.providers.inatbox.InatBox(),
+            com.kekik.atlasstream.providers.xprime.XPrime(),
+
+            // 2. En Büyük Film Sağlayıcıları
+            com.kekik.atlasstream.providers.hdfilmcehennemi.HDFilmCehennemi(),
+            com.kekik.atlasstream.providers.filmmakinesi.FilmMakinesi(),
+            com.kekik.atlasstream.providers.fullhdfilmizlesene.FullHDFilmizlesene(),
+            com.kekik.atlasstream.providers.filmmodu.FilmModu(),
+            com.kekik.atlasstream.providers.filmkovasi.FilmKovasi(),
             com.kekik.atlasstream.providers.webteizle.WebteIzle(),
             com.kekik.atlasstream.providers.wfilmizle.WFilmIzle(),
-            com.kekik.atlasstream.providers.xprime.XPrime(),
-            com.kekik.atlasstream.providers.yabancidizi.YabanciDizi()
+
+            // 3. En Büyük Yabancı ve Yerli Dizi Sağlayıcıları
+            com.kekik.atlasstream.providers.dizibox.DiziBox(),
+            com.kekik.atlasstream.providers.dizilla.Dizilla(),
+            com.kekik.atlasstream.providers.sezonlukdizi.SezonlukDizi(),
+            com.kekik.atlasstream.providers.dizimom.DiziMom(),
+            com.kekik.atlasstream.providers.dizigom.DiziGom(),
+            com.kekik.atlasstream.providers.yabancidizi.YabanciDizi(),
+            com.kekik.atlasstream.providers.ddizi.DDiziProvider(),
+
+            // 4. Belgesel Sağlayıcıları
+            com.kekik.atlasstream.providers.belgeselx.BelgeselX(),
+            com.kekik.atlasstream.providers.dmax.DMax(),
+            com.kekik.atlasstream.providers.tlc.TLC(),
+
+            // 5. Canlı TV & Spor
+            com.kekik.atlasstream.providers.canlitv.CanliTV(),
+            com.kekik.atlasstream.providers.vavoospor.vavooSpor()
         )
     }
 
@@ -89,16 +65,16 @@ object SourceResolver {
 
     private fun isProviderEnabled(providerKey: String): Boolean {
         val enabledList = CloudStreamApp.getKey<List<String>>(AtlasStreamPlugin.PREF_KEY_ENABLED_SOURCES)
-        return enabledList == null || enabledList.contains(providerKey)
+        return enabledList == null || enabledList.isEmpty() || enabledList.contains(providerKey)
     }
 
     // TMDB'yi doğrudan backend olarak kullanan sağlayıcılar: arama/eşleştirme gerekmeden
     // media.tmdbId ile doğrudan yükleme yapılabilir (kesin eşleşme, fuzzy matching riski yok).
     private val tmdbDirectProviders = setOf("XPrime")
 
-    // Tek bir sağlayıcının (arama + yükleme + link çözme dahil) alabileceği maksimum süre.
-    // 57 sağlayıcı eşzamanlı çalıştığında ağ kuyruğu oluşabileceği için süre 35 saniyeye çıkarıldı.
-    private const val PROVIDER_TIMEOUT_MS = 35_000L
+    // Tek bir sağlayıcının alabileceği maksimum süre.
+    // 20 odaklanmış sağlayıcı ile süre 25 saniyeye optimize edildi.
+    private const val PROVIDER_TIMEOUT_MS = 25_000L
 
     /** Verilen aday listesinden eşik değerini geçen en yüksek skorlu sonucu döner. */
     private fun bestMatch(
@@ -134,11 +110,13 @@ object SourceResolver {
         externalProviders.forEach { provider ->
             if (isProviderEnabled(provider.name)) {
                 val matchesType = if (media.isMovie) {
-                    provider.supportedTypes.contains(TvType.Movie)
+                    provider.supportedTypes.contains(TvType.Movie) ||
+                    provider.supportedTypes.contains(TvType.Documentary)
                 } else {
                     provider.supportedTypes.contains(TvType.TvSeries) ||
                     provider.supportedTypes.contains(TvType.Cartoon) ||
                     provider.supportedTypes.contains(TvType.AsianDrama) ||
+                    provider.supportedTypes.contains(TvType.Documentary) ||
                     provider.supportedTypes.contains(TvType.Anime)
                 }
 

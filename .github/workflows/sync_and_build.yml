@@ -51,13 +51,16 @@ jobs:
           ./gradlew makePluginsJson --no-daemon || true
 
       - name: Manifest ve Dizin Olustur
+        env:
+          REPO_FULL: ${{ github.repository }}
+          REPO_OWNER: ${{ github.repository_owner }}
         run: |
           mkdir -p public
-          # Tum derlenen paketleri public dizinine kopyala
-          find . -name "*.cs3" -exec cp {} public/ \;
+          # Tum derlenen paketleri public dizinine kopyala (public haric)
+          find . -name "*.cs3" -not -path "./public/*" -exec cp {} public/ \;
           # Eger gradle makePluginsJson tarafindan uretilen plugins.json varsa al
           find . -name "plugins.json" -not -path "./public/*" -exec cp {} public/plugins.json \; 2>/dev/null || true
-          # Manifest uretici: Eger plugins.json olusmadiysa veya bossa .cs3 dosyalarindan uret
+          # Manifest uretici
           python -c "
           import json, os, glob
           need_build = False
@@ -72,12 +75,12 @@ jobs:
               except Exception:
                   need_build = True
 
-          if need_build:
-              repo_full = "${{ github.repository }}"
-              repo_owner = "${{ github.repository_owner }}"
-              repo_name = repo_full.split("/")[-1] if "/" in repo_full else "dev-workspace-tools"
-              base_url = f"https://{repo_owner}.github.io/{repo_name}"
+          repo_full = os.environ.get('REPO_FULL', 'akdrhmz/dev-workspace-tools')
+          repo_owner = os.environ.get('REPO_OWNER', 'akdrhmz')
+          repo_name = repo_full.split('/')[-1] if '/' in repo_full else 'dev-workspace-tools'
+          base_url = f'https://{repo_owner}.github.io/{repo_name}'
 
+          if need_build:
               plugins = []
               for f in glob.glob('public/*.cs3'):
                   name = os.path.basename(f).replace('.cs3', '')
@@ -92,11 +95,6 @@ jobs:
               print(f'[OK] Manifest olusturuldu: {len(plugins)} eklenti eklendi.')
           else:
               print('[OK] Gradle plugins.json korundu.')
-
-          repo_full = "${{ github.repository }}"
-          repo_owner = "${{ github.repository_owner }}"
-          repo_name = repo_full.split("/")[-1] if "/" in repo_full else "dev-workspace-tools"
-          base_url = f"https://{repo_owner}.github.io/{repo_name}"
 
           repo_meta = {
               'name': 'WatchBuddy TR Providers',

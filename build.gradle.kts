@@ -38,6 +38,16 @@ subprojects {
         setRepo("https://github.com/akdrhmz/dev-workspace-tools")
     }
 
+    // Kotlin bağımlılıklarını 2.1.0 sürümüne sabitle (Transitive metadata çakışmalarını önler)
+    configurations.all {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "org.jetbrains.kotlin") {
+                useVersion("2.1.0")
+                because("Force consistent Kotlin 2.1.0 across all dependencies")
+            }
+        }
+    }
+
     android {
         namespace = "com.kekik.${project.name.lowercase().replace("-", "")}"
         compileSdkVersion(34)
@@ -65,6 +75,13 @@ subprojects {
 
     dependencies {
         val cloudstreamVersion = "-SNAPSHOT"
+        val kotlinVersion = "2.1.0"
+        
+        // Kotlin BOM ile sürüm sabitleme
+        "implementation"(enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
+        "implementation"("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+        "implementation"("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+
         "implementation"("com.github.recloudstream:cloudstream:$cloudstreamVersion")
         "implementation"("com.github.Blatzar:NiceHttp:0.4.11")
         "implementation"("org.jsoup:jsoup:1.17.2")

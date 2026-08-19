@@ -84,7 +84,7 @@ open class VidMoxy : ExtractorApi() {
                         type = if (isM3u8) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
                     ) {
                         this.referer = url
-                        this.quality = if (isM3u8) Qualities.Unknown.value else Qualities.Q1080p.value
+                        this.quality = if (isM3u8) Qualities.Unknown.value else Qualities.P1080.value
                     }
                 )
             }

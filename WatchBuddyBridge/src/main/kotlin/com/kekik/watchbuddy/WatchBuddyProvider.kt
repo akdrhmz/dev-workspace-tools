@@ -4,8 +4,8 @@ import android.util.Log
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
+import com.lagradost.cloudstream3.utils.AppUtils
 import com.lagradost.cloudstream3.utils.AppUtils.toJson
-import com.lagradost.cloudstream3.utils.AppUtils.parseJson
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -66,7 +66,7 @@ class WatchBuddyProvider : MainAPI() {
                 originalTitle = item.originalTitle ?: item.originalName,
                 year = item.releaseYear
             )
-            val jsonPayload = toJson(payload)
+            val jsonPayload = payload.toJson()
 
             if (isMovie) {
                 newMovieSearchResponse(item.displayTitle, jsonPayload, TvType.Movie) {
@@ -94,7 +94,7 @@ class WatchBuddyProvider : MainAPI() {
                 originalTitle = item.originalTitle ?: item.originalName,
                 year = item.releaseYear
             )
-            val jsonPayload = toJson(payload)
+            val jsonPayload = payload.toJson()
 
             if (isMovie) {
                 newMovieSearchResponse(item.displayTitle, jsonPayload, TvType.Movie) {
@@ -112,7 +112,7 @@ class WatchBuddyProvider : MainAPI() {
 
     override suspend fun load(url: String): LoadResponse {
         val media: WatchBuddyMediaData = try {
-            parseJson<WatchBuddyMediaData>(url)
+            AppUtils.parseJson<WatchBuddyMediaData>(url)
         } catch (e: Exception) {
             val id = url.filter { it.isDigit() }.toIntOrNull() ?: 550
             WatchBuddyMediaData(tmdbId = id, isMovie = true, title = "İçerik", originalTitle = null, year = null)
@@ -131,8 +131,9 @@ class WatchBuddyProvider : MainAPI() {
                 year = detail.releaseYear ?: media.year,
                 imdbId = detail.externalIds?.imdbId
             )
+            val jsonPlayPayload = playPayload.toJson()
 
-            return newMovieLoadResponse(detail.displayTitle, toJson(playPayload), TvType.Movie, toJson(playPayload)) {
+            return newMovieLoadResponse(detail.displayTitle, jsonPlayPayload, TvType.Movie, jsonPlayPayload) {
                 this.posterUrl = detail.fullPosterUrl
                 this.backgroundPosterUrl = detail.fullBackdropUrl
                 this.plot = detail.overview
@@ -175,7 +176,7 @@ class WatchBuddyProvider : MainAPI() {
                             imdbId = detail.externalIds?.imdbId
                         )
                         episodesList.add(
-                            newEpisode(toJson(epPayload)) {
+                            newEpisode(epPayload.toJson()) {
                                 this.name = ep.name ?: "${ep.seasonNumber}. Sezon ${ep.episodeNumber}. Bölüm"
                                 this.season = ep.seasonNumber
                                 this.episode = ep.episodeNumber
@@ -206,7 +207,7 @@ class WatchBuddyProvider : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
         val media: WatchBuddyMediaData = try {
-            parseJson<WatchBuddyMediaData>(data)
+            AppUtils.parseJson<WatchBuddyMediaData>(data)
         } catch (e: Exception) {
             return false
         }

@@ -63,7 +63,7 @@ object SourceResolver {
         for (q in queries) {
             try {
                 val searchUrl = "https://www.dizibox.live/?s=${URLEncoder.encode(q, "UTF-8")}"
-                val doc = app.get(searchUrl, cookies = cookies, timeout = 10L).document
+                val doc = app.get(searchUrl, cookies = cookies).document
                 val showHref = doc.selectFirst("article.detailed-article h3 a, article a[href*='/dizi/']")?.attr("href")
                     ?: doc.selectFirst("a[href*='dizibox.live/']")?.attr("href") ?: continue
 
@@ -73,7 +73,7 @@ object SourceResolver {
                     "${showHref}/${season}-sezon-${episode}-bolum-izle"
                 }
 
-                val epDoc = app.get(episodeUrl, cookies = cookies, timeout = 10L).document
+                val epDoc = app.get(episodeUrl, cookies = cookies).document
                 val iframes = epDoc.select("iframe").map { it.attr("src") }.filter { it.isNotBlank() }
 
                 for (iframe in iframes) {
@@ -114,10 +114,10 @@ object SourceResolver {
         for (q in queries) {
             try {
                 val searchUrl = "https://filmmakinesi.pw/?s=${URLEncoder.encode(q, "UTF-8")}"
-                val doc = app.get(searchUrl, timeout = 10L).document
+                val doc = app.get(searchUrl).document
                 val movieHref = doc.selectFirst("div.movie-poster a, div.poster a, article a")?.attr("href") ?: continue
 
-                val movieDoc = app.get(movieHref, timeout = 10L).document
+                val movieDoc = app.get(movieHref).document
                 val iframes = movieDoc.select("iframe").map { it.attr("src") }
 
                 for (iframe in iframes) {
@@ -162,7 +162,7 @@ object SourceResolver {
         for (q in queries) {
             try {
                 val searchUrl = "https://www.hdfilmcehennemi.nl/search/${URLEncoder.encode(q, "UTF-8")}/"
-                val doc = app.get(searchUrl, timeout = 10L).document
+                val doc = app.get(searchUrl).document
                 val targetHref = doc.selectFirst("div.poster a, div.card-body a")?.attr("href") ?: continue
 
                 val targetUrl = if (!isMovie && season != null && episode != null) {
@@ -172,7 +172,7 @@ object SourceResolver {
                     targetHref
                 }
 
-                val itemDoc = app.get(targetUrl, timeout = 10L).document
+                val itemDoc = app.get(targetUrl).document
                 val iframes = itemDoc.select("iframe").map { it.attr("src") }
 
                 for (iframe in iframes) {
@@ -200,11 +200,11 @@ object SourceResolver {
         for (q in queries) {
             try {
                 val searchUrl = "https://dizilla.one/arama?q=${URLEncoder.encode(q, "UTF-8")}"
-                val doc = app.get(searchUrl, timeout = 10L).document
+                val doc = app.get(searchUrl).document
                 val showHref = doc.selectFirst("div.poster a, div.series-card a")?.attr("href") ?: continue
 
                 val epUrl = "${showHref.removeSuffix("/")}/sezon-$season/bolum-$episode"
-                val epDoc = app.get(epUrl, timeout = 10L).document
+                val epDoc = app.get(epUrl).document
                 val iframes = epDoc.select("iframe").map { it.attr("src") }
 
                 for (iframe in iframes) {
@@ -233,10 +233,10 @@ object SourceResolver {
         for (q in queries) {
             try {
                 val searchUrl = "https://sinewix.org/search?q=${URLEncoder.encode(q, "UTF-8")}"
-                val doc = app.get(searchUrl, timeout = 10L).document
+                val doc = app.get(searchUrl).document
                 val itemHref = doc.selectFirst("a[href*='/film/'], a[href*='/dizi/']")?.attr("href") ?: continue
 
-                val pageDoc = app.get(itemHref, timeout = 10L).document
+                val pageDoc = app.get(itemHref).document
                 val iframes = pageDoc.select("iframe").map { it.attr("src") }
 
                 for (iframe in iframes) {
@@ -262,10 +262,10 @@ object SourceResolver {
         for (q in queries) {
             try {
                 val searchUrl = "https://jetfilmizle.mobi/?s=${URLEncoder.encode(q, "UTF-8")}"
-                val doc = app.get(searchUrl, timeout = 10L).document
+                val doc = app.get(searchUrl).document
                 val movieHref = doc.selectFirst("article.movie a, div.movie-poster a")?.attr("href") ?: continue
 
-                val movieDoc = app.get(movieHref, timeout = 10L).document
+                val movieDoc = app.get(movieHref).document
                 val iframes = movieDoc.select("iframe").map { it.attr("src") }
 
                 for (iframe in iframes) {

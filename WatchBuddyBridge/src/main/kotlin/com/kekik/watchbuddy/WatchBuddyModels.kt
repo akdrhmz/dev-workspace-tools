@@ -13,7 +13,7 @@ data class TmdbPageResponse<T>(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TmdbItem(
-    @JsonProperty("id") val id: Int,
+    @JsonProperty("id") val id: Int = 0,
     @JsonProperty("title") val title: String? = null,
     @JsonProperty("name") val name: String? = null,
     @JsonProperty("original_title") val originalTitle: String? = null,
@@ -36,7 +36,7 @@ data class TmdbItem(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TmdbDetail(
-    @JsonProperty("id") val id: Int,
+    @JsonProperty("id") val id: Int = 0,
     @JsonProperty("title") val title: String? = null,
     @JsonProperty("name") val name: String? = null,
     @JsonProperty("original_title") val originalTitle: String? = null,
@@ -64,14 +64,14 @@ data class TmdbDetail(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TmdbGenre(
-    @JsonProperty("id") val id: Int,
-    @JsonProperty("name") val name: String
+    @JsonProperty("id") val id: Int = 0,
+    @JsonProperty("name") val name: String = ""
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TmdbSeasonSummary(
-    @JsonProperty("id") val id: Int,
-    @JsonProperty("season_number") val seasonNumber: Int,
+    @JsonProperty("id") val id: Int = 0,
+    @JsonProperty("season_number") val seasonNumber: Int = 0,
     @JsonProperty("name") val name: String? = null,
     @JsonProperty("episode_count") val episodeCount: Int = 0,
     @JsonProperty("poster_path") val posterPath: String? = null
@@ -79,8 +79,8 @@ data class TmdbSeasonSummary(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TmdbSeasonDetail(
-    @JsonProperty("id") val id: Int,
-    @JsonProperty("season_number") val seasonNumber: Int,
+    @JsonProperty("id") val id: Int = 0,
+    @JsonProperty("season_number") val seasonNumber: Int = 0,
     @JsonProperty("name") val name: String? = null,
     @JsonProperty("overview") val overview: String? = null,
     @JsonProperty("episodes") val episodes: List<TmdbEpisode> = emptyList()
@@ -88,9 +88,9 @@ data class TmdbSeasonDetail(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TmdbEpisode(
-    @JsonProperty("id") val id: Int,
-    @JsonProperty("episode_number") val episodeNumber: Int,
-    @JsonProperty("season_number") val seasonNumber: Int,
+    @JsonProperty("id") val id: Int = 0,
+    @JsonProperty("episode_number") val episodeNumber: Int = 0,
+    @JsonProperty("season_number") val seasonNumber: Int = 0,
     @JsonProperty("name") val name: String? = null,
     @JsonProperty("overview") val overview: String? = null,
     @JsonProperty("still_path") val stillPath: String? = null,
@@ -107,7 +107,7 @@ data class TmdbCredits(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TmdbCast(
-    @JsonProperty("name") val name: String,
+    @JsonProperty("name") val name: String = "",
     @JsonProperty("character") val character: String? = null,
     @JsonProperty("profile_path") val profilePath: String? = null
 )
@@ -119,9 +119,9 @@ data class TmdbVideos(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TmdbVideo(
-    @JsonProperty("key") val key: String,
-    @JsonProperty("site") val site: String,
-    @JsonProperty("type") val type: String
+    @JsonProperty("key") val key: String = "",
+    @JsonProperty("site") val site: String = "",
+    @JsonProperty("type") val type: String = ""
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -130,14 +130,14 @@ data class TmdbExternalIds(
     @JsonProperty("tvdb_id") val tvdbId: Int? = null
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class WatchBuddyMediaData(
-    val tmdbId: Int,
-    val isMovie: Boolean,
-    val title: String,
-    val originalTitle: String?,
-    val year: Int?,
-    val season: Int? = null,
-    val episode: Int? = null,
-    val imdbId: String? = null
+    @JsonProperty("tmdbId") val tmdbId: Int = 0,
+    @JsonProperty("isMovie") val isMovie: Boolean = true,
+    @JsonProperty("title") val title: String = "",
+    @JsonProperty("originalTitle") val originalTitle: String? = null,
+    @JsonProperty("year") val year: Int? = null,
+    @JsonProperty("season") val season: Int? = null,
+    @JsonProperty("episode") val episode: Int? = null,
+    @JsonProperty("imdbId") val imdbId: String? = null
 )
-

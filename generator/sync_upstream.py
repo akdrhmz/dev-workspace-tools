@@ -40,7 +40,16 @@ def sync_plugins():
         name = item.get("name", "")
         if name.endswith(".py") and not name.startswith("__"):
             raw_url = f"{RAW_BASE_URL}/{name}"
-            print(f"[+] Indiriliyor: {name}")
+            cls_name = name.replace(".py", "")
+            mod_name = f"{cls_name}Provider"
+            
+            # Eger modul zaten ozel olarak gelistirilmisse veya mevcutsa uzerine yazma
+            if (BASE_DIR / mod_name).exists():
+                print(f"[i] {mod_name} zaten ozel olarak mevcut, korundu.")
+                new_modules.append(f":{mod_name}")
+                continue
+
+            print(f"[+] Yeni upstream modul indiriliyor: {name}")
             try:
                 with urllib.request.urlopen(raw_url) as raw_resp:
                     content = raw_resp.read().decode("utf-8")

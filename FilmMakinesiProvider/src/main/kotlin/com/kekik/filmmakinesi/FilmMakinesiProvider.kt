@@ -58,14 +58,14 @@ class FilmMakinesiProvider : MainAPI() {
         }
         val plot = doc.selectFirst(".story, .film-content, .entry-content")?.text()?.trim()
         val tags = doc.select(".film-genres a, .genre a").map { it.text().trim() }
-        val rating = doc.selectFirst(".imdb-score, .score")?.text()
-            ?.replace(",", ".")?.toDoubleOrNull()?.times(100)?.toInt()
+        val ratingValue = doc.selectFirst(".imdb-score, .score")?.text()
+            ?.replace(",", ".")?.toDoubleOrNull()
 
         return newMovieLoadResponse(title, url, TvType.Movie, url) {
             this.posterUrl = poster
             this.plot = plot
             this.tags = tags
-            this.rating = rating
+            this.score = Score.from10(ratingValue)
         }
     }
 

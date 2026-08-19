@@ -58,8 +58,8 @@ class HDFilmCehennemiProvider : MainAPI() {
         }
         val plot = doc.selectFirst(".movie-overview, .overview, .story")?.text()?.trim()
         val tags = doc.select(".genre a, .genres a").map { it.text().trim() }
-        val rating = doc.selectFirst(".rating, .imdb")?.text()
-            ?.replace(",", ".")?.toDoubleOrNull()?.times(100)?.toInt()
+        val ratingValue = doc.selectFirst(".rating, .imdb")?.text()
+            ?.replace(",", ".")?.toDoubleOrNull()
 
         // Check if there are series episodes
         val episodeElements = doc.select(".episodes-list a, .season-list a")
@@ -76,7 +76,7 @@ class HDFilmCehennemiProvider : MainAPI() {
                 this.posterUrl = poster
                 this.plot = plot
                 this.tags = tags
-                this.rating = rating
+                this.score = Score.from10(ratingValue)
             }
         }
 
@@ -84,7 +84,7 @@ class HDFilmCehennemiProvider : MainAPI() {
             this.posterUrl = poster
             this.plot = plot
             this.tags = tags
-            this.rating = rating
+            this.score = Score.from10(ratingValue)
         }
     }
 

@@ -84,7 +84,7 @@ class WatchBuddyProvider : MainAPI() {
             ?: response.parsedSafe<WbItemDetail>()
             ?: throw ErrorLoadingException("İçerik detayı alınamadı")
 
-        val ratingInt = detail.rating?.replace(",", ".")?.toDoubleOrNull()?.times(100)?.toInt()
+        val ratingValue = detail.rating?.replace(",", ".")?.toDoubleOrNull()
 
         if (!detail.episodes.isNullOrEmpty()) {
             val episodes = detail.episodes.map { ep ->
@@ -99,7 +99,7 @@ class WatchBuddyProvider : MainAPI() {
                 this.posterUrl = detail.poster
                 this.plot = detail.description
                 this.tags = detail.genres ?: emptyList()
-                this.rating = ratingInt
+                this.score = Score.from10(ratingValue)
                 this.year = detail.year?.toIntOrNull()
             }
         } else {
@@ -107,7 +107,7 @@ class WatchBuddyProvider : MainAPI() {
                 this.posterUrl = detail.poster
                 this.plot = detail.description
                 this.tags = detail.genres ?: emptyList()
-                this.rating = ratingInt
+                this.score = Score.from10(ratingValue)
                 this.year = detail.year?.toIntOrNull()
             }
         }

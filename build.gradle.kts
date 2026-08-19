@@ -1,5 +1,5 @@
-import com.lagradost.cloudstream3.gradle.CloudstreamExtension
 import com.android.build.gradle.BaseExtension
+import com.lagradost.cloudstream3.gradle.CloudstreamExtension
 
 buildscript {
     repositories {
@@ -9,8 +9,8 @@ buildscript {
     }
     dependencies {
         classpath("com.android.tools.build:gradle:8.2.2")
+        classpath("com.github.recloudstream:gradle:-SNAPSHOT")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22")
-        classpath("com.github.recloudstream:gradle:master-SNAPSHOT")
     }
 }
 
@@ -52,7 +52,7 @@ subprojects {
     }
 
     dependencies {
-        val cloudstreamVersion = "pre-release"
+        val cloudstreamVersion = "-SNAPSHOT"
         "implementation"("com.github.recloudstream:cloudstream:$cloudstreamVersion")
         "implementation"("org.jsoup:jsoup:1.17.2")
         "implementation"("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.1")

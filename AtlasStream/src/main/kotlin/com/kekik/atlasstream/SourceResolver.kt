@@ -1,4 +1,4 @@
-package com.kekik.atlasstream
+﻿package com.kekik.atlasstream
 
 import android.util.Base64
 import android.util.Log
@@ -18,13 +18,40 @@ import java.net.URLEncoder
 object SourceResolver {
     private const val TAG = "WB_Resolver"
 
-    private val externalProviders by lazy {
+        private val externalProviders by lazy {
         listOf(
-            com.keyiflerolsun.DiziMom(),
-            com.keyiflerolsun.KultFilmler(),
-            com.keyiflerolsun.SetFilmIzle(),
-            com.keyiflerolsun.TRanimaci(),
-            com.keyiflerolsun.WebteIzle()
+            com.kekik.atlasstream.providers.dizimom.DiziMom(),
+            com.kekik.atlasstream.providers.setfilmizle.SetFilmIzle(),
+            com.kekik.atlasstream.providers.webteizle.WebteIzle(),
+            com.kekik.atlasstream.providers.kultfilmler.KultFilmler(),
+            com.kekik.atlasstream.providers.tranimaci.TRanimaci(),
+            com.kekik.atlasstream.providers.yabancidizi.YabanciDizi(),
+            com.kekik.atlasstream.providers.filmkovasi.FilmKovasi(),
+            com.kekik.atlasstream.providers.hdfilmsitesi.HDFilmSitesi(),
+            com.kekik.atlasstream.providers.dizigom.DiziGom(),
+            com.kekik.atlasstream.providers.ddizi.DDiziProvider(),
+            com.kekik.atlasstream.providers.diziyou.DiziYou(),
+            com.kekik.atlasstream.providers.sinemacx.SinemaCX(),
+            com.kekik.atlasstream.providers.fullhdfilm.FullHDFilm(),
+            com.kekik.atlasstream.providers.hdfilmizle.HDFilmIzle(),
+            com.kekik.atlasstream.providers.roketdizi.RoketDizi(),
+            com.kekik.atlasstream.providers.dizimag.DiziMag(),
+            com.kekik.atlasstream.providers.powersinema.powerSinema(),
+            com.kekik.atlasstream.providers.powerdizi.powerDizi(),
+            com.kekik.atlasstream.providers.ugurfilm.UgurFilm(),
+            com.kekik.atlasstream.providers.superfilmgeldi.SuperFilmGeldi(),
+            com.kekik.atlasstream.providers.belgeselx.BelgeselX(),
+            com.kekik.atlasstream.providers.dmax.DMax(),
+            com.kekik.atlasstream.providers.altiyuzaltmisaltifilmizle.AltiYuzAltmisAltiFilmIzle(),
+            com.kekik.atlasstream.providers.rarefilmm.RareFilmm(),
+            com.kekik.atlasstream.providers.filmizleilk.FilmIzleIlk(),
+            com.kekik.atlasstream.providers.tafdi.Tafdi(),
+            com.kekik.atlasstream.providers.tvdiziler.TvDiziler(),
+            com.kekik.atlasstream.providers.xprime.XPrime(),
+            com.kekik.atlasstream.providers.koreanturk.KoreanTurk(),
+            com.kekik.atlasstream.providers.asyawatch.AsyaWatch(),
+            com.kekik.atlasstream.providers.dizikorea.DiziKorea(),
+            com.kekik.atlasstream.providers.watch2movies.Watch2Movies()
         )
     }
 
@@ -71,7 +98,7 @@ object SourceResolver {
             }
             if (!media.isMovie && isProviderEnabled("SezonlukDizi")) {
                 jobs += async { resolveSezonlukDizi(cleanTr, cleanOrig, media.seasonNumber, media.episodeNumber, subtitleCallback, callback) }
-            // --- D�NAM�K EKLENEN DI� KAYNAKLAR ---
+            // --- DİNAMİK EKLENEN DIŞ KAYNAKLAR ---
             externalProviders.forEach { provider ->
                 if (isProviderEnabled(provider.name)) {
                     if ((media.isMovie && provider.supportedTypes.contains(TvType.Movie)) ||
@@ -132,7 +159,7 @@ object SourceResolver {
     }
 
     // ============================================================
-    // 1. DiziBox (adapted from DiziBox.kt — TV Series only)
+    // 1. DiziBox (adapted from DiziBox.kt â€” TV Series only)
     // ============================================================
     private val diziBoxCookies = mapOf(
         "LockUser"      to "true",
@@ -227,7 +254,7 @@ object SourceResolver {
     }
 
     // ============================================================
-    // 2. Dizilla (adapted from Dizilla.kt — TV Series, AES encrypted API)
+    // 2. Dizilla (adapted from Dizilla.kt â€” TV Series, AES encrypted API)
     // ============================================================
     private suspend fun resolveDizilla(
         title: String, origTitle: String?,
@@ -331,7 +358,7 @@ object SourceResolver {
     }
 
     // ============================================================
-    // 3. FilmMakinesi (adapted from FilmMakinesi.kt — Movies only)
+    // 3. FilmMakinesi (adapted from FilmMakinesi.kt â€” Movies only)
     // ============================================================
     private suspend fun resolveFilmMakinesi(
         title: String, origTitle: String?,
@@ -412,7 +439,7 @@ object SourceResolver {
                     showDoc.select("div.seasons-tab-content a").forEach { epLink ->
                         val epName = epLink.selectFirst("h4")?.text()?.trim() ?: return@forEach
                         val epS = Regex("""(\d+)\. ?Sezon""").find(epName)?.groupValues?.get(1)?.toIntOrNull() ?: 1
-                        val epE = Regex("""(\d+)\. ?Bölüm""").find(epName)?.groupValues?.get(1)?.toIntOrNull()
+                        val epE = Regex("""(\d+)\. ?BÃ¶lÃ¼m""").find(epName)?.groupValues?.get(1)?.toIntOrNull()
                         if (epS == season && epE == episode) {
                             epUrl = epLink.attr("href")
                         }
@@ -504,7 +531,7 @@ object SourceResolver {
     }
 
     // ============================================================
-    // 5. SineWix (adapted from Sinewix.kt — API-based)
+    // 5. SineWix (adapted from Sinewix.kt â€” API-based)
     // ============================================================
     private val sineWixApiToken = "9iQNC5HQwPlaFuJDkhncJ5XTJ8feGXOJatAA"
     private val sineWixHeaders = mapOf(
@@ -574,7 +601,7 @@ object SourceResolver {
     }
 
     // ============================================================
-    // 6. JetFilmizle (adapted from JetFilmizle.kt — Movies)
+    // 6. JetFilmizle (adapted from JetFilmizle.kt â€” Movies)
     // ============================================================
     private suspend fun resolveJetFilmizle(
         title: String, origTitle: String?,
@@ -676,6 +703,7 @@ object SourceResolver {
         @JsonProperty("kind")     val kind: String?     = null
     )
 }
+
 
 
 

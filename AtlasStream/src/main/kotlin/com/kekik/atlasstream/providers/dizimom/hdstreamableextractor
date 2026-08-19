@@ -1,0 +1,8 @@
+﻿// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+package com.kekik.atlasstream.providers.dizimom
+
+class HDStreamAble : PeaceMakerst() {
+    override var name    = "HDStreamAble"
+    override var mainUrl = "https://hdstreamable.com"
+}

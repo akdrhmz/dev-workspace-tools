@@ -1,6 +1,5 @@
 import com.android.build.gradle.BaseExtension
 import com.lagradost.cloudstream3.gradle.CloudstreamExtension
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     repositories {
@@ -38,14 +37,7 @@ subprojects {
         setRepo("https://github.com/akdrhmz/dev-workspace-tools")
     }
 
-    configurations.all {
-        resolutionStrategy.eachDependency {
-            if (requested.group == "org.jetbrains.kotlin") {
-                useVersion("2.1.0")
-                because("Force consistent Kotlin 2.1.0 across all dependencies")
-            }
-        }
-    }
+
 
     android {
         namespace = "com.kekik.${project.name.lowercase().replace("-", "")}"
@@ -56,35 +48,38 @@ subprojects {
         }
 
         compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_17
-            targetCompatibility = JavaVersion.VERSION_17
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
         }
-    }
 
-    tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "17"
-            freeCompilerArgs = freeCompilerArgs + listOf(
-                "-opt-in=kotlin.RequiresOptIn",
-                "-Xskip-metadata-version-check",
-                "-Xallow-unstable-dependencies"
-            )
+        tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile> {
+            compilerOptions {
+                jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+                freeCompilerArgs.addAll(
+                    "-opt-in=kotlin.RequiresOptIn",
+                    "-Xno-call-assertions",
+                    "-Xno-param-assertions",
+                    "-Xno-receiver-assertions"
+                )
+            }
         }
     }
 
     dependencies {
-        val cloudstreamVersion = "-SNAPSHOT"
-        val kotlinVersion = "2.1.0"
-        
-        "implementation"(enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
-        "implementation"("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-        "implementation"("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+        val cloudstream by configurations
+        val implementation by configurations
+        val compileOnly by configurations
 
-        "implementation"("com.github.recloudstream.cloudstream:library-android:$cloudstreamVersion")
-        "implementation"("com.github.recloudstream:cloudstream:$cloudstreamVersion")
-        "implementation"("com.github.Blatzar:NiceHttp:0.4.11")
-        "implementation"("org.jsoup:jsoup:1.17.2")
-        "implementation"("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.1")
+        cloudstream("com.lagradost:cloudstream3:pre-release")
+        
+        // Fallback for unresolved Cloudstream Plugin API classes
+        compileOnly("com.github.recloudstream.cloudstream:library-android:-SNAPSHOT")
+        compileOnly("com.github.recloudstream:cloudstream:-SNAPSHOT")
+
+        implementation(kotlin("stdlib"))
+        implementation("com.github.Blatzar:NiceHttp:0.4.11")
+        implementation("org.jsoup:jsoup:1.18.3")
+        implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
     }
 }
 

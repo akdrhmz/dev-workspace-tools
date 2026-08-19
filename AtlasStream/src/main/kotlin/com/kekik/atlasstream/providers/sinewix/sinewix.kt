@@ -1,4 +1,4 @@
-package com.kekik.atlasstream.providers.sinewix
+﻿package com.kekik.atlasstream.providers.sinewix
 
 import android.util.Log
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -184,9 +184,9 @@ class SineWix : MainAPI() {
         val episodes = mutableListOf<Episode>()
         result.seasons?.forEach {
             val seasonNumber = it.seasonNumber
-            Log.d("SWX", "seasonNumber » $seasonNumber")
+            Log.d("SWX", "seasonNumber Â» $seasonNumber")
             it.episodes?.forEach { ep ->
-                Log.d("SWX", "ep » $ep")
+                Log.d("SWX", "ep Â» $ep")
                 if (!ep.videos.isNullOrEmpty()) {
                     val sineVideo = ep.videos[0]
                     episodes.add(newEpisode(sineVideo.link) {
@@ -228,7 +228,7 @@ class SineWix : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("SWX", "data » $data")
+        Log.d("SWX", "data Â» $data")
         if (data.contains("snwaxdop")) {
             callback.invoke(
                 newExtractorLink(

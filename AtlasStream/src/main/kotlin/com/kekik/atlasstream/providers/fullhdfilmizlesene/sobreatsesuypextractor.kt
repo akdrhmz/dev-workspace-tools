@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.fullhdfilmizlesene
 
-package com.kekik.atlasstream.providers.fullhdfilmizlesene
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -28,7 +30,7 @@ open class Sobreatsesuyp : ExtractorApi() {
                 file  = mapItem["file"]  as? String
             )
         }
-        Log.d("Kekik_${this.name}", "postJson » $postJson")
+        Log.d("Kekik_${this.name}", "postJson Â» $postJson")
 
         for (item in postJson) {
             if (item.file == null || item.title == null) continue

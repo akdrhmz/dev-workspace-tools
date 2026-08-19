@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.superfilmgeldi
 
-package com.kekik.atlasstream.providers.superfilmgeldi
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -21,7 +23,7 @@ class MixPlayHD : ExtractorApi() {
         val bePlayerPass = bePlayer[1]
         val bePlayerData = bePlayer[2]
         val encrypted    = AesHelper.cryptoAESHandler(bePlayerData, bePlayerPass.toByteArray(), false)?.replace("\\", "") ?: throw ErrorLoadingException("failed to decrypt")
-        Log.d("Kekik_${this.name}", "encrypted » $encrypted")
+        Log.d("Kekik_${this.name}", "encrypted Â» $encrypted")
 
         m3uLink = Regex("""video_location":"([^"]+)""").find(encrypted)?.groupValues?.get(1)
 

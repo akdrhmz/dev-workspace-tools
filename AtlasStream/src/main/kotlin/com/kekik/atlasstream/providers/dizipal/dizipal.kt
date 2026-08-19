@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.dizipal
 
-package com.kekik.atlasstream.providers.dizipal
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import org.jsoup.nodes.Element
@@ -37,7 +39,7 @@ class DiziPal : MainAPI() {
             val response = chain.proceed(request)
             val doc      = Jsoup.parse(response.peekBody(1024 * 1024).string())
 
-            if (doc.select("title").text() == "Just a moment..." || doc.select("title").text() == "Bir dakika lütfen...") {
+            if (doc.select("title").text() == "Just a moment..." || doc.select("title").text() == "Bir dakika lÃ¼tfen...") {
                 return cloudflareKiller.intercept(chain)
             }
             return response
@@ -47,7 +49,7 @@ class DiziPal : MainAPI() {
 
     
     override val mainPage = mainPageOf(
-        "${mainUrl}/diziler/son-bolumler"                          to "Son Bölümler",
+        "${mainUrl}/diziler/son-bolumler"                          to "Son BÃ¶lÃ¼mler",
         "${mainUrl}/diziler"                                       to "Yeni Diziler",
         "${mainUrl}/filmler"                                       to "Yeni Filmler",
         "${mainUrl}/koleksiyon/netflix"                            to "Netflix",
@@ -67,7 +69,7 @@ class DiziPal : MainAPI() {
         "${mainUrl}/tur/belgesel"                                  to "Belgesel Filmleri",
         "${mainUrl}/diziler?kelime=&durum=&tur=25&type=&siralama=" to "Erotik Diziler",
         "${mainUrl}/tur/erotik"                                    to "Erotik Filmler",
-        // "${mainUrl}/diziler?kelime=&durum=&tur=1&type=&siralama="  to "Aile",            // ! Fazla kategori olduğu için geç yükleniyor..
+        // "${mainUrl}/diziler?kelime=&durum=&tur=1&type=&siralama="  to "Aile",            // ! Fazla kategori olduÄŸu iÃ§in geÃ§ yÃ¼kleniyor..
         // "${mainUrl}/diziler?kelime=&durum=&tur=2&type=&siralama="  to "Aksiyon",
         // "${mainUrl}/diziler?kelime=&durum=&tur=3&type=&siralama="  to "Animasyon",
         // "${mainUrl}/diziler?kelime=&durum=&tur=4&type=&siralama="  to "Belgesel",
@@ -78,12 +80,12 @@ class DiziPal : MainAPI() {
         // "${mainUrl}/diziler?kelime=&durum=&tur=10&type=&siralama=" to "Gizem",
         // "${mainUrl}/diziler?kelime=&durum=&tur=12&type=&siralama=" to "Korku",
         // "${mainUrl}/diziler?kelime=&durum=&tur=13&type=&siralama=" to "Macera",
-        // "${mainUrl}/diziler?kelime=&durum=&tur=14&type=&siralama=" to "Müzik",
+        // "${mainUrl}/diziler?kelime=&durum=&tur=14&type=&siralama=" to "MÃ¼zik",
         // "${mainUrl}/diziler?kelime=&durum=&tur=16&type=&siralama=" to "Romantik",
-        // "${mainUrl}/diziler?kelime=&durum=&tur=17&type=&siralama=" to "Savaş",
+        // "${mainUrl}/diziler?kelime=&durum=&tur=17&type=&siralama=" to "SavaÅŸ",
         // "${mainUrl}/diziler?kelime=&durum=&tur=24&type=&siralama=" to "Yerli",
         // "${mainUrl}/diziler?kelime=&durum=&tur=18&type=&siralama=" to "Spor",
-        // "${mainUrl}/diziler?kelime=&durum=&tur=19&type=&siralama=" to "Suç",
+        // "${mainUrl}/diziler?kelime=&durum=&tur=19&type=&siralama=" to "SuÃ§",
         // "${mainUrl}/diziler?kelime=&durum=&tur=20&type=&siralama=" to "Tarih",
         // "${mainUrl}/diziler?kelime=&durum=&tur=21&type=&siralama=" to "Western",
     )
@@ -104,7 +106,7 @@ class DiziPal : MainAPI() {
 
     private fun Element.sonBolumler(): SearchResponse? {
         val name      = this.selectFirst("div.name")?.text() ?: return null
-        val episode   = this.selectFirst("div.episode")?.text()?.trim()?.replace(". Sezon ", "x")?.replace(". Bölüm", "") ?: return null
+        val episode   = this.selectFirst("div.episode")?.text()?.trim()?.replace(". Sezon ", "x")?.replace(". BÃ¶lÃ¼m", "") ?: return null
         val title     = "$name $episode"
 
         val href      = fixUrlNull(this.selectFirst("a")?.attr("href")) ?: return null
@@ -165,11 +167,11 @@ class DiziPal : MainAPI() {
         val document = app.get(url, interceptor = interceptor).document
 
         val poster      = fixUrlNull(document.selectFirst("[property='og:image']")?.attr("content"))
-        val year        = document.selectXpath("//div[text()='Yapım Yılı']//following-sibling::div").text().trim().toIntOrNull()
+        val year        = document.selectXpath("//div[text()='YapÄ±m YÄ±lÄ±']//following-sibling::div").text().trim().toIntOrNull()
         val description = document.selectFirst("div.summary p")?.text()?.trim()
-        val tags        = document.selectXpath("//div[text()='Türler']//following-sibling::div").text().trim().split(" ").map { it.trim() }
-        val rating      = document.selectXpath("//div[text()='IMDB Puanı']//following-sibling::div").text().trim()
-        val duration    = Regex("(\\d+)").find(document.selectXpath("//div[text()='Ortalama Süre']//following-sibling::div").text())?.value?.toIntOrNull()
+        val tags        = document.selectXpath("//div[text()='TÃ¼rler']//following-sibling::div").text().trim().split(" ").map { it.trim() }
+        val rating      = document.selectXpath("//div[text()='IMDB PuanÄ±']//following-sibling::div").text().trim()
+        val duration    = Regex("(\\d+)").find(document.selectXpath("//div[text()='Ortalama SÃ¼re']//following-sibling::div").text())?.value?.toIntOrNull()
 
         if (url.contains("/dizi/")) {
             val title       = document.selectFirst("div.cover h5")?.text() ?: return null
@@ -210,15 +212,15 @@ class DiziPal : MainAPI() {
     }
 
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
-        Log.d("DZP", "data » $data")
+        Log.d("DZP", "data Â» $data")
         val document = app.get(data, interceptor = interceptor).document
         val iframe   = document.selectFirst(".series-player-container iframe")?.attr("src") ?: document.selectFirst("div#vast_new iframe")?.attr("src") ?: return false
-        Log.d("DZP", "iframe » $iframe")
+        Log.d("DZP", "iframe Â» $iframe")
 
         val iSource = app.get(iframe, referer="${mainUrl}/").text
         val m3uLink = Regex("""file:"([^"]+)""").find(iSource)?.groupValues?.get(1)
         if (m3uLink == null) {
-            Log.d("DZP", "iSource » $iSource")
+            Log.d("DZP", "iSource Â» $iSource")
             return loadExtractor(iframe, "${mainUrl}/", subtitleCallback, callback)
         }
 

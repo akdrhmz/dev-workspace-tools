@@ -1,3 +1,5 @@
+﻿package com.kekik.atlasstream.providers.hdfilmizle
+
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class Video(

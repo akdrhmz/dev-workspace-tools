@@ -1,6 +1,4 @@
-
-
-package com.kekik.atlasstream.providers.roketdizi
+﻿package com.kekik.atlasstream.providers.roketdizi
 
 import java.util.Arrays
 import android.util.Base64

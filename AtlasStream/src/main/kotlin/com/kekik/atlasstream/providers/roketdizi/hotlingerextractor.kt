@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.roketdizi
 
-package com.kekik.atlasstream.providers.roketdizi
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 class Hotlinger : ContentXExtractor() {
     override var name    = "Hotlinger"

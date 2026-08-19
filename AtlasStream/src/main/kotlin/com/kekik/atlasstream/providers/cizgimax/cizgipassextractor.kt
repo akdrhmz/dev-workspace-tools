@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.cizgimax
 
-package com.kekik.atlasstream.providers.cizgimax
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 class CizgiPass : CizgiDuo() {
     override var name    = "CizgiPass"

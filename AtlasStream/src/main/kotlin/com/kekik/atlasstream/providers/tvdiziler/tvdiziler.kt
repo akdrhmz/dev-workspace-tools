@@ -1,4 +1,4 @@
-package com.kekik.atlasstream.providers.tvdiziler
+﻿package com.kekik.atlasstream.providers.tvdiziler
 
 import android.util.Log
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -25,7 +25,7 @@ class TvDiziler : MainAPI() {
     override val supportedTypes       = setOf(TvType.TvSeries)
 
     override val mainPage = mainPageOf(
-        mainUrl                         to "Son Bölümler",
+        mainUrl                         to "Son BÃ¶lÃ¼mler",
         "${mainUrl}/dizi/tur/aile"      to "Aile",
         "${mainUrl}/dizi/tur/aksiyon"      to "Aksiyon",
         "${mainUrl}/dizi/tur/aksiyon-macera"      to "Aksiyon-Macera",
@@ -38,17 +38,17 @@ class TvDiziler : MainAPI() {
         "${mainUrl}/dizi/tur/macera"      to "Macera",
         "${mainUrl}/dizi/tur/pembe-dizi"      to "Pembe Dizi",
         "${mainUrl}/dizi/tur/romantik"      to "Romantik",
-        "${mainUrl}/dizi/tur/savas"      to "Savaş",
-        "${mainUrl}/dizi/tur/savas-politik"      to "Savaş & Politik",
-        "${mainUrl}/dizi/tur/suc"      to "Suç",
+        "${mainUrl}/dizi/tur/savas"      to "SavaÅŸ",
+        "${mainUrl}/dizi/tur/savas-politik"      to "SavaÅŸ & Politik",
+        "${mainUrl}/dizi/tur/suc"      to "SuÃ§",
         "${mainUrl}/dizi/tur/talk"      to "Talk",
         "${mainUrl}/dizi/tur/tarih"      to "Tarih",
-        "${mainUrl}/dizi/tur/yarisma"      to "Yarışma",
+        "${mainUrl}/dizi/tur/yarisma"      to "YarÄ±ÅŸma",
 
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        if (request.name == "Son Bölümler") {
+        if (request.name == "Son BÃ¶lÃ¼mler") {
             val mainReq = app.get(request.data)
             val document = mainReq.document.body()
             val home = document.select("div.poster-xs").mapNotNull { it.sonBolumler() }
@@ -182,10 +182,10 @@ class TvDiziler : MainAPI() {
             document.selectFirst("h1 span")?.text()?.substringAfter("(")?.substringBefore(")")
                 ?.toIntOrNull()
 
-        val rating = document.selectXpath("//span[text()='IMDb Puanı']//following-sibling::p").text().trim()
+        val rating = document.selectXpath("//span[text()='IMDb PuanÄ±']//following-sibling::p").text().trim()
 
         val duration =
-            document.selectXpath("//span[text()='Süre']//following-sibling::p").text().trim()
+            document.selectXpath("//span[text()='SÃ¼re']//following-sibling::p").text().trim()
                 .split(" ").first().toIntOrNull()
 
         val description = document.selectFirst("div.series-profile-summary p")?.text()?.trim()

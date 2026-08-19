@@ -1,4 +1,4 @@
-package com.kekik.atlasstream.providers.sinewix
+﻿package com.kekik.atlasstream.providers.sinewix
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
@@ -101,5 +101,3 @@ data class SineEpisode(
 data class SineSearch(
     @JsonProperty("search") val search: List<SineData>? = null,
 )
-
-

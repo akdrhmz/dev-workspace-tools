@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.filmmodu
 
-package com.kekik.atlasstream.providers.filmmodu
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import com.lagradost.cloudstream3.Actor
@@ -51,23 +53,23 @@ class FilmModu : MainAPI() {
         "${mainUrl}/hd-film-kategori/gerilim" to "Gerilim",
         "${mainUrl}/hd-film-kategori/gizem-filmleri" to "Gizem",
         "${mainUrl}/hd-film-kategori/hd-hint-filmleri" to "Hint Filmleri",
-        "${mainUrl}/hd-film-kategori/kisa-film" to "Kısa Film",
+        "${mainUrl}/hd-film-kategori/kisa-film" to "KÄ±sa Film",
         "${mainUrl}/hd-film-kategori/hd-komedi-filmleri" to "Komedi",
         "${mainUrl}/hd-film-kategori/komedi" to "Komedi",
         "${mainUrl}/hd-film-kategori/korku-filmleri" to "Korku",
-        "${mainUrl}/hd-film-kategori/kult-filmler-izle" to "Kült Filmler",
+        "${mainUrl}/hd-film-kategori/kult-filmler-izle" to "KÃ¼lt Filmler",
         "${mainUrl}/hd-film-kategori/macera-filmleri" to "Macera",
-        "${mainUrl}/hd-film-kategori/muzik" to "Müzik",
-        "${mainUrl}/hd-film-kategori/odullu-filmler-izle" to "Oscar Ödüllü Filmler",
+        "${mainUrl}/hd-film-kategori/muzik" to "MÃ¼zik",
+        "${mainUrl}/hd-film-kategori/odullu-filmler-izle" to "Oscar Ã–dÃ¼llÃ¼ Filmler",
         "${mainUrl}/hd-film-kategori/romantik-filmler" to "Romantik",
-        "${mainUrl}/hd-film-kategori/savas" to "Savaş",
-        "${mainUrl}/hd-film-kategori/savas-filmleri" to "Savaş",
+        "${mainUrl}/hd-film-kategori/savas" to "SavaÅŸ",
+        "${mainUrl}/hd-film-kategori/savas-filmleri" to "SavaÅŸ",
         "${mainUrl}/hd-film-kategori/stand-up" to "Stand Up",
-        "${mainUrl}/hd-film-kategori/suc-filmleri" to "Suç",
+        "${mainUrl}/hd-film-kategori/suc-filmleri" to "SuÃ§",
         "${mainUrl}/hd-film-kategori/tarih" to "Tarih",
         "${mainUrl}/hd-film-kategori/tavsiye-filmler" to "Tavsiye Filmler",
         "${mainUrl}/hd-film-kategori/tv-film" to "TV film",
-        "${mainUrl}/hd-film-kategori/vahsi-bati-filmleri" to "Vahşi Batı",
+        "${mainUrl}/hd-film-kategori/vahsi-bati-filmleri" to "VahÅŸi BatÄ±",
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -127,16 +129,16 @@ class FilmModu : MainAPI() {
 
     override suspend fun loadLinks(
         data: String,
-        isCasting: Boolean, // Parametre isCasting olarak kaldı
+        isCasting: Boolean, // Parametre isCasting olarak kaldÄ±
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("FLMMD", "Başlatılıyor - loadLinks için data: $data")
+        Log.d("FLMMD", "BaÅŸlatÄ±lÄ±yor - loadLinks iÃ§in data: $data")
         val document = app.get(data).document
 
         val alternates = document.select("div.alternates a")
         if (alternates.isEmpty()) {
-            Log.w("FLMMD", "Alternatif bağlantılar bulunamadı! Sayfadaki 'div.alternates a' elementi boş.")
+            Log.w("FLMMD", "Alternatif baÄŸlantÄ±lar bulunamadÄ±! Sayfadaki 'div.alternates a' elementi boÅŸ.")
             return false
         }
 
@@ -145,7 +147,7 @@ class FilmModu : MainAPI() {
             val altName = altLinkElement.text()
 
             if (altLink == null || altName.contains("Fragman", true)) {
-                Log.d("FLMMD", "Fragman linki veya geçersiz link. Atlanıyor. Link: $altLink, Name: $altName")
+                Log.d("FLMMD", "Fragman linki veya geÃ§ersiz link. AtlanÄ±yor. Link: $altLink, Name: $altName")
                 return@forEach
             }
 
@@ -162,14 +164,14 @@ class FilmModu : MainAPI() {
                 val vidType = Regex("""var videoType = '(\w+)';""").find(altText)?.groupValues?.getOrNull(1)
 
                 if (vidId.isNullOrEmpty() || vidType.isNullOrEmpty()) {
-                    Log.e("FLMMD", "videoId ($vidId) veya videoType ($vidType) bulunamadı. altReq.text'in tamamı (ilk 500 char): ${altText.substring(0, minOf(altText.length, 500))}")
+                    Log.e("FLMMD", "videoId ($vidId) veya videoType ($vidType) bulunamadÄ±. altReq.text'in tamamÄ± (ilk 500 char): ${altText.substring(0, minOf(altText.length, 500))}")
                     return@forEach
                 }
 
-                Log.d("FLMMD", "Çekilen videoId: $vidId, videoType: $vidType")
+                Log.d("FLMMD", "Ã‡ekilen videoId: $vidId, videoType: $vidType")
 
                 val sourceUrl = "${mainUrl}/get-source?movie_id=${vidId}&type=${vidType}"
-                Log.d("FLMMD", "get-source isteği atılıyor: $sourceUrl")
+                Log.d("FLMMD", "get-source isteÄŸi atÄ±lÄ±yor: $sourceUrl")
 
                 val vidReqRaw = app.get(
                     sourceUrl,
@@ -177,7 +179,7 @@ class FilmModu : MainAPI() {
                 )
 
                 if (vidReqRaw.code != 200) {
-                    Log.e("FLMMD", "get-source HTTP hata kodu: ${vidReqRaw.code}. Yanıt: ${vidReqRaw.text}")
+                    Log.e("FLMMD", "get-source HTTP hata kodu: ${vidReqRaw.code}. YanÄ±t: ${vidReqRaw.text}")
                     return@forEach
                 }
 
@@ -186,21 +188,21 @@ class FilmModu : MainAPI() {
                 val vidReq = vidReqRaw.parsedSafe<GetSource>()
 
                 if (vidReq == null) {
-                    Log.e("FLMMD", "GetSource objesi null döndü. JSON ayrıştırma başarısız. Ham cevap: ${vidReqRaw.text.substring(0, minOf(vidReqRaw.text.length, 500))}")
+                    Log.e("FLMMD", "GetSource objesi null dÃ¶ndÃ¼. JSON ayrÄ±ÅŸtÄ±rma baÅŸarÄ±sÄ±z. Ham cevap: ${vidReqRaw.text.substring(0, minOf(vidReqRaw.text.length, 500))}")
                     return@forEach
                 }
 
                 vidReq.subtitle?.let { subPath ->
-                    val fullSubUrl = fixUrl("${mainUrl}${subPath}") // Tam URL'yi fixUrl ile oluştur
+                    val fullSubUrl = fixUrl("${mainUrl}${subPath}") // Tam URL'yi fixUrl ile oluÅŸtur
                     subtitleCallback(SubtitleFile(altName, fullSubUrl))
-                    Log.d("FLMMD", "Altyazı bulundu: $fullSubUrl")
-                } ?: Log.d("FLMMD", "Altyazı bulunamadı.")
+                    Log.d("FLMMD", "AltyazÄ± bulundu: $fullSubUrl")
+                } ?: Log.d("FLMMD", "AltyazÄ± bulunamadÄ±.")
 
                 vidReq.sources?.forEach { source ->
                     callback.invoke(
                         newExtractorLink(
-                            source = source.src, // BURADA DÜZELTME YAPILDI: source.src kullanıldı
-                            name = "FilmModu - $altName", // Kaynak için görünen isim
+                            source = source.src, // BURADA DÃœZELTME YAPILDI: source.src kullanÄ±ldÄ±
+                            name = "FilmModu - $altName", // Kaynak iÃ§in gÃ¶rÃ¼nen isim
                             url = fixUrl(source.src), // URL parametresi olarak yine source.src
                             type = ExtractorLinkType.M3U8 // Orijinal kodunuzdaki gibi INFER_TYPE
                         ) {
@@ -208,14 +210,14 @@ class FilmModu : MainAPI() {
                             this.quality = getQualityFromName(source.label) // Kaliteyi atama
                         }
                     )
-                    Log.d("FLMMD", "Video kaynağı eklendi: Source Name: FilmModu - ${altName}, URL: ${source.src}, Label: ${source.label}")
-                } ?: Log.w("FLMMD", "Video kaynakları (sources) boş veya null. vidReq: $vidReq")
+                    Log.d("FLMMD", "Video kaynaÄŸÄ± eklendi: Source Name: FilmModu - ${altName}, URL: ${source.src}, Label: ${source.label}")
+                } ?: Log.w("FLMMD", "Video kaynaklarÄ± (sources) boÅŸ veya null. vidReq: $vidReq")
 
             } catch (e: Exception) {
-                Log.e("FLMMD", "Alternatif link işleme hatası: $altLink, Hata: ${e.message}", e) // Hata nesnesini de logluyoruz
+                Log.e("FLMMD", "Alternatif link iÅŸleme hatasÄ±: $altLink, Hata: ${e.message}", e) // Hata nesnesini de logluyoruz
             }
         }
-        Log.d("FLMMD", "loadLinks fonksiyonu tamamlandı.")
+        Log.d("FLMMD", "loadLinks fonksiyonu tamamlandÄ±.")
         return true
     }
 }

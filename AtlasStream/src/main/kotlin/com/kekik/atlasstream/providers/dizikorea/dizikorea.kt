@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.dizikorea
 
-package com.kekik.atlasstream.providers.dizikorea
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import com.lagradost.cloudstream3.Actor
@@ -41,9 +43,9 @@ class DiziKorea : MainAPI() {
         "${mainUrl}/kore-filmleri-izle1/" to "Kore Filmleri",
         "${mainUrl}/tayland-dizileri/" to "Tayland Dizileri",
         "${mainUrl}/tayland-filmleri/" to "Tayland Filmleri",
-        "${mainUrl}/cin-dizileri/" to "Çin Dizileri",
-        "${mainUrl}/cin-filmleri/" to "Çin Filmleri",
-        "${mainUrl}/yabanci-dizi/" to "Yabancı Dizi"
+        "${mainUrl}/cin-dizileri/" to "Ã‡in Dizileri",
+        "${mainUrl}/cin-filmleri/" to "Ã‡in Filmleri",
+        "${mainUrl}/yabanci-dizi/" to "YabancÄ± Dizi"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -112,7 +114,7 @@ class DiziKorea : MainAPI() {
         val tags = document.select("div.series-profile-type a").mapNotNull { it.text().trim() }
         val rating = document.selectFirst("span.color-imdb")?.text()?.trim()
         val duration =
-            document.selectXpath("//span[text()='Süre']//following-sibling::p").text().trim()
+            document.selectXpath("//span[text()='SÃ¼re']//following-sibling::p").text().trim()
                 .split(" ").first().toIntOrNull()
         val trailer = document.selectFirst("div.series-profile-trailer")?.attr("data-yt")
         val actors = document.select("div.series-profile-cast li").map {
@@ -131,7 +133,7 @@ class DiziKorea : MainAPI() {
                         episodeElement.selectFirst("a.truncate data")?.text()?.trim()?.toIntOrNull()
 
                     episodes.add(newEpisode(epHref) {
-                        this.name = "${epSeason}. Sezon ${epEpisode}. Bölüm"
+                        this.name = "${epSeason}. Sezon ${epEpisode}. BÃ¶lÃ¼m"
                         this.season = epSeason
                         this.episode = epEpisode
                     })
@@ -168,13 +170,13 @@ class DiziKorea : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("DZK", "data » $data")
+        Log.d("DZK", "data Â» $data")
         val document = app.get(data).document
 
 
         document.select("div.series-watch-alternatives button").forEach {
             val iframe = fixUrlNull(it.attr("data-hhs")) ?: return@forEach
-            Log.d("DZK", "iframe » $iframe")
+            Log.d("DZK", "iframe Â» $iframe")
 
             loadExtractor(iframe, "${mainUrl}/", subtitleCallback, callback)
         }

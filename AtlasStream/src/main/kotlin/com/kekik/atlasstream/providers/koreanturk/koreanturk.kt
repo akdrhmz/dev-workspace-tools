@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.koreanturk
 
-package com.kekik.atlasstream.providers.koreanturk
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import org.jsoup.nodes.Element
@@ -21,10 +23,10 @@ class KoreanTurk : MainAPI() {
         "${mainUrl}/Konu-Aile"            to "Aile",
         "${mainUrl}/Konu-Aksiyon"         to "Aksiyon",
         "${mainUrl}/Konu-Bilim-Kurgu"     to "Bilim Kurgu",
-        "${mainUrl}/Konu-Donem"           to "Dönem",
+        "${mainUrl}/Konu-Donem"           to "DÃ¶nem",
         "${mainUrl}/Konu-Dram"            to "Dram",
         "${mainUrl}/Konu-Fantastik"       to "Fantastik",
-        "${mainUrl}/Konu-Genclik"         to "Gençlik",
+        "${mainUrl}/Konu-Genclik"         to "GenÃ§lik",
         "${mainUrl}/Konu-Gerilim"         to "Gerilim",
         "${mainUrl}/Konu-Gizem"           to "Gizem",
         "${mainUrl}/Konu-Hukuk"           to "Hukuk",
@@ -36,7 +38,7 @@ class KoreanTurk : MainAPI() {
         "${mainUrl}/Konu-Polisiye-Askeri" to "Polisiye-Askeri",
         "${mainUrl}/Konu-Romantik"        to "Romantik",
         "${mainUrl}/Konu-Romantik-Komedi" to "Romantik Komedi",
-        "${mainUrl}/Konu-Suc"             to "Suç",
+        "${mainUrl}/Konu-Suc"             to "SuÃ§",
         "${mainUrl}/Konu-Tarih"           to "Tarih",
     )
 
@@ -71,7 +73,7 @@ class KoreanTurk : MainAPI() {
 
     private fun Element.toSearchResult(): SearchResponse? {
         val dizi      = this.selectFirst("h2 span")?.text()?.trim() ?: return null
-        val bolum     = this.selectFirst("h2")?.ownText()?.substringBefore(".Bölüm")?.trim()
+        val bolum     = this.selectFirst("h2")?.ownText()?.substringBefore(".BÃ¶lÃ¼m")?.trim()
         val title     = "$dizi | $bolum"
 
         var href      = fixUrlNull(this.selectFirst("a")?.attr("href")) ?: return null
@@ -126,7 +128,7 @@ class KoreanTurk : MainAPI() {
         val episodes    = document.select("div.standartbox a").mapNotNull {
             val epName    = it.selectFirst("h2")?.ownText()?.trim() ?: return@mapNotNull null
             val epHref    = fixUrlNull(it.attr("href")) ?: return@mapNotNull null
-            val epEpisode = Regex("""(\d+)\.Bölüm""").find(epName)?.groupValues?.get(1)?.toIntOrNull()
+            val epEpisode = Regex("""(\d+)\.BÃ¶lÃ¼m""").find(epName)?.groupValues?.get(1)?.toIntOrNull()
             val epSeason  = Regex("""(\d+)\.Sezon""").find(epName)?.groupValues?.get(1)?.toIntOrNull() ?: 1
 
             newEpisode(epHref) {
@@ -144,7 +146,7 @@ class KoreanTurk : MainAPI() {
     }
 
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
-        Log.d("KRT", "data » $data")
+        Log.d("KRT", "data Â» $data")
         val document = app.get(data).document
 
         val iframes = mutableListOf<String>()
@@ -160,7 +162,7 @@ class KoreanTurk : MainAPI() {
         }
 
         iframes.forEach { iframe ->
-            Log.d("KRT", "iframe » $iframe")
+            Log.d("KRT", "iframe Â» $iframe")
             loadExtractor(iframe, "${mainUrl}/", subtitleCallback, callback)
         }
 

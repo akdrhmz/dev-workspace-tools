@@ -1,4 +1,4 @@
-package com.kekik.atlasstream.providers.roketdizi
+﻿package com.kekik.atlasstream.providers.roketdizi
 
 import android.util.Base64
 import android.util.Log
@@ -56,7 +56,7 @@ class RoketDizi : MainAPI() {
         "${mainUrl}/dizi/tur/komedi" to "Komedi",
         "${mainUrl}/dizi/tur/korku" to "Korku",
         "${mainUrl}/dizi/tur/macera" to "Macera",
-        "${mainUrl}/dizi/tur/suc" to "Suç",
+        "${mainUrl}/dizi/tur/suc" to "SuÃ§",
 
         "${mainUrl}/film-kategori/animasyon" to "Animasyon Film",
         "${mainUrl}/film-kategori/aile" to "Aile Film",
@@ -65,12 +65,12 @@ class RoketDizi : MainAPI() {
         "${mainUrl}/film-kategori/gizem" to "Gizem Film",
         "${mainUrl}/film-kategori/gerilim" to "Gerilim Film",
         "${mainUrl}/film-kategori/bilim-kurgu" to "Bilim Kurgu Film",
-        "${mainUrl}/film-kategori/savas" to "Savaş Film",
+        "${mainUrl}/film-kategori/savas" to "SavaÅŸ Film",
         "${mainUrl}/film-kategori/romantik" to "Romantik Film",
         "${mainUrl}/film-kategori/fantastik" to "Fantastik Film",
         "${mainUrl}/film-kategori/korku" to "Korku Film",
         "${mainUrl}/film-kategori/macera" to "Macera Film",
-        "${mainUrl}/film-kategori/suc" to "Suç Film",
+        "${mainUrl}/film-kategori/suc" to "SuÃ§ Film",
         "${mainUrl}/film-kategori/komedi" to "Komedi Film",
     )
 
@@ -229,7 +229,7 @@ class RoketDizi : MainAPI() {
         }
         var trailer = ""
         if (root.relatedResults.getContentTrailers?.state == true && root.relatedResults.getContentTrailers.result?.size!! > 0) {
-            Log.d("SFX", "getContentTrailers null değil")
+            Log.d("SFX", "getContentTrailers null deÄŸil")
             Log.d(
                 "SFX",
                 "getContentTrailers ->  ${root.relatedResults.getContentTrailers.result}"
@@ -238,7 +238,7 @@ class RoketDizi : MainAPI() {
         }
 
         if (root.relatedResults.getSerieSeasonAndEpisodes != null) {
-            Log.d("SFX", "getSerieSeasonAndEpisodes null değil")
+            Log.d("SFX", "getSerieSeasonAndEpisodes null deÄŸil")
             Log.d(
                 "SFX",
                 "getSerieSeasonAndEpisodes ->  ${root.relatedResults.getSerieSeasonAndEpisodes}"
@@ -288,7 +288,7 @@ class RoketDizi : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("SFX", "data » $data")
+        Log.d("SFX", "data Â» $data")
         val objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         val encodedDoc = app.get(data).document
@@ -331,7 +331,7 @@ class RoketDizi : MainAPI() {
         Log.d("SFX", "iframes -> $iframes")
         iframes.forEach { it ->
             val iframe = fixUrlNull(Jsoup.parse(it.sourceContent).select("iframe").attr("src"))
-            Log.d("SFX", "iframe » $iframe")
+            Log.d("SFX", "iframe Â» $iframe")
             loadExtractor(iframe!!, "${mainUrl}/", subtitleCallback, callback)
         }
 

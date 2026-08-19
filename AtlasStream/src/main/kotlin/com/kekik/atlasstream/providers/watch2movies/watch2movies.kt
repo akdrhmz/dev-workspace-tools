@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.watch2movies
 
-package com.kekik.atlasstream.providers.watch2movies
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import org.jsoup.nodes.Element
@@ -162,12 +164,12 @@ class Watch2Movies : MainAPI() {
     }
 
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
-        Log.d("W2M", "loadLinks data » $data")
+        Log.d("W2M", "loadLinks data Â» $data")
         val document = app.get(data).document
         val scriptContent = document.select("script").map { it.data() }.firstOrNull { it.contains("pl_url") }
         val plUrl = scriptContent?.let { Regex("""pl_url\s*=\s*['\"]([^'\"]+)['\"];""").find(it)?.groupValues?.get(1) } ?: return false
 
-        Log.d("W2M", "plUrl » $plUrl")
+        Log.d("W2M", "plUrl Â» $plUrl")
         val srvHtml = app.get(plUrl, referer = data).text
         val srvDoc = Jsoup.parse(srvHtml)
 

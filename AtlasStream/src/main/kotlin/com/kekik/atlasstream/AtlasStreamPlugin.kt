@@ -2,13 +2,11 @@
 
 import android.app.AlertDialog
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.widget.EditText
 import android.widget.LinearLayout
 import com.lagradost.cloudstream3.CloudStreamApp
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
 import com.lagradost.cloudstream3.plugins.Plugin
-import com.lagradost.cloudstream3.plugins.Plugin.Manifest
 
 @CloudstreamPlugin
 class AtlasStreamPlugin : Plugin() {
@@ -17,7 +15,7 @@ class AtlasStreamPlugin : Plugin() {
         const val PREF_KEY_TMDB_API_KEY = "atlasstream_tmdb_api_key"
         const val PREF_KEY_USE_TURKISH = "atlasstream_use_turkish"
 
-                val ALL_SOURCES = linkedMapOf(
+        val ALL_SOURCES = linkedMapOf(
             "DiziBox"          to "DiziBox (Yabanci Dizi)",
             "Dizilla"          to "Dizilla (Yabanci Dizi)",
             "FilmMakinesi"     to "FilmMakinesi (Film Odakli)",
@@ -29,101 +27,38 @@ class AtlasStreamPlugin : Plugin() {
             "FilmModu"         to "FilmModu (Film Odakli)",
             "SezonlukDizi"     to "SezonlukDizi (Dizi Odakli)",
             "CizgiMax"         to "CizgiMax (Cizgi Dizi/Film)",
-            "BelgeselX" to "BelgeselX (Dinamik Kaynak)",
-            "WebteIzle" to "WebteIzle (Dinamik Kaynak)",
-            "SetFilmIzle" to "SetFilmIzle (Dinamik Kaynak)",
-            "Tafdi" to "Tafdi (Dinamik Kaynak)",
-            "SezonlukDizi" to "SezonlukDizi (Dinamik Kaynak)",
-            "JetFilmizle" to "JetFilmizle (Dinamik Kaynak)",
-            "DMax" to "DMax (Dinamik Kaynak)",
-            "FullHDFilmİzlede" to "FullHDFilmİzlede (Dinamik Kaynak)",
-            "FilmMakinesi" to "FilmMakinesi (Dinamik Kaynak)",
-            "WFilmİzle" to "WFilmİzle (Dinamik Kaynak)",
-            "DiziKorea" to "DiziKorea (Dinamik Kaynak)",
-            "KultFilmler" to "KultFilmler (Dinamik Kaynak)",
-            "powerDizi" to "powerDizi (Dinamik Kaynak)",
-            "FullHDFilmizlesene" to "FullHDFilmizlesene (Dinamik Kaynak)",
-            "SinemaCX" to "SinemaCX (Dinamik Kaynak)",
-            "DiziMom" to "DiziMom (Dinamik Kaynak)",
-            "DiziBox" to "DiziBox (Dinamik Kaynak)",
-            "FilmKovasi" to "FilmKovasi (Dinamik Kaynak)",
-            "Dizilla" to "Dizilla (Dinamik Kaynak)",
-            "HDFilmSitesi" to "HDFilmSitesi (Dinamik Kaynak)",
-            "DiziMag" to "DiziMag (Dinamik Kaynak)",
-            "HDFilmCehennemi" to "HDFilmCehennemi (Dinamik Kaynak)",
-            "SuperFilmGeldi" to "SuperFilmGeldi (Dinamik Kaynak)",
-            "CizgiMax" to "CizgiMax (Dinamik Kaynak)",
-            "YabanciDizi" to "YabanciDizi (Dinamik Kaynak)",
-            "RoketDizi" to "RoketDizi (Dinamik Kaynak)",
-            "powerSinema" to "powerSinema (Dinamik Kaynak)",
-            "HDFilmCehennemi2" to "HDFilmCehennemi2 (Dinamik Kaynak)",
-            "AsyaWatch" to "AsyaWatch (Dinamik Kaynak)",
-            "UgurFilm" to "UgurFilm (Dinamik Kaynak)",
-            "XPrime" to "XPrime (Dinamik Kaynak)",
-            "DiziYou" to "DiziYou (Dinamik Kaynak)",
-            "Filmİzlesene" to "Filmİzlesene (Dinamik Kaynak)",
-            "FilmIzleIlk" to "FilmIzleIlk (Dinamik Kaynak)",
-            "KoreanTurk" to "KoreanTurk (Dinamik Kaynak)",
-            "TLC" to "TLC (Dinamik Kaynak)",
-            "SineWix" to "SineWix (Dinamik Kaynak)",
-            "DiziGom" to "DiziGom (Dinamik Kaynak)",
-            "HDFilmIzle" to "HDFilmIzle (Dinamik Kaynak)",
-            "TvDiziler" to "TvDiziler (Dinamik Kaynak)",
-            "FullHDFilm" to "FullHDFilm (Dinamik Kaynak)",
-            "DDizi" to "DDizi (Dinamik Kaynak)",
-            "FilmModu" to "FilmModu (Dinamik Kaynak)",
-            "DiziPal" to "DiziPal (Dinamik Kaynak)",
-            "AltiYuzAltmisAltiFilmIzle" to "AltiYuzAltmisAltiFilmIzle (Dinamik Kaynak)",
-            "DiziPalOriginal" to "DiziPalOriginal (Dinamik Kaynak)",
-            "Watch2Movies" to "Watch2Movies (Dinamik Kaynak)",
-            "TRasyalog" to "TRasyalog (Dinamik Kaynak)",
-            "TRanimaci" to "TRanimaci (Dinamik Kaynak)",
-            "TLCtr" to "TLCtr (Dinamik Kaynak)",
-            "RareFilmm" to "RareFilmm (Dinamik Kaynak)",
-        )",
-            "Dizilla"          to "Dizilla (Yabanc Dizi)",
-            "FilmMakinesi"     to "FilmMakinesi (Film Odakl)",
-            "HDFilmCehennemi"  to "HDFilmCehennemi (Geni Ariv)",
-            "SineWix"          to "SineWix (Dizi & Film)",
-            "JetFilmizle"      to "JetFilmizle (Yerli/Yabanc Film)",
-            "DiziPal"          to "DiziPal (Geni Ariv)",
-            "FullHDFilmizlesene" to "FullHDFilmizlesene (Film Odakl)",
-            "FilmModu"         to "FilmModu (Film Odakl)",
-            "SezonlukDizi"     to "SezonlukDizi (Dizi Odakl)",
-            "CizgiMax"         to "CizgiMax (izgi Dizi/Film)",
-            
-            // --- Dinamik Entegre Edilen Kaynaklar ---            "DiziMom" to "DiziMom (Dinamik Kaynak)",
-            "SetFilmIzle" to "SetFilmIzle (Dinamik Kaynak)",
-            "WebteIzle" to "WebteIzle (Dinamik Kaynak)",
-            "KultFilmler" to "KultFilmler (Dinamik Kaynak)",
-            "TRanimaci" to "TRanimaci (Dinamik Kaynak)",
-            "YabanciDizi" to "YabanciDizi (Dinamik Kaynak)",
-            "FilmKovasi" to "FilmKovasi (Dinamik Kaynak)",
-            "HDFilmSitesi" to "HDFilmSitesi (Dinamik Kaynak)",
-            "DiziGom" to "DiziGom (Dinamik Kaynak)",
-            "DDizi" to "DDizi (Dinamik Kaynak)",
-            "DiziYou" to "DiziYou (Dinamik Kaynak)",
-            "SinemaCX" to "SinemaCX (Dinamik Kaynak)",
-            "FullHDFilm" to "FullHDFilm (Dinamik Kaynak)",
-            "HDFilmIzle" to "HDFilmIzle (Dinamik Kaynak)",
-            "RoketDizi" to "RoketDizi (Dinamik Kaynak)",
-            "DiziMag" to "DiziMag (Dinamik Kaynak)",
-            "powerSinema" to "powerSinema (Dinamik Kaynak)",
-            "powerDizi" to "powerDizi (Dinamik Kaynak)",
-            "UgurFilm" to "UgurFilm (Dinamik Kaynak)",
-            "SuperFilmGeldi" to "SuperFilmGeldi (Dinamik Kaynak)",
-            "BelgeselX" to "BelgeselX (Dinamik Kaynak)",
-            "DMax" to "DMax (Dinamik Kaynak)",
-            "AltiYuzAltmisAltiFilmIzle" to "AltiYuzAltmisAltiFilmIzle (Dinamik Kaynak)",
-            "RareFilmm" to "RareFilmm (Dinamik Kaynak)",
-            "FilmIzleIlk" to "FilmIzleIlk (Dinamik Kaynak)",
-            "Tafdi" to "Tafdi (Dinamik Kaynak)",
-            "TvDiziler" to "TvDiziler (Dinamik Kaynak)",
-            "XPrime" to "XPrime (Dinamik Kaynak)",
-            "KoreanTurk" to "KoreanTurk (Dinamik Kaynak)",
-            "AsyaWatch" to "AsyaWatch (Dinamik Kaynak)",
-            "DiziKorea" to "DiziKorea (Dinamik Kaynak)",
-            "Watch2Movies" to "Watch2Movies (Dinamik Kaynak)",
+            "YabanciDizi"      to "YabanciDizi (Dizi Odakli)",
+            "FilmKovasi"       to "FilmKovasi (Film Odakli)",
+            "HDFilmSitesi"     to "HDFilmSitesi (Film Odakli)",
+            "DiziGom"          to "DiziGom (Dizi Odakli)",
+            "DDizi"            to "DDizi (Yerli/Yabanci Dizi)",
+            "DiziYou"          to "DiziYou (Dizi Odakli)",
+            "SinemaCX"         to "SinemaCX (Film Odakli)",
+            "FullHDFilm"       to "FullHDFilm (Film Odakli)",
+            "HDFilmIzle"       to "HDFilmIzle (Film Odakli)",
+            "RoketDizi"        to "RoketDizi (Dizi Odakli)",
+            "DiziMag"          to "DiziMag (Dizi Odakli)",
+            "powerSinema"      to "powerSinema (Film Odakli)",
+            "powerDizi"        to "powerDizi (Dizi Odakli)",
+            "UgurFilm"         to "UgurFilm (Film Odakli)",
+            "SuperFilmGeldi"   to "SuperFilmGeldi (Film Odakli)",
+            "BelgeselX"        to "BelgeselX (Belgesel)",
+            "DMax"             to "DMax (Belgesel/Program)",
+            "AltiYuzAltmisAltiFilmIzle" to "AltiYuzAltmisAlti (Film)",
+            "RareFilmm"        to "RareFilmm (Kult Film)",
+            "FilmIzleIlk"      to "FilmIzleIlk (Film)",
+            "Tafdi"            to "Tafdi (Film & Dizi)",
+            "TvDiziler"        to "TvDiziler (Dizi)",
+            "XPrime"           to "XPrime (Dizi & Film)",
+            "KoreanTurk"       to "KoreanTurk (Asya/Kore)",
+            "AsyaWatch"        to "AsyaWatch (Asya)",
+            "DiziKorea"        to "DiziKorea (Kore)",
+            "Watch2Movies"     to "Watch2Movies (Film/Dizi)",
+            "DiziMom"          to "DiziMom (Dizi)",
+            "SetFilmIzle"      to "SetFilmIzle (Film)",
+            "WebteIzle"        to "WebteIzle (Film)",
+            "KultFilmler"      to "KultFilmler (Nostalji/Film)",
+            "TRanimaci"        to "TRanimaci (Cizgi Dizi)"
         )
     }
 
@@ -137,13 +72,13 @@ class AtlasStreamPlugin : Plugin() {
 
     private fun showSettingsDialog(context: Context) {
         val options = arrayOf(
-            "Kaynak Ynetimi (Siteleri A/Kapat)",
-            "TMDB API Anahtar Yaplandr",
-            "Hakknda & Durum"
+            "Kaynak Yonetimi (Siteleri Ac/Kapat)",
+            "TMDB API Anahtari Yapilandir",
+            "Hakkinda & Durum"
         )
 
         AlertDialog.Builder(context)
-            .setTitle("AtlasStream Ayarlar")
+            .setTitle("AtlasStream Ayarlari")
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> showSourceSelectionDialog(context)
@@ -165,7 +100,7 @@ class AtlasStreamPlugin : Plugin() {
         }
 
         AlertDialog.Builder(context)
-            .setTitle("Aktif Kaynaklar Sein")
+            .setTitle("Aktif Kaynaklari Secin")
             .setMultiChoiceItems(sourceNames, checkedItems) { _, which, isChecked ->
                 checkedItems[which] = isChecked
             }
@@ -176,17 +111,17 @@ class AtlasStreamPlugin : Plugin() {
                 }
                 CloudStreamApp.setKey(PREF_KEY_ENABLED_SOURCES, selected)
             }
-            .setNeutralButton("Tmn Se") { _, _ ->
+            .setNeutralButton("Tumunu Sec") { _, _ ->
                 CloudStreamApp.setKey(PREF_KEY_ENABLED_SOURCES, sourceKeys.toList())
             }
-            .setNegativeButton("ptal", null)
+            .setNegativeButton("Iptal", null)
             .show()
     }
 
     private fun showTmdbKeyDialog(context: Context) {
         val currentKey = CloudStreamApp.getKey<String>(PREF_KEY_TMDB_API_KEY) ?: ""
         val input = EditText(context).apply {
-            hint = "TMDB API v3 Key girin (bo = varsaylan)"
+            hint = "TMDB API v3 Key girin (bos = varsayilan)"
             setText(currentKey)
         }
 
@@ -197,8 +132,8 @@ class AtlasStreamPlugin : Plugin() {
         }
 
         AlertDialog.Builder(context)
-            .setTitle("TMDB API Anahtar")
-            .setMessage("Kendi TMDB API anahtarnz kullanmak isterseniz buraya girin:")
+            .setTitle("TMDB API Anahtari")
+            .setMessage("Kendi TMDB API anahtarinizi kullanmak isterseniz buraya girin:")
             .setView(layout)
             .setPositiveButton("Kaydet") { _, _ ->
                 val key = input.text.toString().trim()
@@ -208,17 +143,17 @@ class AtlasStreamPlugin : Plugin() {
                     CloudStreamApp.removeKey(PREF_KEY_TMDB_API_KEY)
                 }
             }
-            .setNeutralButton("Sfrla") { _, _ ->
+            .setNeutralButton("Sifirla") { _, _ ->
                 CloudStreamApp.removeKey(PREF_KEY_TMDB_API_KEY)
             }
-            .setNegativeButton("ptal", null)
+            .setNegativeButton("Iptal", null)
             .show()
     }
 
     private fun showAboutDialog(context: Context) {
         AlertDialog.Builder(context)
             .setTitle("AtlasStream v3.0")
-            .setMessage("AtlasStream: Trkiye'nin en kapsaml Meta-Provider CloudStream eklentisi.\n\nToplam 40+ farkl film ve dizi kaynan tek bir arayzde birletirir. Anime ve Canl TV harici tm film/dizi arivini kapsar.")
+            .setMessage("AtlasStream: Turkiye'nin en kapsamli Meta-Provider CloudStream eklentisi.\n\nToplam 40+ farkli film ve dizi kaynagini tek bir arayuzde birlestirir.")
             .setPositiveButton("Tamam", null)
             .show()
     }

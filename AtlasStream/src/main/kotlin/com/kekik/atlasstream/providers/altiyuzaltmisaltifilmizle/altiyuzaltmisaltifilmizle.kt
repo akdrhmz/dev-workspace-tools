@@ -1,5 +1,7 @@
-//Bu eklenti @feroxxcs3 için @patr0n tarafından gelistirildi.
-package com.kekik.atlasstream.providers.altiyuzaltmisaltifilmizle
+﻿package com.kekik.atlasstream.providers.altiyuzaltmisaltifilmizle
+
+//Bu eklenti @feroxxcs3 iÃ§in @patr0n tarafÄ±ndan gelistirildi.
+
 
 import android.util.Base64
 import android.util.Log
@@ -20,7 +22,7 @@ class AltiYuzAltmisAltiFilmIzle : MainAPI() {
         "${mainUrl}/tur/aksiyon-filmleri-1/"        to "Aksiyon",
        //${mainUrl}/tur/macera-filmleri/"           to "Macera",
         "${mainUrl}/tur/bilim-kurgu/"               to "Bilim-Kurgu",
-        "${mainUrl}/tur/savas-filmleri/"            to "Savaş",
+        "${mainUrl}/tur/savas-filmleri/"            to "SavaÅŸ",
         "${mainUrl}/tur/gerilim-filmleri/"          to "Gerilim",
         "${mainUrl}/tur/komedi-filmleri/"           to "Komedi"
     )
@@ -70,14 +72,14 @@ class AltiYuzAltmisAltiFilmIzle : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("666FilmIzle", "data » $data")
+        Log.d("666FilmIzle", "data Â» $data")
         val document = app.get(data).document
 
         
         document.select("button.player-sources__btn").forEach { button ->
             val iframeSrc = button.attr("data-frame")
             if (iframeSrc.isNotBlank()) {
-                Log.d("666FilmIzle", "bulunan iframe(data-frame) » $iframeSrc")
+                Log.d("666FilmIzle", "bulunan iframe(data-frame) Â» $iframeSrc")
                 
                 if (iframeSrc.contains("rapidplay.website")) {
                     val id = iframeSrc.substringAfterLast("#")
@@ -105,7 +107,7 @@ class AltiYuzAltmisAltiFilmIzle : MainAPI() {
         document.select("div.player-content iframe, iframe").forEach { iframe ->
             val iframeSrc = iframe.attr("src")
             if (iframeSrc.isNotBlank() && !iframeSrc.contains("youtube")) {
-                Log.d("666FilmIzle", "Mevcut iframe (fallback) » $iframeSrc")
+                Log.d("666FilmIzle", "Mevcut iframe (fallback) Â» $iframeSrc")
                 loadExtractor(iframeSrc, "${mainUrl}/", subtitleCallback, callback)
             }
         }

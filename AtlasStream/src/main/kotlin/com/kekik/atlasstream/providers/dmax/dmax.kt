@@ -1,4 +1,4 @@
-package com.kekik.atlasstream.providers.dmax
+﻿package com.kekik.atlasstream.providers.dmax
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -32,15 +32,15 @@ class DMax : MainAPI() {
     )
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/kesfet"      to "Öne Çıkanlar",
+        "${mainUrl}/kesfet"      to "Ã–ne Ã‡Ä±kanlar",
         "${mainUrl}/kesfet/a-z"      to "A-Z",
         "${mainUrl}/kesfet/turbo"      to "Turbo",
-        "${mainUrl}/kesfet/dogayla-ic-ice"      to "Doğayla İç içe",
-        "${mainUrl}/kesfet/zorlu-isler"      to "Zorlu İşler",
+        "${mainUrl}/kesfet/dogayla-ic-ice"      to "DoÄŸayla Ä°Ã§ iÃ§e",
+        "${mainUrl}/kesfet/zorlu-isler"      to "Zorlu Ä°ÅŸler",
         "${mainUrl}/kesfet/spor"      to "Spor",
         "${mainUrl}/kesfet/belgesel"      to "Belgesel",
-        "${mainUrl}/kesfet/nasil-yapiliyor"      to "Nasıl Yapılıyor?",
-        "${mainUrl}/kesfet/popcorn-kusagi"      to "Popcorn Kuşağı",    )
+        "${mainUrl}/kesfet/nasil-yapiliyor"      to "NasÄ±l YapÄ±lÄ±yor?",
+        "${mainUrl}/kesfet/popcorn-kusagi"      to "Popcorn KuÅŸaÄŸÄ±",    )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         if (page > 1) {
@@ -76,7 +76,7 @@ class DMax : MainAPI() {
 
     override suspend fun load(url: String): LoadResponse {
         val doc = app.get(url).document
-        val title = doc.selectFirst("div.slide-title h1")?.text() ?: "Bilinmeyen Başlık"
+        val title = doc.selectFirst("div.slide-title h1")?.text() ?: "Bilinmeyen BaÅŸlÄ±k"
         val poster = doc.selectFirst("div.slide-background")?.attr("data-mobile-src")
         val description = doc.selectFirst("div.slide-description p")?.text()
         val programId = doc.selectFirst("li.current a")?.attr("data-program-id") ?: ""
@@ -101,7 +101,7 @@ class DMax : MainAPI() {
             docu.select("div.items a").forEach { it ->
                 val href = it.attr("href")
                 val img = it.selectFirst("img")?.attr("src")
-                val epName = it.selectFirst("strong")?.text() + " - Kısa Video"
+                val epName = it.selectFirst("strong")?.text() + " - KÄ±sa Video"
                 episodeses.add(newEpisode(href) {
                     this.posterUrl = img
                     this.name = epName
@@ -117,10 +117,10 @@ class DMax : MainAPI() {
     }
 
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
-        Log.d("TLC", "data » $data")
+        Log.d("TLC", "data Â» $data")
         val document = app.get(data).document
         val videoCode = document.selectFirst("div.videp-player-container div")?.attr("data-video-code")
-        Log.d("TLC", "videoCode » $videoCode")
+        Log.d("TLC", "videoCode Â» $videoCode")
         val vidUrl = "https://dygvideo.dygdigital.com/api/redirect?PublisherId=27&ReferenceId=$videoCode&SecretKey=NtvApiSecret2014*"
         callback.invoke(
             newExtractorLink(

@@ -1,4 +1,4 @@
-package com.kekik.atlasstream.providers.tvdiziler
+﻿package com.kekik.atlasstream.providers.tvdiziler
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

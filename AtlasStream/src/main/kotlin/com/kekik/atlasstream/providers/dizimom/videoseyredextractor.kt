@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.dizimom
 
-package com.kekik.atlasstream.providers.dizimom
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -17,7 +19,7 @@ open class VideoSeyred : ExtractorApi() {
     override suspend fun getUrl(url: String, referer: String?, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit) {
         val videoId  = url.substringAfter("embed/").substringBefore("?")
         val videoUrl = "${mainUrl}/playlist/${videoId}.json"
-        Log.d("Kekik_${this.name}", "videoUrl » $videoUrl")
+        Log.d("Kekik_${this.name}", "videoUrl Â» $videoUrl")
 
         val responseRaw                          = app.get(videoUrl)
         val responseList:List<VideoSeyredSource> = jacksonObjectMapper().readValue(responseRaw.text) ?: throw ErrorLoadingException("VideoSeyred")

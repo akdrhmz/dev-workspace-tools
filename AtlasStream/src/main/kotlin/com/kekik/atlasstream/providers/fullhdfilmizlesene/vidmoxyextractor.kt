@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.fullhdfilmizlesene
 
-package com.kekik.atlasstream.providers.fullhdfilmizlesene
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -24,7 +26,7 @@ open class VidMoxy : ExtractorApi() {
 
             subtitleCallback.invoke(
                 SubtitleFile(
-                    lang = subLang.replace("\\u0131", "ı").replace("\\u0130", "İ").replace("\\u00fc", "ü").replace("\\u00e7", "ç"),
+                    lang = subLang.replace("\\u0131", "Ä±").replace("\\u0130", "Ä°").replace("\\u00fc", "Ã¼").replace("\\u00e7", "Ã§"),
                     url  = fixUrl(subUrl.replace("\\", ""))
                 )
             )
@@ -44,7 +46,7 @@ open class VidMoxy : ExtractorApi() {
             val bytes = extractedValue?.chunked(2)?.map { it.toInt(16).toByte() }?.toByteArray()
             decoded   = bytes?.toString(Charsets.UTF_8) ?: throw ErrorLoadingException("File not found")
         }
-        Log.d("Kekik_${this.name}", "decoded » $decoded")
+        Log.d("Kekik_${this.name}", "decoded Â» $decoded")
 
         callback.invoke(
             newExtractorLink(

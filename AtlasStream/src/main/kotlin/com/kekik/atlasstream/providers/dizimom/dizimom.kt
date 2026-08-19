@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.dizimom
 
-package com.kekik.atlasstream.providers.dizimom
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import com.lagradost.cloudstream3.Actor
@@ -36,11 +38,11 @@ class DiziMom : MainAPI() {
     override val supportedTypes = setOf(TvType.TvSeries)
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/tum-bolumler/page/" to "Son Bölümler",
+        "${mainUrl}/tum-bolumler/page/" to "Son BÃ¶lÃ¼mler",
         "${mainUrl}/yerli-dizi-izle/page/" to "Yerli Diziler",
-        "${mainUrl}/yabanci-dizi-izle/page/" to "Yabancı Diziler",
-        "${mainUrl}/tv-programlari-izle/page/" to "TV Programları",
-        // "${mainUrl}/turkce-dublaj-diziler/page/"      to "Dublajlı Diziler",   // ! "Son Bölümler" Ana sayfa yüklenmesini yavaşlattığı için bunlar devre dışı bırakılmıştır..
+        "${mainUrl}/yabanci-dizi-izle/page/" to "YabancÄ± Diziler",
+        "${mainUrl}/tv-programlari-izle/page/" to "TV ProgramlarÄ±",
+        // "${mainUrl}/turkce-dublaj-diziler/page/"      to "DublajlÄ± Diziler",   // ! "Son BÃ¶lÃ¼mler" Ana sayfa yÃ¼klenmesini yavaÅŸlattÄ±ÄŸÄ± iÃ§in bunlar devre dÄ±ÅŸÄ± bÄ±rakÄ±lmÄ±ÅŸtÄ±r..
         // "${mainUrl}/netflix-dizileri-izle/page/"      to "Netflix Dizileri",
         // "${mainUrl}/kore-dizileri-izle/page/"         to "Kore Dizileri",
         // "${mainUrl}/full-hd-hint-dizileri-izle/page/" to "Hint Dizileri",
@@ -60,7 +62,7 @@ class DiziMom : MainAPI() {
     private suspend fun Element.sonBolumler(): SearchResponse? {
         val name =
             this.selectFirst("div.episode-name a")?.text()?.substringBefore(" izle") ?: return null
-        val title = name.replace(".Sezon ", "x").replace(".Bölüm", "")
+        val title = name.replace(".Sezon ", "x").replace(".BÃ¶lÃ¼m", "")
 
         val epHref = fixUrlNull(this.selectFirst("div.episode-name a")?.attr("href")) ?: return null
         val epDoc = app.get(epHref).document
@@ -101,8 +103,8 @@ class DiziMom : MainAPI() {
             document.selectFirst("div.title h1")?.text()?.substringBefore(" izle") ?: return null
         val poster =
             fixUrlNull(document.selectFirst("div.category_image img")?.attr("src")) ?: return null
-        val year = document.selectXpath("//div[span[contains(text(), 'Yapım Yılı')]]").text()
-            .substringAfter("Yapım Yılı : ").trim().toIntOrNull()
+        val year = document.selectXpath("//div[span[contains(text(), 'YapÄ±m YÄ±lÄ±')]]").text()
+            .substringAfter("YapÄ±m YÄ±lÄ± : ").trim().toIntOrNull()
         val description = document.selectFirst("div.category_desc")?.text()?.trim()
         val tags = document.select("div.genres a").mapNotNull { it.text().trim() }
         val rating = document.selectXpath("//div[span[contains(text(), 'IMDB')]]").text()
@@ -116,7 +118,7 @@ class DiziMom : MainAPI() {
             val epName = it.selectFirst("div.baslik")?.text()?.trim() ?: return@mapNotNull null
             val epHref = fixUrlNull(it.selectFirst("a")?.attr("href")) ?: return@mapNotNull null
             val epEpisode =
-                Regex("""(\d+)\.Bölüm""").find(epName)?.groupValues?.get(1)?.toIntOrNull()
+                Regex("""(\d+)\.BÃ¶lÃ¼m""").find(epName)?.groupValues?.get(1)?.toIntOrNull()
             val epSeason =
                 Regex("""(\d+)\.Sezon""").find(epName)?.groupValues?.get(1)?.toIntOrNull() ?: 1
 
@@ -143,7 +145,7 @@ class DiziMom : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("DZM", "data » $data")
+        Log.d("DZM", "data Â» $data")
 
         val ua =
             mapOf("User-Agent" to "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36")
@@ -175,7 +177,7 @@ class DiziMom : MainAPI() {
         }
 
         for (iframe in iframes) {
-            Log.d("DZM", "iframe » $iframe")
+            Log.d("DZM", "iframe Â» $iframe")
             if (iframe.contains("youtube.com")) {
                 val id = iframe.substringAfter("/embed/").substringBefore("?")
                 callback(

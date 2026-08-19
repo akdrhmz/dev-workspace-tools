@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.fullhdfilmizlesene
 
-package com.kekik.atlasstream.providers.fullhdfilmizlesene
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -28,7 +30,7 @@ open class TRsTX : ExtractorApi() {
                 file  = mapItem["file"]  as? String
             )
         }
-        Log.d("Kekik_${this.name}", "postJson » $postJson")
+        Log.d("Kekik_${this.name}", "postJson Â» $postJson")
 
         val vidLinks = mutableSetOf<String>()
         val vidMap   = mutableListOf<Map<String, String>>()
@@ -49,7 +51,7 @@ open class TRsTX : ExtractorApi() {
 
 
         for (mapEntry in vidMap) {
-            Log.d("Kekik_${this.name}", "mapEntry » $mapEntry")
+            Log.d("Kekik_${this.name}", "mapEntry Â» $mapEntry")
             val title    = mapEntry["title"] ?: continue
             val m3uLink = mapEntry["videoData"] ?: continue
 

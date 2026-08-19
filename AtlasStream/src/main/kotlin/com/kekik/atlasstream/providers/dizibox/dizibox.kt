@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.dizibox
 
-package com.kekik.atlasstream.providers.dizibox
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Base64
 import android.util.Log
@@ -38,7 +40,7 @@ class DiziBox : MainAPI() {
             val response = chain.proceed(request)
             val doc      = Jsoup.parse(response.peekBody(1024 * 1024).string())
 
-            if (doc.text().contains("Güvenlik taramasından geçiriliyorsunuz. Lütfen bekleyiniz..")) {
+            if (doc.text().contains("GÃ¼venlik taramasÄ±ndan geÃ§iriliyorsunuz. LÃ¼tfen bekleyiniz..")) {
                 return cloudflareKiller.intercept(chain)
             }
 
@@ -46,11 +48,11 @@ class DiziBox : MainAPI() {
         }
     }
 
-//acilmasi uzun sürdüğü için kategoriden bir kaçı devre dışı bırakıldı.
+//acilmasi uzun sÃ¼rdÃ¼ÄŸÃ¼ iÃ§in kategoriden bir kaÃ§Ä± devre dÄ±ÅŸÄ± bÄ±rakÄ±ldÄ±.
     override val mainPage = mainPageOf(
-        "${mainUrl}/tum-bolumler/page/SAYFA/?tip=populer"               to "Popüler Dizilerden Son Bölümler",
-        "${mainUrl}/tum-bolumler/page/SAYFA/"                           to "Yeni Eklenen Bölümler",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/"                            to "Dizi Arşivi",
+        "${mainUrl}/tum-bolumler/page/SAYFA/?tip=populer"               to "PopÃ¼ler Dizilerden Son BÃ¶lÃ¼mler",
+        "${mainUrl}/tum-bolumler/page/SAYFA/"                           to "Yeni Eklenen BÃ¶lÃ¼mler",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/"                            to "Dizi ArÅŸivi",
         "${mainUrl}/dizi-arsivi/page/SAYFA/?ulke[]=turkiye&yil=&imdb"   to "Yerli",
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=aile&yil&imdb"       to "Aile",
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=aksiyon&yil&imdb"    to "Aksiyon",
@@ -66,16 +68,16 @@ class DiziBox : MainAPI() {
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=komedi&yil&imdb"     to "Komedi",
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=korku&yil&imdb"      to "Korku",
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=macera&yil&imdb"     to "Macera",
-  //      "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=muzik&yil&imdb"      to "Müzik",
- //       "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=muzikal&yil&imdb"    to "Müzikal",
+  //      "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=muzik&yil&imdb"      to "MÃ¼zik",
+ //       "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=muzikal&yil&imdb"    to "MÃ¼zikal",
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=reality-tv&yil&imdb" to "Reality TV",
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=romantik&yil&imdb"   to "Romantik",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=savas&yil&imdb"      to "Savaş",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=savas&yil&imdb"      to "SavaÅŸ",
  //       "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=spor&yil&imdb"       to "Spor",
-        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=suc&yil&imdb"        to "Suç",
+        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=suc&yil&imdb"        to "SuÃ§",
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=tarih&yil&imdb"      to "Tarih",
         "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=western&yil&imdb"    to "Western",
-//        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=yarisma&yil&imdb"    to "Yarışma"
+//        "${mainUrl}/dizi-arsivi/page/SAYFA/?tur[0]=yarisma&yil&imdb"    to "YarÄ±ÅŸma"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -88,7 +90,7 @@ class DiziBox : MainAPI() {
             ),
             interceptor = interceptor
         ).document
-        if (request.name == "Yeni Eklenen Bölümler" || request.name == "Popüler Dizilerden Son Bölümler") {
+        if (request.name == "Yeni Eklenen BÃ¶lÃ¼mler" || request.name == "PopÃ¼ler Dizilerden Son BÃ¶lÃ¼mler") {
             val home = document.select("article.article-episode-card").mapNotNull { it.sonBolumler() }
             return newHomePageResponse(request.name, home)
         }
@@ -112,7 +114,7 @@ class DiziBox : MainAPI() {
     private suspend fun Element.sonBolumler(): SearchResponse? {
         val name = this.selectFirst("b.series-name")?.text() ?: ""
         val szn = this.selectFirst("span.season")?.text()?.replace(".SEZON", "") ?: ""
-        val ep = this.selectFirst("b.episode")?.text()?.replace(".BÖLÜM", "") ?: ""
+        val ep = this.selectFirst("b.episode")?.text()?.replace(".BÃ–LÃœM", "") ?: ""
         val epName = "${szn}x$ep"
 
         val title = "$name - $epName"
@@ -183,7 +185,7 @@ class DiziBox : MainAPI() {
                 val epTitle   = epElem.selectFirst("div.post-title a")?.text()?.trim() ?: return@ep
                 val epHref    = fixUrlNull(epElem.selectFirst("div.post-title a")?.attr("href")) ?: return@ep
                 val epSeason  = Regex("""(\d+)\. ?Sezon""").find(epTitle)?.groupValues?.get(1)?.toIntOrNull() ?: 1
-                val epEpisode = Regex("""(\d+)\. ?Bölüm""").find(epTitle)?.groupValues?.get(1)?.toIntOrNull()
+                val epEpisode = Regex("""(\d+)\. ?BÃ¶lÃ¼m""").find(epTitle)?.groupValues?.get(1)?.toIntOrNull()
 
                 episodeList.add(newEpisode(epHref) {
                     this.name = epTitle
@@ -293,7 +295,7 @@ class DiziBox : MainAPI() {
     }
 
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
-        Log.d("DZBX", "data » $data")
+        Log.d("DZBX", "data Â» $data")
         val document = app.get(
             data,
             cookies     = mapOf(
@@ -304,7 +306,7 @@ class DiziBox : MainAPI() {
             interceptor = interceptor
         ).document
         var iframe = document.selectFirst("div#video-area iframe")?.attr("src")?: return false
-        Log.d("DZBX", "iframe » $iframe")
+        Log.d("DZBX", "iframe Â» $iframe")
 
         iframeDecode(data, iframe, subtitleCallback, callback)
 
@@ -320,7 +322,7 @@ class DiziBox : MainAPI() {
                 interceptor = interceptor
             ).document
             iframe = subDoc.selectFirst("div#video-area iframe")?.attr("src")?: return false
-            Log.d("DZBX", "iframe » $iframe")
+            Log.d("DZBX", "iframe Â» $iframe")
 
             iframeDecode(data, iframe, subtitleCallback, callback)
         }

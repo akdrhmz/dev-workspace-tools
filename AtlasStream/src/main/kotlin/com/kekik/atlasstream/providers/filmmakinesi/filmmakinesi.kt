@@ -1,4 +1,4 @@
-package com.kekik.atlasstream.providers.filmmakinesi
+﻿package com.kekik.atlasstream.providers.filmmakinesi
 
 import android.util.Log
 import com.lagradost.cloudstream3.Actor
@@ -44,7 +44,7 @@ class FilmMakinesi : MainAPI() {
 
     override val mainPage = mainPageOf(
         "${mainUrl}/filmler/sayfa/" to "Son Filmler",
-        "${mainUrl}/film-izle/olmeden-izlenmesi-gerekenler/sayfa/" to "Ölmeden İzle",
+        "${mainUrl}/film-izle/olmeden-izlenmesi-gerekenler/sayfa/" to "Ã–lmeden Ä°zle",
         "${mainUrl}/tur/aksiyon/film/sayfa/" to "Aksiyon",
         "${mainUrl}/tur/bilim-kurgu/film/sayfa/" to "Bilim Kurgu",
         "${mainUrl}/tur/macera/film/sayfa/" to "Macera",
@@ -52,7 +52,7 @@ class FilmMakinesi : MainAPI() {
         "${mainUrl}/tur/romantik/film/sayfa/" to "Romantik",
         "${mainUrl}/tur/belgesel/film/sayfa/" to "Belgesel",
         "${mainUrl}/tur/fantastik/film/sayfa/" to "Fantastik",
-        "${mainUrl}/tur/polisiye/film/sayfa/" to "Polisiye Suç",
+        "${mainUrl}/tur/polisiye/film/sayfa/" to "Polisiye SuÃ§",
         "${mainUrl}/tur/korku/film/sayfa/" to "Korku",
         "${mainUrl}/tur/animasyon/film/sayfa/" to "Animasyon",
         "${mainUrl}/tur/gizem/film/sayfa/" to "Gizem",
@@ -138,15 +138,15 @@ class FilmMakinesi : MainAPI() {
         val title = document.selectFirst("h1")?.text()?.trim() ?: return null
         val poster = fixUrlNull(document.selectFirst("[property='og:image']")?.attr("content"))
         val description = document.select("div.info-description p").last()?.text()?.trim()
-        val tags = document.selectFirst("dt:contains(Tür:) + dd")?.text()?.split(", ")
+        val tags = document.selectFirst("dt:contains(TÃ¼r:) + dd")?.text()?.split(", ")
         val rating =
-            document.selectFirst("dt:contains(IMDB Puanı:) + dd")?.text()?.trim()
+            document.selectFirst("dt:contains(IMDB PuanÄ±:) + dd")?.text()?.trim()
         val year =
-            document.selectFirst("dt:contains(Yapım Yılı:) + dd")?.text()?.trim()?.toIntOrNull()
+            document.selectFirst("dt:contains(YapÄ±m YÄ±lÄ±:) + dd")?.text()?.trim()?.toIntOrNull()
 
         val durationElement =
-            document.select("dt:contains(Film Süresi:) + dd time").attr("datetime")
-        // ? ISO 8601 süre formatını ayrıştırma (örneğin "PT129M")
+            document.select("dt:contains(Film SÃ¼resi:) + dd time").attr("datetime")
+        // ? ISO 8601 sÃ¼re formatÄ±nÄ± ayrÄ±ÅŸtÄ±rma (Ã¶rneÄŸin "PT129M")
         val duration = if (durationElement.startsWith("PT") && durationElement.endsWith("M")) {
             durationElement.drop(2).dropLast(1).toIntOrNull() ?: 0
         } else {
@@ -170,7 +170,7 @@ class FilmMakinesi : MainAPI() {
                 val epName = it.selectFirst("div.ep-details span")?.text()
                 val epTitle = it.selectFirst("div.ep-title")?.text()?.split("/")
                 val epSeason = epTitle!![0].replace(". Sezon", "").trim().toIntOrNull()
-                val epEpisode = epTitle[1].replace(". Bölüm", "").trim().toIntOrNull()
+                val epEpisode = epTitle[1].replace(". BÃ¶lÃ¼m", "").trim().toIntOrNull()
                 eps.add(
                     newEpisode(epHref) {
                         this.name = epName
@@ -208,23 +208,23 @@ class FilmMakinesi : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("FLMM", "data » $data")
+        Log.d("FLMM", "data Â» $data")
         val document = app.get(data).document
 
-        // Ana iframe'i bul ve öncelikli olarak 'data-src', yoksa 'src' niteliğini kullan
+        // Ana iframe'i bul ve Ã¶ncelikli olarak 'data-src', yoksa 'src' niteliÄŸini kullan
         val iframeSrc = document.selectFirst("div.after-player iframe")?.attr("data-src")
             ?: document.selectFirst("div.after-player iframe")?.attr("src")
-            ?: "" // Eğer ikisi de yoksa boş string
+            ?: "" // EÄŸer ikisi de yoksa boÅŸ string
 
         if (iframeSrc.isNotBlank()) {
             Log.d("FLMM", "Ana iframe URL: $iframeSrc")
             loadExtractor(iframeSrc, "${mainUrl}/", subtitleCallback, callback)
         } else {
-            Log.d("FLMM", "Ana iframe URL bulunamadı veya boş.")
+            Log.d("FLMM", "Ana iframe URL bulunamadÄ± veya boÅŸ.")
         }
 
-        // Mevcut HTML'de 'div.video-parts a' yapısı görünmediği için, bu kısım eğer artık yoksa silinebilir.
-        // Ancak gelecekte tekrar eklenirse veya farklı filmlerde varsa diye şimdilik bırakıyorum.
+        // Mevcut HTML'de 'div.video-parts a' yapÄ±sÄ± gÃ¶rÃ¼nmediÄŸi iÃ§in, bu kÄ±sÄ±m eÄŸer artÄ±k yoksa silinebilir.
+        // Ancak gelecekte tekrar eklenirse veya farklÄ± filmlerde varsa diye ÅŸimdilik bÄ±rakÄ±yorum.
         document.select("div.video-parts a").forEach {
             val iframeUrl = it.attr("data-video_url")
             if (iframeUrl.isNotBlank()) {

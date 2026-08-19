@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.fullhdfilmizlesene
 
-package com.kekik.atlasstream.providers.fullhdfilmizlesene
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Base64
 import android.util.Log
@@ -43,15 +45,15 @@ class FullHDFilmizlesene : MainAPI() {
     override var sequentialMainPageScrollDelay = 50L
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/en-cok-izlenen-filmler-izle-hd/" to "En Çok izlenen Filmler",
-        "${mainUrl}/filmizle/imdb-puani-yuksek-filmler-izle-1/" to "IMDB Puanı Yüksek Filmler",
+        "${mainUrl}/en-cok-izlenen-filmler-izle-hd/" to "En Ã‡ok izlenen Filmler",
+        "${mainUrl}/filmizle/imdb-puani-yuksek-filmler-izle-1/" to "IMDB PuanÄ± YÃ¼ksek Filmler",
         "${mainUrl}/filmizle/aile-filmleri-izle-2/" to "Aile Filmleri",
         "${mainUrl}/filmizle/aksiyon-filmler-izle-1/" to "Aksiyon Filmleri",
         "${mainUrl}/filmizle/animasyon-filmleri-izle-4/" to "Animasyon Filmleri",
         "${mainUrl}/filmizle/belgesel-filmleri-izle-2/" to "Belgeseller",
         "${mainUrl}/filmizle/bilim-kurgu-filmleri-izle-1/" to "Bilim Kurgu Filmleri",
         "${mainUrl}/filmizle/bluray-filmler-izle-1/" to "Blu Ray Filmler",
-        "${mainUrl}/filmizle/cizgi-filmler-izle-1/" to "Çizgi Filmler",
+        "${mainUrl}/filmizle/cizgi-filmler-izle-1/" to "Ã‡izgi Filmler",
         "${mainUrl}/filmizle/dram-filmleri-izle/" to "Dram Filmleri",
         "${mainUrl}/filmizle/fantastik-filmleri-izle-2/" to "Fantastik Filmler",
         "${mainUrl}/filmizle/gerilim-filmleri-izle-3/" to "Gerilim Filmleri",
@@ -59,12 +61,12 @@ class FullHDFilmizlesene : MainAPI() {
         "${mainUrl}/filmizle/hint-filmler-fh-hd-izle/" to "Hint Filmleri",
         "${mainUrl}/filmizle/komedi-filmleri-izle-2/" to "Komedi Filmleri",
         "${mainUrl}/filmizle/macera-filmleri-izle-1/" to "Macera Filmleri",
-        "${mainUrl}/filmizle/muzikal-filmleri-izle/" to "Müzikal Filmler",
+        "${mainUrl}/filmizle/muzikal-filmleri-izle/" to "MÃ¼zikal Filmler",
         "${mainUrl}/filmizle/polisiye-filmleri-izle-1/" to "Polisiye Filmleri",
         "${mainUrl}/filmizle/psikolojik-filmleri-izle/" to "Psikolojik Filmler",
         "${mainUrl}/filmizle/romantik-filmler-izle-1/" to "Romantik Filmler",
-        "${mainUrl}/filmizle/savas-filmleri-izle-2/" to "Savaş Filmleri",
-        "${mainUrl}/filmizle/suc-filmleri-izle-3/" to "Suç Filmleri",
+        "${mainUrl}/filmizle/savas-filmleri-izle-2/" to "SavaÅŸ Filmleri",
+        "${mainUrl}/filmizle/suc-filmleri-izle-3/" to "SuÃ§ Filmleri",
         "${mainUrl}/filmizle/tarih-filmleri-izle/" to "Tarih Filmleri",
         "${mainUrl}/filmizle/western-filmler-hd-izle-2/" to "Western Filmler",
         "${mainUrl}/filmizle/yerli-filmler-izle-3/" to "Yerli Filmler",
@@ -208,10 +210,10 @@ class FullHDFilmizlesene : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        Log.d("FHD", "data » $data")
+        Log.d("FHD", "data Â» $data")
         val document = app.get(data).document
         val videoLinks = getVideoLinks(document)
-        Log.d("FHD", "videoLinks » $videoLinks")
+        Log.d("FHD", "videoLinks Â» $videoLinks")
         if (videoLinks.isEmpty()) return false
 
 

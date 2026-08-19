@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.belgeselx
 
-package com.kekik.atlasstream.providers.belgeselx
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import java.util.Locale
 import android.util.Log
@@ -17,24 +19,24 @@ class BelgeselX : MainAPI() {
     override val supportedTypes       = setOf(TvType.Documentary)
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/konu/turk-tarihi-belgeselleri&page=" to "Türk Tarihi",
+        "${mainUrl}/konu/turk-tarihi-belgeselleri&page=" to "TÃ¼rk Tarihi",
         "${mainUrl}/konu/tarih-belgeselleri&page="		 to "Tarih",
         "${mainUrl}/konu/seyehat-belgeselleri&page="	 to "Seyahat",
         "${mainUrl}/konu/seri-belgeseller&page="		 to "Seri",
-        "${mainUrl}/konu/savas-belgeselleri&page="		 to "Savaş",
+        "${mainUrl}/konu/savas-belgeselleri&page="		 to "SavaÅŸ",
         "${mainUrl}/konu/sanat-belgeselleri&page="		 to "Sanat",
         "${mainUrl}/konu/psikoloji-belgeselleri&page="	 to "Psikoloji",
         "${mainUrl}/konu/polisiye-belgeselleri&page="	 to "Polisiye",
         "${mainUrl}/konu/otomobil-belgeselleri&page="	 to "Otomobil",
         "${mainUrl}/konu/nazi-belgeselleri&page="		 to "Nazi",
-        "${mainUrl}/konu/muhendislik-belgeselleri&page=" to "Mühendislik",
-        "${mainUrl}/konu/kultur-din-belgeselleri&page="	 to "Kültür Din",
+        "${mainUrl}/konu/muhendislik-belgeselleri&page=" to "MÃ¼hendislik",
+        "${mainUrl}/konu/kultur-din-belgeselleri&page="	 to "KÃ¼ltÃ¼r Din",
         "${mainUrl}/konu/kozmik-belgeseller&page="		 to "Kozmik",
         "${mainUrl}/konu/hayvan-belgeselleri&page="		 to "Hayvan",
         "${mainUrl}/konu/eski-tarih-belgeselleri&page="	 to "Eski Tarih",
-        "${mainUrl}/konu/egitim-belgeselleri&page="		 to "Eğitim",
-        "${mainUrl}/konu/dunya-belgeselleri&page="		 to "Dünya",
-        "${mainUrl}/konu/doga-belgeselleri&page="		 to "Doğa",
+        "${mainUrl}/konu/egitim-belgeselleri&page="		 to "EÄŸitim",
+        "${mainUrl}/konu/dunya-belgeselleri&page="		 to "DÃ¼nya",
+        "${mainUrl}/konu/doga-belgeselleri&page="		 to "DoÄŸa",
         "${mainUrl}/konu/bilim-belgeselleri&page="		 to "Bilim"
     )
 
@@ -77,7 +79,7 @@ class BelgeselX : MainAPI() {
         val searchResponses = mutableListOf<TvSeriesSearchResponse>()
 
         for (i in titles.indices) {
-            val title     = titles[i].split("İzle")[0].trim().toTitleCase()
+            val title     = titles[i].split("Ä°zle")[0].trim().toTitleCase()
             val url       = urls.getOrNull(i) ?: continue
             val posterUrl = posterUrls.getOrNull(i) ?: continue
 
@@ -106,7 +108,7 @@ class BelgeselX : MainAPI() {
             val epHref     = fixUrlNull(it.selectFirst("div.gen-movie-info h3 a")?.attr("href")) ?: return@mapNotNull null
 
             val seasonName = it.selectFirst("div.gen-single-meta-holder ul li")?.text()?.trim() ?: ""
-            var epEpisode  = Regex("""Bölüm (\d+)""").find(seasonName)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+            var epEpisode  = Regex("""BÃ¶lÃ¼m (\d+)""").find(seasonName)?.groupValues?.get(1)?.toIntOrNull() ?: 0
             val epSeason   = Regex("""Sezon (\d+)""").find(seasonName)?.groupValues?.get(1)?.toIntOrNull() ?: 1
 
             if (epEpisode == 0) {
@@ -128,7 +130,7 @@ class BelgeselX : MainAPI() {
     }
 
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
-        Log.d("BLX", "data » $data")
+        Log.d("BLX", "data Â» $data")
         val source = app.get(data)
 
         val script = source.document.select("script").find { it.data().contains("var hedefA = document.getElementById") }?.data() ?: ""
@@ -146,8 +148,8 @@ class BelgeselX : MainAPI() {
                         quality   = "1080p"
                         thisName  = "Google"
                     }
-                    Log.d("BLX", "quality » $quality")
-                    Log.d("BLX", "videoUrl » $videoUrl")
+                    Log.d("BLX", "quality Â» $quality")
+                    Log.d("BLX", "videoUrl Â» $videoUrl")
 
                     callback.invoke(newExtractorLink(source = thisName, name= thisName, url = videoUrl, type = ExtractorLinkType.VIDEO ) {
                         this.referer = data
@@ -156,14 +158,14 @@ class BelgeselX : MainAPI() {
                 }
             } else {
                 val iframe = fixUrlNull(resp.document.selectFirst("iframe")?.attr("src")) ?: continue
-                Log.d("BLX", "iframe » $iframe")
+                Log.d("BLX", "iframe Â» $iframe")
                 loadExtractor(iframe, "${mainUrl}/", subtitleCallback, callback)
             }
         }
 
         Regex("""<iframe\s+[^>]*src=\\"([^\\"']+)\\"""").findAll(source.text).forEach { alternatifUrlMatchResult ->
             val alternatifUrl  = alternatifUrlMatchResult.groupValues[1]
-            Log.d("BLX", "alternatifUrl » $alternatifUrl")
+            Log.d("BLX", "alternatifUrl Â» $alternatifUrl")
             val alternatifResp = app.get(alternatifUrl, referer=data)
 
 

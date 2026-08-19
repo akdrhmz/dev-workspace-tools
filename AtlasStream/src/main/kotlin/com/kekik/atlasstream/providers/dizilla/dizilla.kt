@@ -1,4 +1,4 @@
-package com.kekik.atlasstream.providers.dizilla
+﻿package com.kekik.atlasstream.providers.dizilla
 
 import android.util.Base64
 import android.util.Log
@@ -75,7 +75,7 @@ class Dizilla : MainAPI() {
     )
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/tum-bolumler" to "Altyazılı Bölümler",
+        "${mainUrl}/tum-bolumler" to "AltyazÄ±lÄ± BÃ¶lÃ¼mler",
         "${mainUrl}/arsiv" to "Yeni Eklenen Diziler",
         "${mainUrl}/dizi-turu/aile" to "Aile",
         "${mainUrl}/dizi-turu/aksiyon" to "Aksiyon",
@@ -213,7 +213,7 @@ class Dizilla : MainAPI() {
                 document.select("div.col-span-3 a").mapNotNull { element ->
                     val name = element.selectFirst("h2")?.text() ?: return@mapNotNull null
                     val epName = element.selectFirst("div.opacity-80")?.text()?.replace(". Sezon ", "x")
-                        ?.replace(". Bölüm", "") ?: return@mapNotNull null
+                        ?.replace(". BÃ¶lÃ¼m", "") ?: return@mapNotNull null
 
                     val title = "$name - $epName"
                     val href = fixUrlNull(element.attr("href")) ?: return@mapNotNull null
@@ -254,7 +254,7 @@ class Dizilla : MainAPI() {
     private suspend fun Element.sonBolumler(): SearchResponse? {
         val name = this.selectFirst("h2")?.text() ?: return null
         val epName = this.selectFirst("div.opacity-80")?.text()?.replace(". Sezon ", "x")
-            ?.replace(". Bölüm", "") ?: return null
+            ?.replace(". BÃ¶lÃ¼m", "") ?: return null
 
         val title = "$name - $epName"
 
@@ -354,7 +354,7 @@ class Dizilla : MainAPI() {
 
 
         val yearElement = document.select("div.w-fit.min-w-fit, div.flex.items-center")
-            .find { it.text().contains("Yapım Yılı") }
+            .find { it.text().contains("YapÄ±m YÄ±lÄ±") }
         val year = yearElement?.selectFirst("span.text-sm.opacity-60, span.opacity-60")?.text()
             ?.split(" ")?.last()?.toIntOrNull()
 
@@ -398,7 +398,7 @@ class Dizilla : MainAPI() {
 
 
                 val epNumberText = bolum.selectFirst("a, span.episode-number")?.text()?.trim() ?: ""
-                val epEpisode = epNumberText.replace("Bölüm", "").trim().toIntOrNull()
+                val epEpisode = epNumberText.replace("BÃ¶lÃ¼m", "").trim().toIntOrNull()
 
                 val newEpisode = newEpisode(epHref) {
                     this.name = epName

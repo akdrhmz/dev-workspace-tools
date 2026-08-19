@@ -1,4 +1,4 @@
-package com.kekik.atlasstream.providers.hdfilmcehennemi
+﻿package com.kekik.atlasstream.providers.hdfilmcehennemi
 
 import android.util.Log
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.keyiflerolsun.HDFilmCehennemi.SubSource
+
 import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.base64Decode
@@ -28,7 +28,7 @@ open class HCCloseLoadExtractor : ExtractorApi() {
 
     override suspend fun getUrl(url: String, referer: String?, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit) {
         val extRef = referer ?: ""
-        Log.d("Kekik_${this.name}", "url » $url")
+        Log.d("Kekik_${this.name}", "url Â» $url")
 
         val iSource = app.get(url, referer = extRef)
         val obfuscatedScript = iSource.document.select("script").find { it.data().contains("eval(function(p,a,c,k,e") }?.data()?.trim()
@@ -78,16 +78,16 @@ open class HCCloseLoadExtractor : ExtractorApi() {
         val groupValues = match!!.groupValues[1]
 
         val lastUrl = if (helloVarmi) {
-            Log.d("Kekik_${this.name}", "groupValues » $groupValues")
+            Log.d("Kekik_${this.name}", "groupValues Â» $groupValues")
             val dcUrl = dcHello(groupValues).substringAfter("http")
-            Log.d("Kekik_${this.name}", "dcUrl » $dcUrl")
+            Log.d("Kekik_${this.name}", "dcUrl Â» $dcUrl")
             dcUrl
         } else{
             val parts = groupValues.split(",")
                 .map { it.trim().removeSurrounding("\"") }
-            Log.d("Kekik_${this.name}", "parts » $parts")
+            Log.d("Kekik_${this.name}", "parts Â» $parts")
             val dcUrl = dcNew(parts)
-            Log.d("Kekik_${this.name}", "dcUrl » $dcUrl")
+            Log.d("Kekik_${this.name}", "dcUrl Â» $dcUrl")
             dcUrl
         }
         callback.invoke(

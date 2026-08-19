@@ -1,4 +1,4 @@
-package com.kekik.atlasstream.providers.hdfilmizle
+﻿package com.kekik.atlasstream.providers.hdfilmizle
 
 import android.util.Base64
 import com.fasterxml.jackson.annotation.JsonProperty

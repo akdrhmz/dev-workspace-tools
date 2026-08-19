@@ -1,4 +1,4 @@
-package com.kekik.atlasstream.providers.powersinema
+﻿package com.kekik.atlasstream.providers.powersinema
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -73,9 +73,9 @@ class powerSinema : MainAPI() {
     override suspend fun load(url: String): LoadResponse {
         val loadData = fetchDataFromUrlOrJson(url)
         val nation:String = if (loadData.group == "NSFW") {
-            "⚠️🔞🔞🔞 » ${loadData.group} | ${loadData.nation} « 🔞🔞🔞⚠️"
+            "âš ï¸ğŸ”ğŸ”ğŸ” Â» ${loadData.group} | ${loadData.nation} Â« ğŸ”ğŸ”ğŸ”âš ï¸"
         } else {
-            "» ${loadData.group} | ${loadData.nation} «"
+            "Â» ${loadData.group} | ${loadData.nation} Â«"
         }
 
         val kanallar        = IptvPlaylistParser().parseM3U(app.get(mainUrl).text)
@@ -113,11 +113,11 @@ class powerSinema : MainAPI() {
 
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
         val loadData = fetchDataFromUrlOrJson(data)
-        Log.d("IPTV", "loadData » $loadData")
+        Log.d("IPTV", "loadData Â» $loadData")
 
         val kanallar = IptvPlaylistParser().parseM3U(app.get(mainUrl).text)
         val kanal    = kanallar.items.first { it.url == loadData.url }
-        Log.d("IPTV", "kanal » $kanal")
+        Log.d("IPTV", "kanal Â» $kanal")
 
         callback.invoke(
             newExtractorLink(

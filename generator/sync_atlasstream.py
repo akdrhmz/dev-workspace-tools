@@ -1,13 +1,7 @@
 ﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-AtlasStream Universal Smart Sync Script
-Tüm kaynakları (DiziBox, Dizilla, FilmMakinesi vb. dahil) upstream repolarından
-akıllıca (SHA-256 diff kontrolüyle) senkronize eder.
-
-KORUNAN ALANLAR (Asla bozulmaz):
-- TMDB Arayüzü, Kategorileri ve Ana Sayfa Mantığı (AtlasStreamProvider.kt, TmdbApi.kt)
-- Tek Eklenti Mimarisi (AtlasStreamPlugin.kt)
+AtlasStream Universal Smart Sync Script (Safe Identifier & Package Injection)
 """
 
 import os
@@ -25,10 +19,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 ATLAS_SRC_DIR = BASE_DIR / "AtlasStream" / "src" / "main" / "kotlin" / "com" / "kekik" / "atlasstream"
 PROVIDERS_DIR = ATLAS_SRC_DIR / "providers"
 
-# Sadece Anime, Canlı TV, Yetişkin ve sistem dizinleri elenir. Tüm film/dizi kaynakları güncellenmeye açıktır.
 EXCLUDED_PROVIDERS = {
     "animecix", "asyaanimeleri", "turkanime", "canlitv", "inatbox",
-    "rectv", "vavoospor", "selcukflix", "__temel", "gradle", ".github"
+    "rectv", "vavoospor", "selcukflix", "__temel", "gradle", ".github",
+    "tlc", "tlctr", "trasyalog", "fullhdfilmizlede", "wfilmizle", "dizipaloriginal", "hdfilmcehennemi2"
 }
 
 UPSTREAM_REPOS = [
@@ -40,7 +34,10 @@ def to_safe_ascii(s: str) -> str:
     s = s.lower()
     for tr, en in [("ı", "i"), ("i̇", "i"), ("ü", "u"), ("ö", "o"), ("ç", "c"), ("ş", "s"), ("ğ", "g")]:
         s = s.replace(tr, en)
-    return re.sub(r"[^a-z0-9_]", "", s)
+    s = re.sub(r"[^a-z0-9_]", "", s)
+    if s and s[0].isdigit():
+        s = "p" + s
+    return s
 
 def file_hash(filepath: Path) -> str:
     if not filepath.exists():
@@ -80,7 +77,6 @@ def sync_upstreams():
             p_name = item.name
             safe_name = to_safe_ascii(p_name)
             
-            # Engelli türler atlanır
             if safe_name in EXCLUDED_PROVIDERS or safe_name in found_providers:
                 continue
 
@@ -88,7 +84,6 @@ def sync_upstreams():
             if not kt_dir.exists():
                 continue
 
-            # Plugin.kt dosyaları tek eklenti kuralı gereği dahil edilmez
             kt_files = [f for f in kt_dir.rglob("*.kt") if not f.name.endswith("Plugin.kt")]
             if not kt_files:
                 continue
@@ -107,10 +102,14 @@ def sync_upstreams():
                     with open(f, "r", encoding="utf-8", errors="ignore") as in_f:
                         code = in_f.read()
 
-                    # Package bildirgesini izole et
-                    code = re.sub(r"(?m)^package\s+[a-zA-Z0-9_\.]+", f"package com.kekik.atlasstream.providers.{safe_name}", code)
+                    # Package temizleme ve güvenli yerleştirme
+                    code = re.sub(r"(?m)^package\s+.*$", "", code)
+                    code = re.sub(r"(?m)^import\s+com\.keyiflerolsun\..*$", "", code)
+                    code = re.sub(r"(?m)^import\s+com\.kekik\..*$", "", code)
+                    code = re.sub(r"(?m)^import\s+com\.nikyokki\..*$", "", code)
+                    
+                    code = f"package com.kekik.atlasstream.providers.{safe_name}\n\n" + code.strip()
 
-                    # Mevcut dosya ile içerik hash kontrolü (Diff / Akıllı Güncelleme)
                     existing_hash = file_hash(dest_file)
                     new_hash = hashlib.sha256(code.encode("utf-8")).hexdigest()
 
@@ -142,7 +141,8 @@ def sync_upstreams():
     print(f"[BİLGİ] {unchanged_count} kaynakta değişiklik yok (korundu).")
     print(f"[BİLGİ] {updated_count} kaynak güncellendi.")
 
-    update_plugin_and_resolver(found_providers)
+    if updated_count > 0:
+        update_plugin_and_resolver(found_providers)
 
     try:
         shutil.rmtree(temp_dir, ignore_errors=True)
@@ -150,7 +150,7 @@ def sync_upstreams():
         pass
 
 def update_plugin_and_resolver(providers: dict):
-    # 1. AtlasStreamPlugin.kt (Tek Eklenti Mimarisi ve Ayarlar Listesi)
+    # 1. AtlasStreamPlugin.kt
     plugin_kt = ATLAS_SRC_DIR / "AtlasStreamPlugin.kt"
     if plugin_kt.exists():
         with open(plugin_kt, "r", encoding="utf-8") as f:
@@ -160,21 +160,21 @@ def update_plugin_and_resolver(providers: dict):
         for p in sorted(providers.values(), key=lambda x: x["name"].lower()):
             all_sources_entries.append(f'            "{p["name"]}" to "{p["name"]}",\n')
 
-        all_sources_block = "        val ALL_SOURCES = linkedMapOf(\n" + "".join(all_sources_entries) + "        )"
+        all_sources_block = "val ALL_SOURCES = linkedMapOf(\n" + "".join(all_sources_entries) + "        )"
         p_content = re.sub(r"(?s)val ALL_SOURCES = linkedMapOf\(.*?\)", all_sources_block, p_content)
 
         with open(plugin_kt, "w", encoding="utf-8") as f:
             f.write(p_content)
         print("[OK] AtlasStreamPlugin.kt güncellendi.")
 
-    # 2. SourceResolver.kt (Tüm kaynakları dinamik olarak çağırır)
+    # 2. SourceResolver.kt
     resolver_kt = ATLAS_SRC_DIR / "SourceResolver.kt"
     if resolver_kt.exists():
         with open(resolver_kt, "r", encoding="utf-8") as f:
             r_content = f.read()
 
         instantiations = [f"            {p['full_qualified']}()" for p in sorted(providers.values(), key=lambda x: x["name"].lower())]
-        inst_block = "    private val externalProviders by lazy {\n        listOf(\n" + ",\n".join(instantiations) + "\n        )\n    }"
+        inst_block = "private val externalProviders by lazy {\n        listOf(\n" + ",\n".join(instantiations) + "\n        )\n    }"
 
         r_content = re.sub(r"(?s)private val externalProviders by lazy \{.*?\}", inst_block, r_content)
 

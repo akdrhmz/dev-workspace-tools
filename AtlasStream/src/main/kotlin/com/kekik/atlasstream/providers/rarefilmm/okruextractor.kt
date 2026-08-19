@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.rarefilmm
 
-package com.kekik.atlasstream.providers.rarefilmm
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 class OkRuSSL : Odnoklassniki() {
     override var name    = "OkRuSSL"

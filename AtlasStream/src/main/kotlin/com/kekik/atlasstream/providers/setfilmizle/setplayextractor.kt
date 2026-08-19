@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.setfilmizle
 
-package com.kekik.atlasstream.providers.setfilmizle
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -19,7 +21,7 @@ open class SetPlay : ExtractorApi() {
         val videoServer = Regex("""videoServer":"([^",]+)""").find(iSource)?.groupValues?.get(1) ?: throw ErrorLoadingException("videoServer not found")
         val title       = Regex("""title":"([^",]+)""").find(iSource)?.groupValues?.get(1)?.split(".")?.last() ?: "Unknown"
         val m3uLink     = "${mainUrl}${videoUrl.replace("\\", "")}?s=${videoServer}"
-        Log.d("Kekik_${this.name}", "m3uLink » $m3uLink")
+        Log.d("Kekik_${this.name}", "m3uLink Â» $m3uLink")
 
         callback.invoke(
             newExtractorLink(

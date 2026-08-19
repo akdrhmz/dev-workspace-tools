@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.kultfilmler
 
-package com.kekik.atlasstream.providers.kultfilmler
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -25,7 +27,7 @@ open class YildizKisaFilm : ExtractorApi() {
             url.substringAfter("?data=")
         }
         val postUrl = "${mainUrl}/player/index.php?data=${vidId}&do=getVideo"
-        Log.d("Kekik_${this.name}", "postUrl » $postUrl")
+        Log.d("Kekik_${this.name}", "postUrl Â» $postUrl")
 
         val response = app.post(
             postUrl,

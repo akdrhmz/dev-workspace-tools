@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.ugurfilm
 
-package com.kekik.atlasstream.providers.ugurfilm
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -13,17 +15,17 @@ open class MailRu : ExtractorApi() {
     override val requiresReferer = false
 
     override suspend fun getUrl(url: String, referer: String?, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit) {
-        Log.d("Kekik_${this.name}", "url » $url")
+        Log.d("Kekik_${this.name}", "url Â» $url")
 
         val vidId     = url.substringAfter("video/embed/").trim()
         val videoReq  = app.get("${mainUrl}/+/video/meta/${vidId}", referer=url)
         val videoKey  = videoReq.cookies["video_key"].toString()
-        Log.d("Kekik_${this.name}", "videoKey » $videoKey")
+        Log.d("Kekik_${this.name}", "videoKey Â» $videoKey")
 
         val videoData = AppUtils.tryParseJson<MailRuData>(videoReq.text) ?: throw ErrorLoadingException("Video not found")
 
         for (video in videoData.videos) {
-            Log.d("Kekik_${this.name}", "video » $video")
+            Log.d("Kekik_${this.name}", "video Â» $video")
 
             val videoUrl = if (video.url.startsWith("//")) "https:${video.url}" else video.url
 

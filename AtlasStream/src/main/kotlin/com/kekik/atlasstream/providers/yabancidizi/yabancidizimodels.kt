@@ -1,4 +1,4 @@
-package com.kekik.atlasstream.providers.yabancidizi
+﻿package com.kekik.atlasstream.providers.yabancidizi
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

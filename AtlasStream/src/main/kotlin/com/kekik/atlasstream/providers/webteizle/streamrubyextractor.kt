@@ -1,4 +1,4 @@
-package com.kekik.atlasstream.providers.webteizle
+﻿package com.kekik.atlasstream.providers.webteizle
 
 import android.util.Log
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -27,18 +27,18 @@ class StreamRubyExtractor(
         callback: (ExtractorLink) -> Unit
     ) {
         val extRef = referer ?: ""
-        Log.d("Kekik_${this.name}", "url » $url")
+        Log.d("Kekik_${this.name}", "url Â» $url")
 
         val iSource = app.get(url, referer = extRef)
         val obfuscatedScript = iSource.document.select("script").find { it.data().contains("eval(function(p,a,c,k,e") }?.data()?.trim()
         val rawScript        = getAndUnpack(obfuscatedScript!!)
         val source = rawScript.substringAfter("sources:[").substringBefore("],").addMarks("file")
-        Log.d("Kekik_${this.name}", "source » $source")
+        Log.d("Kekik_${this.name}", "source Â» $source")
         val objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         val fileSource: FileSource = objectMapper.readValue(source)
         val lastUrl = fileSource.file.toString()
-        Log.d("Kekik_${this.name}", "lastUrl » $lastUrl")
+        Log.d("Kekik_${this.name}", "lastUrl Â» $lastUrl")
 
         callback.invoke(
             ExtractorLink(

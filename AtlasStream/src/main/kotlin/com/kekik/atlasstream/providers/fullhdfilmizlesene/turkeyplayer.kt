@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.fullhdfilmizlesene
 
-package com.kekik.atlasstream.providers.fullhdfilmizlesene
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -16,16 +18,16 @@ open class TurkeyPlayer : ExtractorApi() {
         val extRef = referer ?: ""
         val pageContent = app.get(url, referer = extRef).text
 
-        // video = {...} kısmını yakala
+        // video = {...} kÄ±smÄ±nÄ± yakala
         val videoJsonRaw = Regex("""var\s+video\s*=\s*(\{.*?\});""", RegexOption.DOT_MATCHES_ALL)
             .find(pageContent)?.groupValues?.get(1)
-            ?: throw ErrorLoadingException("Video JSON bulunamadı")
+            ?: throw ErrorLoadingException("Video JSON bulunamadÄ±")
 
         // Jackson mapper ile JSON parse et
         val videoData = mapper.readValue<VideoData>(videoJsonRaw)
 
         val masterUrl = "https://watch.turkeyplayer.com/m3u8/8/${videoData.md5}/master.txt?s=1&id=${videoData.id}&cache=1"
-        Log.d("Kekik_${this.name}", "masterUrl » $masterUrl")
+        Log.d("Kekik_${this.name}", "masterUrl Â» $masterUrl")
 
         callback.invoke(
             newExtractorLink(

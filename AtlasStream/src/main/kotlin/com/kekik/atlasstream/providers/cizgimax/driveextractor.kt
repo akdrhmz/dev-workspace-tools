@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.cizgimax
 
-package com.kekik.atlasstream.providers.cizgimax
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import com.lagradost.cloudstream3.SubtitleFile
@@ -27,7 +29,7 @@ open class Drive : ExtractorApi() {
         val bakalim = Regex("""&fmt_stream_map=(.*)&url_encoded_fmt_stream_map""").find(iSource)?.groupValues?.get(1) ?: throw IllegalArgumentException("fmt_stream_map not found")
         val decoded = bakalim.decodeUri()
         val m3uLink = decoded.split("|").last()
-        Log.d("Kekik_${this.name}", "m3uLink » $m3uLink")
+        Log.d("Kekik_${this.name}", "m3uLink Â» $m3uLink")
 
         /*callback.invoke(
             ExtractorLink(

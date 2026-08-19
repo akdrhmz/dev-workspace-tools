@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.fullhdfilm
 
-package com.kekik.atlasstream.providers.fullhdfilm
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Base64
 
@@ -18,7 +20,7 @@ class IframeKodlayici {
         fun iframeParse(htmlIcerik: String): String {
             val iframePattern = """<iframe[^>]+src=["']([^"']+)["'][^>]*>""".toRegex()
             val match = iframePattern.find(htmlIcerik)
-            return match?.groupValues?.get(1) ?: throw IllegalArgumentException("Iframe src bulunamadı")
+            return match?.groupValues?.get(1) ?: throw IllegalArgumentException("Iframe src bulunamadÄ±")
         }
     }
 

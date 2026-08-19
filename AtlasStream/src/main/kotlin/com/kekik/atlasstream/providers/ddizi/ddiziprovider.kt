@@ -1,4 +1,4 @@
-package com.kekik.atlasstream.providers.ddizi
+﻿package com.kekik.atlasstream.providers.ddizi
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -19,8 +19,8 @@ class DDiziProvider : MainAPI() {
     override val supportedTypes      = setOf(TvType.TvSeries)
 
     override val mainPage = mainPageOf(
-        "$mainUrl/yeni-eklenenler1" to "Son Eklenen Bölümler",
-        "$mainUrl/yabanci-dizi-izle" to "Yabancı Diziler",
+        "$mainUrl/yeni-eklenenler1" to "Son Eklenen BÃ¶lÃ¼mler",
+        "$mainUrl/yabanci-dizi-izle" to "YabancÄ± Diziler",
         "$mainUrl/eski.diziler" to "Eski Diziler",
     )
 
@@ -57,20 +57,20 @@ class DDiziProvider : MainAPI() {
             Log.d("DDizi:", "Error parsing box results: ${e.message}")
         }
         
-        // Sonraki sayfa kontrolü
+        // Sonraki sayfa kontrolÃ¼
         val hasNextPage = document.select(".pagination a").any { it.text().contains("Sonraki") }
         
         Log.d("DDizi:", "Added ${home.size} total episodes, hasNext: $hasNextPage")
         return newHomePageResponse(request.name, home, hasNextPage)
     }
 
-    // Element sınıfı için extension fonksiyonu
+    // Element sÄ±nÄ±fÄ± iÃ§in extension fonksiyonu
     private fun Element.toSearchResult(): SearchResponse? {
         val linkElement = this.selectFirst("a") ?: return null
         val title = linkElement.text()?.trim() ?: return null
         val href = fixUrl(linkElement.attr("href") ?: return null)
         
-        // Poster URL'yi doğru şekilde al
+        // Poster URL'yi doÄŸru ÅŸekilde al
         val img = this.selectFirst("img.img-back, img.img-back-cat")
         val posterUrl = when {
             img?.hasAttr("data-src") == true -> fixUrlNull(img.attr("data-src"))
@@ -78,7 +78,7 @@ class DDiziProvider : MainAPI() {
             else -> null
         }
         
-        // Açıklama ve yorum sayısını al
+        // AÃ§Ä±klama ve yorum sayÄ±sÄ±nÄ± al
         val description = this.selectFirst("p")?.text()
         val commentCount = this.selectFirst("span.comments-ss")?.text()?.replace(Regex("[^0-9]"), "")?.toIntOrNull()
         
@@ -92,10 +92,10 @@ class DDiziProvider : MainAPI() {
     override suspend fun search(query: String): List<SearchResponse> {
         Log.d("DDizi:", "Searching for $query")
         
-        // Form verilerini hazırla
+        // Form verilerini hazÄ±rla
         val formData = mapOf("arama" to query)
         
-        // POST isteği gönder
+        // POST isteÄŸi gÃ¶nder
         val document = app.post(
             "$mainUrl/arama/", 
             data = formData, 
@@ -103,7 +103,7 @@ class DDiziProvider : MainAPI() {
         ).document
         val results = ArrayList<SearchResponse>()
         
-        // dizi-boxpost-cat sınıfını kontrol et (arama sonuçları)
+        // dizi-boxpost-cat sÄ±nÄ±fÄ±nÄ± kontrol et (arama sonuÃ§larÄ±)
         try {
             val boxCatResults = document.select("div.dizi-boxpost-cat").mapNotNull { it.toSearchResult() }
             if (boxCatResults.isNotEmpty()) {
@@ -114,7 +114,7 @@ class DDiziProvider : MainAPI() {
             Log.d("DDizi:", "Error parsing box-cat search results: ${e.message}")
         }
         
-        // Alternatif olarak dizi-boxpost sınıfını kontrol et
+        // Alternatif olarak dizi-boxpost sÄ±nÄ±fÄ±nÄ± kontrol et
         if (results.isEmpty()) {
             try {
                 val boxResults = document.select("div.dizi-boxpost").mapNotNull { it.toSearchResult() }
@@ -127,7 +127,7 @@ class DDiziProvider : MainAPI() {
             }
         }
         
-        // Alternatif seçiciler
+        // Alternatif seÃ§iciler
         if (results.isEmpty()) {
             try {
                 val altResults = document.select("div.dizi-listesi a, div.yerli-diziler li a, div.yabanci-diziler li a").mapNotNull { 
@@ -156,35 +156,35 @@ class DDiziProvider : MainAPI() {
         Log.d("DDizi:", "Loading $url")
         val document = app.get(url, headers = getHeaders(mainUrl)).document
 
-        // Başlık ve sezon/bölüm bilgilerini al
+        // BaÅŸlÄ±k ve sezon/bÃ¶lÃ¼m bilgilerini al
         val fullTitle = document.selectFirst("h1, h2, div.dizi-boxpost-cat a")?.text()?.trim() ?: ""
         Log.d("DDizi:", "Full title: $fullTitle")
         
-        // Regex tanımlamaları
+        // Regex tanÄ±mlamalarÄ±
         val seasonRegex = Regex("""(\d+)\.?\s*Sezon""", RegexOption.IGNORE_CASE)
-        val episodeRegex = Regex("""(\d+)\.?\s*Bölüm""", RegexOption.IGNORE_CASE)
+        val episodeRegex = Regex("""(\d+)\.?\s*BÃ¶lÃ¼m""", RegexOption.IGNORE_CASE)
         val finalRegex = Regex("""Sezon Finali""", RegexOption.IGNORE_CASE)
 
-        // Başlıktan bilgileri çıkar
+        // BaÅŸlÄ±ktan bilgileri Ã§Ä±kar
         val seasonMatch = seasonRegex.find(fullTitle)
         val episodeMatch = episodeRegex.find(fullTitle)
         val isSeasonFinal = finalRegex.find(fullTitle) != null
         
-        // Sezon bilgisi yoksa varsayılan olarak 1. sezon kabul et
+        // Sezon bilgisi yoksa varsayÄ±lan olarak 1. sezon kabul et
         val seasonNumber = seasonMatch?.groupValues?.get(1)?.toIntOrNull() ?: 1
         val episodeNumber = episodeMatch?.groupValues?.get(1)?.toIntOrNull()
         
-        // Dizi adını ayıkla
+        // Dizi adÄ±nÄ± ayÄ±kla
         var title = fullTitle
         
-        // Önce sezon bilgisini kontrol et
+        // Ã–nce sezon bilgisini kontrol et
         if (seasonMatch != null) {
             val parts = fullTitle.split(seasonRegex)
             if (parts.isNotEmpty()) {
                 title = parts[0].trim()
             }
         } 
-        // Sezon bilgisi yoksa bölüm bilgisini kontrol et
+        // Sezon bilgisi yoksa bÃ¶lÃ¼m bilgisini kontrol et
         else if (episodeMatch != null) {
             val parts = fullTitle.split(episodeRegex)
             if (parts.isNotEmpty()) {
@@ -192,15 +192,15 @@ class DDiziProvider : MainAPI() {
             }
         }
         
-        // Başlığı temizle (nokta ve sayıları kaldır)
+        // BaÅŸlÄ±ÄŸÄ± temizle (nokta ve sayÄ±larÄ± kaldÄ±r)
         title = title.replace(Regex("""^\d+\.?\s*"""), "").trim()
         
         Log.d("DDizi:", "Parsed title: $title, Season: $seasonNumber (default: 1), Episode: $episodeNumber, Final: $isSeasonFinal")
         
-        // Poster URL'yi doğru şekilde al
+        // Poster URL'yi doÄŸru ÅŸekilde al
         val posterImg = document.selectFirst("div.afis img, img.afis, img.img-back, img.img-back-cat")
 
-        // Tüm bölümleri toplamak için sayfalama sistemini kullan
+        // TÃ¼m bÃ¶lÃ¼mleri toplamak iÃ§in sayfalama sistemini kullan
         val allEpisodes = mutableListOf<Episode>()
         var currentPage = 0
         var hasMorePages = true
@@ -242,7 +242,7 @@ class DDiziProvider : MainAPI() {
             if (pageEpisodes.isNotEmpty()) {
                 allEpisodes.addAll(pageEpisodes)
                 currentPage++
-                // Sonraki sayfa kontrolü
+                // Sonraki sayfa kontrolÃ¼
                 hasMorePages = pageDocument.select(".pagination a").any { it.text().contains("Sonraki") }
                 Log.d("DDizi:", "Found ${pageEpisodes.size} episodes on page $currentPage, hasMorePages: $hasMorePages")
             } else {
@@ -252,7 +252,7 @@ class DDiziProvider : MainAPI() {
 
         Log.d("DDizi:", "Total episodes found: ${allEpisodes.size}")
 
-        // Eğer hiç bölüm bulunamazsa ve şu anki sayfa bir bölüm sayfasıysa, sadece bu bölümü ekle
+        // EÄŸer hiÃ§ bÃ¶lÃ¼m bulunamazsa ve ÅŸu anki sayfa bir bÃ¶lÃ¼m sayfasÄ±ysa, sadece bu bÃ¶lÃ¼mÃ¼ ekle
         if (allEpisodes.isEmpty() && !url.contains("/dizi/") && !url.contains("/diziler/")) {
             allEpisodes.add(
                 newEpisode(url) {
@@ -269,34 +269,34 @@ class DDiziProvider : MainAPI() {
             else -> null
         }
         
-        // Açıklama bilgisini al
+        // AÃ§Ä±klama bilgisini al
         val plot = document.selectFirst("div.dizi-aciklama, div.aciklama, p")?.text()?.trim()
         
-        // Yorum sayısını al
+        // Yorum sayÄ±sÄ±nÄ± al
         val commentCount = document.selectFirst("span.comments-ss")?.text()?.replace(Regex("[^0-9]"), "")?.toIntOrNull()
         Log.d("DDizi:", "Comment count: $commentCount")
 
         Log.d("DDizi:", "Loaded title: $title, poster: $poster")
 
-        // Eğer dizi ana sayfasındaysak, bölümleri listele
+        // EÄŸer dizi ana sayfasÄ±ndaysak, bÃ¶lÃ¼mleri listele
         if (allEpisodes.isEmpty()) {
             try {
                 if (url.contains("/dizi/") || url.contains("/diziler/")) {
-                    // Dizi ana sayfasındayız, tüm bölümleri listele
+                    // Dizi ana sayfasÄ±ndayÄ±z, tÃ¼m bÃ¶lÃ¼mleri listele
                     val eps = document.select("div.bolumler a, div.sezonlar a, div.dizi-arsiv a, div.dizi-boxpost-cat a").map { ep ->
                         val name = ep.text().trim()
                         val href = fixUrl(ep.attr("href"))
                         
-                        // Bölüm adından bilgileri çıkar
+                        // BÃ¶lÃ¼m adÄ±ndan bilgileri Ã§Ä±kar
                         val epSeasonMatch = seasonRegex.find(name)
                         val epEpisodeMatch = episodeRegex.find(name)
                         val epIsSeasonFinal = finalRegex.find(name) != null
                         
-                        // Sezon bilgisi yoksa varsayılan olarak 1. sezon kabul et
+                        // Sezon bilgisi yoksa varsayÄ±lan olarak 1. sezon kabul et
                         val epSeasonNumber = epSeasonMatch?.groupValues?.get(1)?.toIntOrNull() ?: 1
                         val epEpisodeNumber = epEpisodeMatch?.groupValues?.get(1)?.toIntOrNull()
                         
-                        // Açıklama ve yorum sayısını al
+                        // AÃ§Ä±klama ve yorum sayÄ±sÄ±nÄ± al
                         val epDescription = ep.parent()?.selectFirst("p")?.text()
                         val epCommentCount = ep.parent()?.selectFirst("span.comments-ss")?.text()?.replace(Regex("[^0-9]"), "")?.toIntOrNull()
                         
@@ -312,7 +312,7 @@ class DDiziProvider : MainAPI() {
                     Log.d("DDizi:", "Found ${eps.size} episodes")
                     allEpisodes.addAll(eps)
                 } else {
-                    // Bölüm sayfasındayız, sadece bu bölümü ekle
+                    // BÃ¶lÃ¼m sayfasÄ±ndayÄ±z, sadece bu bÃ¶lÃ¼mÃ¼ ekle
                     Log.d("DDizi:", "Single episode page, adding current episode with Season: $seasonNumber (default: 1)")
                     
                     allEpisodes.add(
@@ -352,20 +352,20 @@ class DDiziProvider : MainAPI() {
             if (!ogVideo.isNullOrEmpty()) {
                 Log.d("DDizi:", "Found og:video meta tag: $ogVideo")
                 
-                // Video bağlantısına istek at ve jwplayer yapılandırmasını bul
+                // Video baÄŸlantÄ±sÄ±na istek at ve jwplayer yapÄ±landÄ±rmasÄ±nÄ± bul
                 val playerDoc = app.get(
                     ogVideo, 
                     headers = getHeaders(data)
                 ).document
                 val scripts = playerDoc.select("script")
                 
-                // jwplayer yapılandırmasını içeren script'i bul
+                // jwplayer yapÄ±landÄ±rmasÄ±nÄ± iÃ§eren script'i bul
                 scripts.forEach { script ->
                     val content = script.html()
                     if (content.contains("jwplayer") && content.contains("sources")) {
                         Log.d("DDizi:", "Found jwplayer configuration")
                         
-                        // sources kısmını regex ile çıkar
+                        // sources kÄ±smÄ±nÄ± regex ile Ã§Ä±kar
                         val sourcesRegex = Regex("""sources:\s*\[\s*\{(.*?)\}\s*,?\s*\]""", RegexOption.DOT_MATCHES_ALL)
                         val sourcesMatch = sourcesRegex.find(content)
                         
@@ -378,11 +378,11 @@ class DDiziProvider : MainAPI() {
                                 val fileUrl = fileMatch.groupValues[1]
                                 Log.d("DDizi:", "Found video source: $fileUrl")
                                 
-                                // Dosya türünü belirle
+                                // Dosya tÃ¼rÃ¼nÃ¼ belirle
                                 val fileType = when {
                                     fileUrl.contains(".m3u8") || fileUrl.contains("hls") -> "hls"
                                     fileUrl.contains(".mp4") -> "mp4"
-                                    else -> "hls" // Varsayılan olarak hls kabul et
+                                    else -> "hls" // VarsayÄ±lan olarak hls kabul et
                                 }
                                 
                                 // Kalite bilgisini belirle
@@ -392,7 +392,7 @@ class DDiziProvider : MainAPI() {
                                 
                                 Log.d("DDizi:", "Video type: $fileType, quality: $quality")
                                 
-                                // master.txt dosyası için özel başlıklar
+                                // master.txt dosyasÄ± iÃ§in Ã¶zel baÅŸlÄ±klar
                                 val videoHeaders = if (fileUrl.contains("master.txt")) {
                                     mapOf(
                                         "accept" to "*/*",
@@ -414,7 +414,7 @@ class DDiziProvider : MainAPI() {
                                 
                                 Log.d("DDizi:", "Using headers for video source: ${videoHeaders.keys.joinToString()}")
                                 
-                                // ExtractorLink oluştur
+                                // ExtractorLink oluÅŸtur
                                 callback.invoke(
                                     ExtractorLink(
                                         source = name,
@@ -426,7 +426,7 @@ class DDiziProvider : MainAPI() {
                                         type = if (fileType == "hls") ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
                                     )
                                 )
-                                // Eğer dosya türü hls ise, M3u8Helper ile işle
+                                // EÄŸer dosya tÃ¼rÃ¼ hls ise, M3u8Helper ile iÅŸle
                                 if (fileType == "hls") {
                                     try {
                                         Log.d("DDizi:", "Generating M3u8 for: $fileUrl")
@@ -439,14 +439,14 @@ class DDiziProvider : MainAPI() {
                                     } catch (e: Exception) {
                                         Log.d("DDizi:", "Error generating M3u8: ${e.message}")
                                         
-                                        // Doğrudan bağlantıyı dene
+                                        // DoÄŸrudan baÄŸlantÄ±yÄ± dene
                                         if (fileUrl.contains("master.txt")) {
                                             try {
                                                 Log.d("DDizi:", "Trying to get master.txt content directly")
                                                 val masterContent = app.get(fileUrl, headers = videoHeaders).text
                                                 Log.d("DDizi:", "Master.txt content length: ${masterContent.length}")
                                                 
-                                                // m3u8 bağlantılarını bul
+                                                // m3u8 baÄŸlantÄ±larÄ±nÄ± bul
                                                 val m3u8Regex = Regex("""(https?://.*?\.m3u8[^"\s]*)""")
                                                 val m3u8Matches = m3u8Regex.findAll(masterContent)
                                                 
@@ -454,7 +454,7 @@ class DDiziProvider : MainAPI() {
                                                     val m3u8Url = m3u8Match.groupValues[1]
                                                     Log.d("DDizi:", "Found m3u8 in master.txt: $m3u8Url")
                                                     
-                                                    // Kalite bilgisini çıkar
+                                                    // Kalite bilgisini Ã§Ä±kar
                                                     val m3u8Quality = when {
                                                         m3u8Url.contains("1080") -> "1080p"
                                                         m3u8Url.contains("720") -> "720p"
@@ -486,7 +486,7 @@ class DDiziProvider : MainAPI() {
                     }
                 }
                 
-                // Yine de normal extractor'ları dene
+                // Yine de normal extractor'larÄ± dene
                 loadExtractor(ogVideo, data, subtitleCallback, callback)
             }
         } catch (e: Exception) {
@@ -500,7 +500,7 @@ class DDiziProvider : MainAPI() {
     companion object {
         private const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
         
-        // Standart HTTP başlıkları
+        // Standart HTTP baÅŸlÄ±klarÄ±
         private fun getHeaders(referer: String): Map<String, String> {
             return mapOf(
                 "accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",

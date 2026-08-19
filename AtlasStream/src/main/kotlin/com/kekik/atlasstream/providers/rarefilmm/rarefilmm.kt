@@ -1,6 +1,8 @@
-// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
+﻿package com.kekik.atlasstream.providers.rarefilmm
 
-package com.kekik.atlasstream.providers.rarefilmm
+// ! Bu araÃ§ @keyiflerolsun tarafÄ±ndan | @KekikAkademi iÃ§in yazÄ±lmÄ±ÅŸtÄ±r.
+
+
 
 import android.util.Log
 import org.jsoup.nodes.Element
@@ -77,10 +79,10 @@ class RareFilmm : MainAPI() {
     }
 
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
-        Log.d("RRF", "data » $data")
+        Log.d("RRF", "data Â» $data")
         val document = app.get(data).document
         val iframe   = fixUrlNull(document.selectFirst("article iframe")?.attr("src")) ?: return false
-        Log.d("RRF", "iframe » $iframe")
+        Log.d("RRF", "iframe Â» $iframe")
 
         loadExtractor(iframe, "${mainUrl}/", subtitleCallback, callback)
 

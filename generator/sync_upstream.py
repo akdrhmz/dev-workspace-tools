@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Upstream KekikStream / WatchBuddy Senkronizasyon Scripti
-@author: KekikAkademi / Antigravity
+Workspace Plugin Sync Script
 """
 
 import os

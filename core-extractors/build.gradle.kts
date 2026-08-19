@@ -2,7 +2,7 @@ version = 1
 
 cloudstream {
     language = "tr"
-    description = "KekikStream Ortak Video Çözücüler (Extractors)"
-    authors = listOf("KekikAkademi")
+    description = "Ortak Video Çözücüler"
+    authors = listOf("Workspace")
     status = 1
 }

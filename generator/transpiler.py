@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-KekikStream -> CloudStream Otomatik Kod Dönüştürücü (Transpiler)
-@author: KekikAkademi / Antigravity
+Plugin Module Transpiler
 """
 
 import os
@@ -124,7 +123,7 @@ GRADLE_MODULE_TEMPLATE = """version = 1
 cloudstream {{
     language = "{language}"
     description = "{description}"
-    authors = listOf("KekikAkademi")
+    authors = listOf("Workspace")
     status = 1
     tvTypes = listOf({tv_types})
     iconUrl = "{icon_url}"

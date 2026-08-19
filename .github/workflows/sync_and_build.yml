@@ -1,4 +1,4 @@
-name: Upstream Sync & CloudStream Build
+name: Workspace Sync & Build
 
 on:
   schedule:
@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Upstream KekikStream Eklentilerini Cevir
+      - name: Modulleri Senkronize Et
         run: |
           python generator/sync_upstream.py
 
@@ -44,16 +44,16 @@ jobs:
         with:
           gradle-version: "8.11.1"
 
-      - name: Eklentileri Derle (.cs3 paketleri)
+      - name: Paketleri Derle (.cs3)
         run: |
           chmod +x ./gradlew || true
           ./gradlew make --no-daemon --stacktrace
           ./gradlew makePluginsJson --no-daemon || true
 
-      - name: plugins.json Manifestosu ve Repo Dizini Olustur
+      - name: Manifest ve Dizin Olustur
         run: |
           mkdir -p public
-          # Tum derlenen .cs3 paketlerini public dizinine kopyala
+          # Tum derlenen paketleri public dizinine kopyala
           find . -name "*.cs3" -exec cp {} public/ \;
           # Eger gradle makePluginsJson tarafindan uretilen plugins.json varsa al
           find . -name "plugins.json" -not -path "./public/*" -exec cp {} public/plugins.json \; 2>/dev/null || true
@@ -89,8 +89,8 @@ jobs:
               print('[OK] Gradle plugins.json korundu.')
 
           repo_meta = {
-              'name': 'KekikStream / WatchBuddy TR',
-              'description': 'Otomatik Güncellenen Türkçe & Evrensel Cloudstream Eklenti Deposu (170+ Site)',
+              'name': 'WatchBuddy TR Providers',
+              'description': 'Universal Multi-Source Personal Provider Repository',
               'manifestVersion': 1,
               'pluginLists': [
                   f'https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/plugins.json'
@@ -101,7 +101,7 @@ jobs:
           print('[OK] repo.json olusturuldu.')
           "
 
-      - name: GitHub Pages Uzerine Dagit
+      - name: Dagitim
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

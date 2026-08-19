@@ -49,57 +49,6 @@ object SourceResolver {
             com.kekik.atlasstream.providers.hdfilmcehennemi.HDFilmCehennemi(),
             com.kekik.atlasstream.providers.hdfilmizle.HDFilmIzle(),
             com.kekik.atlasstream.providers.hdfilmsitesi.HDFilmSitesi(),
-package com.kekik.atlasstream
-
-import android.util.Base64
-import android.util.Log
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.lagradost.cloudstream3.*
-import com.lagradost.cloudstream3.utils.*
-import com.lagradost.cloudstream3.utils.StringUtils.decodeUri
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withTimeoutOrNull
-import org.jsoup.Jsoup
-import java.net.URLEncoder
-
-object SourceResolver {
-    private const val TAG = "WB_Resolver"
-
-    private val externalProviders: List<com.lagradost.cloudstream3.MainAPI> by lazy {
-        listOf(
-            com.kekik.atlasstream.providers.altiyuzaltmisaltifilmizle.AltiYuzAltmisAltiFilmIzle(),
-            com.kekik.atlasstream.providers.animecix.AnimeciX(),
-            com.kekik.atlasstream.providers.asyaanimeleri.AsyaAnimeleri(),
-            com.kekik.atlasstream.providers.asyawatch.AsyaWatch(),
-            com.kekik.atlasstream.providers.belgeselx.BelgeselX(),
-            com.kekik.atlasstream.providers.canlitv.CanliTV(),
-            com.kekik.atlasstream.providers.cizgimax.CizgiMax(),
-            com.kekik.atlasstream.providers.ddizi.DDiziProvider(),
-            com.kekik.atlasstream.providers.dizibox.DiziBox(),
-            com.kekik.atlasstream.providers.dizigom.DiziGom(),
-            com.kekik.atlasstream.providers.dizikorea.DiziKorea(),
-            com.kekik.atlasstream.providers.dizilla.Dizilla(),
-            com.kekik.atlasstream.providers.dizimag.DiziMag(),
-            com.kekik.atlasstream.providers.dizimom.DiziMom(),
-            com.kekik.atlasstream.providers.dizipal.DiziPal(),
-            com.kekik.atlasstream.providers.diziyou.DiziYou(),
-            com.kekik.atlasstream.providers.dmax.DMax(),
-            com.kekik.atlasstream.providers.filmizleilk.FilmIzleIlk(),
-            com.kekik.atlasstream.providers.filmizlesene.FilmIzlesene(),
-            com.kekik.atlasstream.providers.filmkovasi.FilmKovasi(),
-            com.kekik.atlasstream.providers.filmmakinesi.FilmMakinesi(),
-            com.kekik.atlasstream.providers.filmmodu.FilmModu(),
-            com.kekik.atlasstream.providers.fullhdfilm.FullHDFilm(),
-            com.kekik.atlasstream.providers.fullhdfilmizlesene.FullHDFilmizlesene(),
-            com.kekik.atlasstream.providers.fullhdfilmizlede.FullHDFilmIzlede(),
-            com.kekik.atlasstream.providers.hdfilmcehennemi.HDFilmCehennemi(),
-            com.kekik.atlasstream.providers.hdfilmizle.HDFilmIzle(),
-            com.kekik.atlasstream.providers.hdfilmsitesi.HDFilmSitesi(),
             com.kekik.atlasstream.providers.inatbox.InatBox(),
             com.kekik.atlasstream.providers.jetfilmizle.JetFilmizle(),
             com.kekik.atlasstream.providers.koreanturk.KoreanTurk(),

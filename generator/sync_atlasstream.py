@@ -1,15 +1,15 @@
 ﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-AtlasStream Upstream Auto-Sync Script
-Her 6 saatte bir upstream depoları (nik-cloudstream, Kekik-cloudstream vb.)
-kontrol eder, yeni/güncellenen kaynakları AtlasStream içine izole paketler olarak aktarır.
+AtlasStream Smart Upstream Auto-Sync Script (with Diff Check & Safety Verification)
+Sadece gerçekten değişen/güncellenen kaynakları tespit eder ve akıllıca günceller.
 """
 
 import os
 import re
 import sys
 import shutil
+import hashlib
 import subprocess
 from pathlib import Path
 
@@ -19,6 +19,13 @@ if sys.stdout.encoding != 'utf-8':
 BASE_DIR = Path(__file__).resolve().parent.parent
 ATLAS_SRC_DIR = BASE_DIR / "AtlasStream" / "src" / "main" / "kotlin" / "com" / "kekik" / "atlasstream"
 PROVIDERS_DIR = ATLAS_SRC_DIR / "providers"
+
+# Manuel olarak optimize ettiğimiz çekirdek kaynaklar (bunlar harici bot tarafından asla ezilmez)
+PROTECTED_CORE_SOURCES = {
+    "dizibox", "dizilla", "filmmakinesi", "hdfilmcehennemi",
+    "sinewix", "jetfilmizle", "dizipal", "fullhdfilmizlesene",
+    "filmmodu", "sezonlukdizi", "cizgimax"
+}
 
 EXCLUDED_PROVIDERS = {
     "animecix", "asyaanimeleri", "turkanime", "canlitv", "inatbox",
@@ -35,6 +42,15 @@ def to_safe_ascii(s: str) -> str:
     for tr, en in [("ı", "i"), ("i̇", "i"), ("ü", "u"), ("ö", "o"), ("ç", "c"), ("ş", "s"), ("ğ", "g")]:
         s = s.replace(tr, en)
     return re.sub(r"[^a-z0-9_]", "", s)
+
+def file_hash(filepath: Path) -> str:
+    if not filepath.exists():
+        return ""
+    h = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        while chunk := f.read(8192):
+            h.update(chunk)
+    return h.hexdigest()
 
 def sync_upstreams():
     temp_dir = BASE_DIR / "temp_upstreams"
@@ -53,8 +69,9 @@ def sync_upstreams():
         if target.exists():
             cloned_paths.append(target)
 
-    # Kaynakları tara
     found_providers = {}
+    updated_count = 0
+    unchanged_count = 0
 
     for repo_path in cloned_paths:
         for item in repo_path.iterdir():
@@ -63,14 +80,15 @@ def sync_upstreams():
             
             p_name = item.name
             safe_name = to_safe_ascii(p_name)
-            if safe_name in EXCLUDED_PROVIDERS or safe_name in found_providers:
+            
+            # Korumalı çekirdek kaynaklar veya engelli türler atlanır
+            if safe_name in PROTECTED_CORE_SOURCES or safe_name in EXCLUDED_PROVIDERS or safe_name in found_providers:
                 continue
 
             kt_dir = item / "src" / "main" / "kotlin"
             if not kt_dir.exists():
                 continue
 
-            # Kotlin dosyalarını topla
             kt_files = [f for f in kt_dir.rglob("*.kt") if not f.name.endswith("Plugin.kt")]
             if not kt_files:
                 continue
@@ -79,6 +97,7 @@ def sync_upstreams():
             os.makedirs(dest_pkg_dir, exist_ok=True)
 
             main_class = None
+            is_provider_changed = False
 
             for f in kt_files:
                 dest_file_name = to_safe_ascii(f.stem) + ".kt"
@@ -88,18 +107,29 @@ def sync_upstreams():
                     with open(f, "r", encoding="utf-8", errors="ignore") as in_f:
                         code = in_f.read()
 
-                    # Package bildirgesini güncelle
+                    # Package bildirgesini izole et
                     code = re.sub(r"(?m)^package\s+[a-zA-Z0-9_\.]+", f"package com.kekik.atlasstream.providers.{safe_name}", code)
 
-                    with open(dest_file, "w", encoding="utf-8") as out_f:
-                        out_f.write(code)
+                    # Mevcut dosya ile içerik hash kontrolü (Diff / Akıllı Güncelleme)
+                    existing_hash = file_hash(dest_file)
+                    new_hash = hashlib.sha256(code.encode("utf-8")).hexdigest()
 
-                    # MainAPI sınıfını bul
+                    if existing_hash != new_hash:
+                        with open(dest_file, "w", encoding="utf-8") as out_f:
+                            out_f.write(code)
+                        is_provider_changed = True
+
                     cls_match = re.search(r"class\s+(\w+)\s*:\s*MainAPI", code)
                     if cls_match:
                         main_class = cls_match.group(1)
                 except Exception as e:
                     print(f"[-] Hata ({f}): {e}")
+
+            if is_provider_changed:
+                print(f"[+] [GÜNCELLEME ALINDI] {p_name} -> Değişiklikler entegre edildi.")
+                updated_count += 1
+            else:
+                unchanged_count += 1
 
             if main_class:
                 found_providers[safe_name] = {
@@ -108,14 +138,13 @@ def sync_upstreams():
                     "class_name": main_class,
                     "full_qualified": f"com.kekik.atlasstream.providers.{safe_name}.{main_class}"
                 }
-                print(f"[+] Senkronize edildi: {p_name} -> {safe_name}.{main_class}")
 
-    print(f"[OK] Toplam senkronize edilen kaynak: {len(found_providers)}")
+    print(f"[BİLGİ] {unchanged_count} kaynakta değişiklik yok (korundu).")
+    print(f"[BİLGİ] {updated_count} kaynak güncellendi.")
 
-    # AtlasStreamPlugin.kt ve SourceResolver.kt güncelle
-    update_plugin_and_resolver(found_providers)
+    if updated_count > 0:
+        update_plugin_and_resolver(found_providers)
 
-    # Geçici klasörü temizle
     try:
         shutil.rmtree(temp_dir, ignore_errors=True)
     except Exception:
@@ -151,7 +180,7 @@ def update_plugin_and_resolver(providers: dict):
 
         with open(plugin_kt, "w", encoding="utf-8") as f:
             f.write(p_content)
-        print("[OK] AtlasStreamPlugin.kt güncellendi.")
+        print("[OK] AtlasStreamPlugin.kt akıllıca güncellendi.")
 
     # 2. SourceResolver.kt
     resolver_kt = ATLAS_SRC_DIR / "SourceResolver.kt"
@@ -166,7 +195,7 @@ def update_plugin_and_resolver(providers: dict):
 
         with open(resolver_kt, "w", encoding="utf-8") as f:
             f.write(r_content)
-        print("[OK] SourceResolver.kt güncellendi.")
+        print("[OK] SourceResolver.kt akıllıca güncellendi.")
 
 if __name__ == "__main__":
     sync_upstreams()

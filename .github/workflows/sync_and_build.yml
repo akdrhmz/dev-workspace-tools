@@ -1,8 +1,8 @@
-﻿name: AtlasStream Auto-Sync & Build
+﻿name: AtlasStream Smart Auto-Sync & Build
 
 on:
   schedule:
-    - cron: "0 */6 * * *" # Her 6 saatte bir otomatik calisir
+    - cron: "0 */6 * * *" # Her 6 saatte bir akilli kontrol
   workflow_dispatch:      # Manuel tetikleme destegi
   push:
     branches:
@@ -29,19 +29,9 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Kaynak Depolari Senkronize Et (Upstream Sync)
+      - name: Akilli Kaynak Senkronizasyonu (Sadece Degisenler)
         run: |
           python generator/sync_atlasstream.py
-
-      - name: Guncellemeleri Master Dalina Kaydet (Gerekliyse)
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add AtlasStream/
-          if ! git diff --staged --quiet; then
-            git commit -m "chore(auto-sync): upstream depolarindan otomatik kaynak guncellemesi [skip ci]"
-            git push origin HEAD:${{ github.ref_name }} || true
-          fi
 
       - name: JDK 17 Kur
         uses: actions/setup-java@v4
@@ -49,16 +39,38 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
-      - name: Gradle Kur ve Calistir
+      - name: Gradle Kur
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: "8.11.1"
 
-      - name: AtlasStream Paketini Derle (.cs3)
+      - name: Derleme ve Guvenlik Testi (Pre-Flight Safety Check)
+        id: build_step
         run: |
           chmod +x ./gradlew || true
-          ./gradlew make --no-daemon --stacktrace
-          ./gradlew makePluginsJson --no-daemon || true
+          # Eger upstream bozuk bir kod gonderdiyse derleme testi hata verir
+          if ./gradlew make --no-daemon --stacktrace; then
+            echo "BUILD_SUCCESS=true" >> $GITHUB_ENV
+            ./gradlew makePluginsJson --no-daemon || true
+          else
+            echo "[-] UYARI: Upstream kaynaklarindan biri hatali kod iceriyor. Degisiklikler geri aliniyor!"
+            git checkout -- AtlasStream/
+            echo "BUILD_SUCCESS=false" >> $GITHUB_ENV
+            # Son calisan stabil surumu tekrar derle
+            ./gradlew make --no-daemon
+            ./gradlew makePluginsJson --no-daemon || true
+          fi
+
+      - name: Basarili Guncellemeleri Master Dalina Kaydet
+        if: env.BUILD_SUCCESS == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add AtlasStream/
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(auto-sync): upstream depolarindan test edilmis akilli guncelleme [skip ci]"
+            git push origin HEAD:${{ github.ref_name }} || true
+          fi
 
       - name: Manifest ve Dizin Olustur
         env:

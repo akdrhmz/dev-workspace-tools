@@ -1,7 +1,7 @@
 package com.kekik.watchbuddy
 
 import com.lagradost.cloudstream3.*
-import com.lagradost.cloudstream3.AcraApplication.Companion.getKey
+import com.lagradost.cloudstream3.CloudStreamApp.Companion.getKey
 import com.lagradost.cloudstream3.utils.*
 import java.net.URLEncoder
 

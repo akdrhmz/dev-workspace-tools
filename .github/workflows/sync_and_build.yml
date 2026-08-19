@@ -87,7 +87,7 @@ jobs:
                   'language': 'tr'
               })
 
-          # Eger gradle tarafindan uretilen dolu bir plugins.json varsa al
+          # Eger gradle tarafindan uretilen dolu bir plugins.json varsa al ve URL'lerini GitHub Pages'e ayarla
           gradle_manifest = None
           for candidate in glob.glob('**/plugins.json', recursive=True):
               if not candidate.startswith('public') and os.path.exists(candidate) and os.path.getsize(candidate) > 10:
@@ -100,7 +100,14 @@ jobs:
                   except Exception:
                       pass
 
-          final_manifest = gradle_manifest if gradle_manifest else plugins
+          if gradle_manifest:
+              for p in gradle_manifest:
+                  cs3_name = p.get('name', '') or p.get('internalName', '')
+                  filename = os.path.basename(p.get('url', '')) or f'{cs3_name}.cs3'
+                  p['url'] = f'{base_url}/{filename}'
+              final_manifest = gradle_manifest
+          else:
+              final_manifest = plugins
 
           with open('public/plugins.json', 'w', encoding='utf-8') as mf:
               json.dump(final_manifest, mf, indent=2, ensure_ascii=False)

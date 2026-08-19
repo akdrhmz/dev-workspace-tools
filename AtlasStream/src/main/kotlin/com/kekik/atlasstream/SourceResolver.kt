@@ -86,7 +86,7 @@ object SourceResolver {
         val cleanTr   = SourceUtils.cleanTitle(media.title)
         val cleanOrig = media.originalTitle?.let { SourceUtils.cleanTitle(it) }
 
-        val jobs = mutableListOf<kotlinx.coroutines.Deferred<Unit>>()
+        val jobs = mutableListOf<kotlinx.coroutines.Deferred<*>>()
 
         // Dinamik sağlayıcıları eşzamanlı çalıştır
         externalProviders.forEach { provider ->

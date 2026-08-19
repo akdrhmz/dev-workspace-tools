@@ -73,12 +73,17 @@ jobs:
                   need_build = True
 
           if need_build:
+              repo_full = "${{ github.repository }}"
+              repo_owner = "${{ github.repository_owner }}"
+              repo_name = repo_full.split("/")[-1] if "/" in repo_full else "dev-workspace-tools"
+              base_url = f"https://{repo_owner}.github.io/{repo_name}"
+
               plugins = []
               for f in glob.glob('public/*.cs3'):
                   name = os.path.basename(f).replace('.cs3', '')
                   plugins.append({
                       'name': name,
-                      'url': f'https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/{os.path.basename(f)}',
+                      'url': f'{base_url}/{os.path.basename(f)}',
                       'version': 1,
                       'language': 'tr'
                   })
@@ -88,12 +93,17 @@ jobs:
           else:
               print('[OK] Gradle plugins.json korundu.')
 
+          repo_full = "${{ github.repository }}"
+          repo_owner = "${{ github.repository_owner }}"
+          repo_name = repo_full.split("/")[-1] if "/" in repo_full else "dev-workspace-tools"
+          base_url = f"https://{repo_owner}.github.io/{repo_name}"
+
           repo_meta = {
               'name': 'WatchBuddy TR Providers',
               'description': 'Universal Multi-Source Personal Provider Repository',
               'manifestVersion': 1,
               'pluginLists': [
-                  f'https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/plugins.json'
+                  f'{base_url}/plugins.json'
               ]
           }
           with open('public/repo.json', 'w', encoding='utf-8') as rf:

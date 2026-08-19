@@ -1,0 +1,8 @@
+﻿{
+  "name": "WatchBuddy TR Providers",
+  "description": "Universal Multi-Source Personal Provider Repository",
+  "manifestVersion": 1,
+  "pluginLists": [
+    "https://raw.githubusercontent.com/akdrhmz/dev-workspace-tools/builds/plugins.json"
+  ]
+}

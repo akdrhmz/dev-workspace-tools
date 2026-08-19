@@ -177,9 +177,9 @@ def update_plugin_and_resolver(providers: dict):
             r_content = f.read()
 
         instantiations = [f"            {p['full_qualified']}()" for p in sorted(providers.values(), key=lambda x: x["name"].lower())]
-        inst_block = "private val externalProviders by lazy {\n        listOf(\n" + ",\n".join(instantiations) + "\n        )\n    }"
+        inst_block = "private val externalProviders: List<com.lagradost.cloudstream3.MainAPI> by lazy {\n        listOf(\n" + ",\n".join(instantiations) + "\n        )\n    }"
 
-        r_content = re.sub(r"(?s)private val externalProviders by lazy \{.*?\}", inst_block, r_content)
+        r_content = re.sub(r"(?s)private val externalProviders:?.*? by lazy \{.*?\}", inst_block, r_content)
 
         with open(resolver_kt, "w", encoding="utf-8") as f:
             f.write(r_content)

@@ -126,10 +126,18 @@ jobs:
           print('[OK] repo.json olusturuldu.')
           "
 
-      - name: Dagitim
+      - name: Dagitim (GitHub Pages)
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
           publish_branch: gh-pages
+          force_orphan: true
+
+      - name: Dagitim (Builds Dali)
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: builds
           force_orphan: true

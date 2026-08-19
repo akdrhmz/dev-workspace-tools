@@ -110,6 +110,9 @@ def sync_upstreams():
                     code = re.sub(r"(?m)^import\s+com\.nikyokki\..*$", "", code)
                     code = re.sub(r"(?m)^import\s+[A-Za-z0-9_]+\s*$", "", code)
                     
+                    # TurkAnime upstream coroutine suspend fix
+                    code = code.replace("private fun iframe2AesLink(", "private suspend fun iframe2AesLink(")
+
                     code = f"package com.kekik.atlasstream.providers.{safe_name}\n\n" + code.strip()
 
                     existing_hash = file_hash(dest_file)

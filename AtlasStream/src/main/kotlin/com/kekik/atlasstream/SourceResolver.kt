@@ -122,12 +122,13 @@ object SourceResolver {
                             } catch (e: Exception) { null }
 
                             var matched = searchRes?.firstOrNull { item ->
+                                val resYear = (item as? MovieSearchResponse)?.year ?: (item as? TvSeriesSearchResponse)?.year ?: (item as? AnimeSearchResponse)?.year
                                 SourceUtils.isTitleMatch(
                                     resultTitle = item.name,
                                     targetTitleTr = media.title,
                                     targetTitleOrig = media.originalTitle,
                                     targetYear = media.year,
-                                    resultYear = item.year
+                                    resultYear = resYear
                                 )
                             }
 
@@ -138,12 +139,13 @@ object SourceResolver {
                                 } catch (e: Exception) { null }
 
                                 matched = origRes?.firstOrNull { item ->
+                                    val resYear = (item as? MovieSearchResponse)?.year ?: (item as? TvSeriesSearchResponse)?.year ?: (item as? AnimeSearchResponse)?.year
                                     SourceUtils.isTitleMatch(
                                         resultTitle = item.name,
                                         targetTitleTr = media.title,
                                         targetTitleOrig = media.originalTitle,
                                         targetYear = media.year,
-                                        resultYear = item.year
+                                        resultYear = resYear
                                     )
                                 }
                             }

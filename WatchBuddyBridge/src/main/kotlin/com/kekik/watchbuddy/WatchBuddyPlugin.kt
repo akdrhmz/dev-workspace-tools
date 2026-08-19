@@ -92,9 +92,12 @@ class WatchBuddyPlugin : Plugin() {
 
     override fun load(context: Context) {
         registerMainAPI(WatchBuddyProvider())
+        openSettings = { ctx ->
+            showMainSettingsDialog(ctx)
+        }
     }
 
-    override fun openSettings(context: Context) {
+    private fun showMainSettingsDialog(context: Context) {
         val isSafeMode = getKey<Boolean>(PREF_KEY_SAFE_MODE) ?: true
         val safeModeStatus = if (isSafeMode) "🟢 AÇIK (Korumalı)" else "🔴 KAPALI"
 

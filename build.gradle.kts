@@ -82,6 +82,8 @@ subprojects {
         implementation("org.jsoup:jsoup:1.18.3")
         implementation("org.jspecify:jspecify:1.0.0")
         compileOnly("org.jspecify:jspecify:1.0.0")
+        implementation("androidx.appcompat:appcompat:1.7.0")
+        compileOnly("androidx.appcompat:appcompat:1.7.0")
         implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
     }
 }

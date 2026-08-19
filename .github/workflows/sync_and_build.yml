@@ -46,26 +46,47 @@ jobs:
 
       - name: Eklentileri Derle (.cs3 paketleri)
         run: |
-          gradle makePlugins || gradle build --no-daemon
+          chmod +x ./gradlew || true
+          ./gradlew make --no-daemon --stacktrace
+          ./gradlew makePluginsJson --no-daemon || true
 
       - name: plugins.json Manifestosu ve Repo Dizini Olustur
         run: |
           mkdir -p public
+          # Tum derlenen .cs3 paketlerini public dizinine kopyala
           find . -name "*.cs3" -exec cp {} public/ \;
-          # Manifest uretici
+          # Eger gradle makePluginsJson tarafindan uretilen plugins.json varsa al
+          find . -name "plugins.json" -not -path "./public/*" -exec cp {} public/plugins.json \; 2>/dev/null || true
+          # Manifest uretici: Eger plugins.json olusmadiysa veya bossa .cs3 dosyalarindan uret
           python -c "
           import json, os, glob
-          plugins = []
-          for f in glob.glob('public/*.cs3'):
-              name = os.path.basename(f).replace('.cs3', '')
-              plugins.append({
-                  'name': name,
-                  'url': f'https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/{os.path.basename(f)}',
-                  'version': 1,
-                  'language': 'tr'
-              })
-          with open('public/plugins.json', 'w', encoding='utf-8') as mf:
-              json.dump(plugins, mf, indent=2, ensure_ascii=False)
+          need_build = False
+          if not os.path.exists('public/plugins.json') or os.path.getsize('public/plugins.json') < 10:
+              need_build = True
+          else:
+              try:
+                  with open('public/plugins.json', 'r', encoding='utf-8') as f:
+                      d = json.load(f)
+                      if not d:
+                          need_build = True
+              except Exception:
+                  need_build = True
+
+          if need_build:
+              plugins = []
+              for f in glob.glob('public/*.cs3'):
+                  name = os.path.basename(f).replace('.cs3', '')
+                  plugins.append({
+                      'name': name,
+                      'url': f'https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/{os.path.basename(f)}',
+                      'version': 1,
+                      'language': 'tr'
+                  })
+              with open('public/plugins.json', 'w', encoding='utf-8') as mf:
+                  json.dump(plugins, mf, indent=2, ensure_ascii=False)
+              print(f'[OK] Manifest olusturuldu: {len(plugins)} eklenti eklendi.')
+          else:
+              print('[OK] Gradle plugins.json korundu.')
           "
 
       - name: GitHub Pages Uzerine Dagit

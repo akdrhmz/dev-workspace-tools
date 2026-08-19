@@ -55,46 +55,56 @@ jobs:
           REPO_FULL: ${{ github.repository }}
           REPO_OWNER: ${{ github.repository_owner }}
         run: |
-          mkdir -p public
-          # Tum derlenen paketleri public dizinine kopyala (public haric)
-          find . -name "*.cs3" -not -path "./public/*" -exec cp {} public/ \;
-          # Eger gradle makePluginsJson tarafindan uretilen plugins.json varsa al
-          find . -name "plugins.json" -not -path "./public/*" -exec cp {} public/plugins.json \; 2>/dev/null || true
-          # Manifest uretici
           python -c "
-          import json, os, glob
-          need_build = False
-          if not os.path.exists('public/plugins.json') or os.path.getsize('public/plugins.json') < 10:
-              need_build = True
-          else:
-              try:
-                  with open('public/plugins.json', 'r', encoding='utf-8') as f:
-                      d = json.load(f)
-                      if not d:
-                          need_build = True
-              except Exception:
-                  need_build = True
+          import json, os, glob, shutil
 
+          os.makedirs('public', exist_ok=True)
+
+          # 1. Tum derlenen .cs3 paketlerini derleme agacinda bul ve public dizinine kopyala
+          cs3_files = [f for f in glob.glob('**/*.cs3', recursive=True) if not f.startswith('public')]
+          for f in cs3_files:
+              dest = os.path.join('public', os.path.basename(f))
+              try:
+                  shutil.copy2(f, dest)
+                  print(f'[+] Kopyalandi: {f} -> {dest}')
+              except Exception as e:
+                  print(f'[-] Kopyalama hatasi ({f}): {e}')
+
+          # 2. Manifest ve URL yapilandirmasi
           repo_full = os.environ.get('REPO_FULL', 'akdrhmz/dev-workspace-tools')
           repo_owner = os.environ.get('REPO_OWNER', 'akdrhmz')
           repo_name = repo_full.split('/')[-1] if '/' in repo_full else 'dev-workspace-tools'
           base_url = f'https://{repo_owner}.github.io/{repo_name}'
 
-          if need_build:
-              plugins = []
-              for f in glob.glob('public/*.cs3'):
-                  name = os.path.basename(f).replace('.cs3', '')
-                  plugins.append({
-                      'name': name,
-                      'url': f'{base_url}/{os.path.basename(f)}',
-                      'version': 1,
-                      'language': 'tr'
-                  })
-              with open('public/plugins.json', 'w', encoding='utf-8') as mf:
-                  json.dump(plugins, mf, indent=2, ensure_ascii=False)
-              print(f'[OK] Manifest olusturuldu: {len(plugins)} eklenti eklendi.')
-          else:
-              print('[OK] Gradle plugins.json korundu.')
+          all_cs3 = glob.glob('public/*.cs3')
+          plugins = []
+          for f in all_cs3:
+              name = os.path.basename(f).replace('.cs3', '')
+              plugins.append({
+                  'name': name,
+                  'url': f'{base_url}/{os.path.basename(f)}',
+                  'version': 1,
+                  'language': 'tr'
+              })
+
+          # Eger gradle tarafindan uretilen dolu bir plugins.json varsa al
+          gradle_manifest = None
+          for candidate in glob.glob('**/plugins.json', recursive=True):
+              if not candidate.startswith('public') and os.path.exists(candidate) and os.path.getsize(candidate) > 10:
+                  try:
+                      with open(candidate, 'r', encoding='utf-8') as gf:
+                          content = json.load(gf)
+                          if isinstance(content, list) and len(content) > 0:
+                              gradle_manifest = content
+                              break
+                  except Exception:
+                      pass
+
+          final_manifest = gradle_manifest if gradle_manifest else plugins
+
+          with open('public/plugins.json', 'w', encoding='utf-8') as mf:
+              json.dump(final_manifest, mf, indent=2, ensure_ascii=False)
+          print(f'[OK] plugins.json olusturuldu: {len(final_manifest)} eklenti eklendi.')
 
           repo_meta = {
               'name': 'WatchBuddy TR Providers',

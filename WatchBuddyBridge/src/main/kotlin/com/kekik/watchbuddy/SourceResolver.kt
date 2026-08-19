@@ -1,4 +1,4 @@
-ï»¿package com.kekik.watchbuddy
+package com.kekik.watchbuddy
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -28,7 +28,7 @@ object SourceResolver {
         val jobs = mutableListOf<kotlinx.coroutines.Deferred<Unit>>()
 
         if (media.isMovie) {
-            // Film SaÄŸlayÄ±cÄ±larÄ±
+            // Film Saðlayýcýlarý
             if (isProviderEnabled("FilmMakinesi")) {
                 jobs += async { resolveFilmMakinesi(cleanTr, cleanOrig, subtitleCallback, callback) }
             }
@@ -42,7 +42,7 @@ object SourceResolver {
                 jobs += async { resolveJetFilmizle(cleanTr, cleanOrig, subtitleCallback, callback) }
             }
         } else {
-            // Dizi SaÄŸlayÄ±cÄ±larÄ±
+            // Dizi Saðlayýcýlarý
             val s = media.season ?: 1
             val e = media.episode ?: 1
 
@@ -69,7 +69,7 @@ object SourceResolver {
         }
     }
 
-    // --- 1. DiziBox Ã‡Ã¶zÃ¼cÃ¼ ---
+    // --- 1. DiziBox Çözücü ---
     private suspend fun resolveDiziBox(
         title: String,
         origTitle: String?,
@@ -128,7 +128,7 @@ object SourceResolver {
         }
     }
 
-    // --- 2. FilmMakinesi Ã‡Ã¶zÃ¼cÃ¼ ---
+    // --- 2. FilmMakinesi Çözücü ---
     private suspend fun resolveFilmMakinesi(
         title: String,
         origTitle: String?,
@@ -173,7 +173,7 @@ object SourceResolver {
         }
     }
 
-    // --- 3. HDFilmCehennemi Ã‡Ã¶zÃ¼cÃ¼ ---
+    // --- 3. HDFilmCehennemi Çözücü ---
     private suspend fun resolveHDFC(
         title: String,
         origTitle: String?,
@@ -212,7 +212,7 @@ object SourceResolver {
         }
     }
 
-    // --- 4. Dizilla Ã‡Ã¶zÃ¼cÃ¼ ---
+    // --- 4. Dizilla Çözücü ---
     private suspend fun resolveDizilla(
         title: String,
         origTitle: String?,
@@ -224,7 +224,7 @@ object SourceResolver {
         val queries = listOfNotNull(title, origTitle).distinct()
         for (q in queries) {
             try {
-                val searchUrl = "https://dizilla.club/arama?q=${URLEncoder.encode(q, "UTF-8")}"
+                val searchUrl = "https://dizilla.one/arama?q=${URLEncoder.encode(q, "UTF-8")}"
                 val doc = app.get(searchUrl, timeout = 10L).document
                 val showHref = doc.selectFirst("div.poster a, div.series-card a")?.attr("href") ?: continue
 
@@ -244,7 +244,7 @@ object SourceResolver {
         }
     }
 
-    // --- 5. SineWix Ã‡Ã¶zÃ¼cÃ¼ ---
+    // --- 5. SineWix Çözücü ---
     private suspend fun resolveSineWix(
         title: String,
         origTitle: String?,
@@ -276,7 +276,7 @@ object SourceResolver {
         }
     }
 
-    // --- 6. JetFilmizle Ã‡Ã¶zÃ¼cÃ¼ ---
+    // --- 6. JetFilmizle Çözücü ---
     private suspend fun resolveJetFilmizle(
         title: String,
         origTitle: String?,

@@ -1,14 +1,12 @@
 ﻿package com.kekik.watchbuddy
 
 import android.util.Log
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.AppUtils.toJson
 import com.lagradost.cloudstream3.utils.AppUtils.parseJson
 import com.lagradost.cloudstream3.utils.ExtractorLink
-import com.lagradost.cloudstream3.utils.Qualities
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
@@ -74,13 +72,11 @@ class WatchBuddyProvider : MainAPI() {
                 newMovieSearchResponse(item.displayTitle, jsonPayload, TvType.Movie) {
                     this.posterUrl = item.fullPosterUrl
                     this.year = item.releaseYear
-                    this.score = Score.from10(item.voteAverage)
                 }
             } else {
                 newTvSeriesSearchResponse(item.displayTitle, jsonPayload, TvType.TvSeries) {
                     this.posterUrl = item.fullPosterUrl
                     this.year = item.releaseYear
-                    this.score = Score.from10(item.voteAverage)
                 }
             }
         }
@@ -104,13 +100,11 @@ class WatchBuddyProvider : MainAPI() {
                 newMovieSearchResponse(item.displayTitle, jsonPayload, TvType.Movie) {
                     this.posterUrl = item.fullPosterUrl
                     this.year = item.releaseYear
-                    this.score = Score.from10(item.voteAverage)
                 }
             } else {
                 newTvSeriesSearchResponse(item.displayTitle, jsonPayload, TvType.TvSeries) {
                     this.posterUrl = item.fullPosterUrl
                     this.year = item.releaseYear
-                    this.score = Score.from10(item.voteAverage)
                 }
             }
         }
@@ -120,7 +114,6 @@ class WatchBuddyProvider : MainAPI() {
         val media: WatchBuddyMediaData = try {
             parseJson<WatchBuddyMediaData>(url)
         } catch (e: Exception) {
-            // Eğer doğrudan bir TMDB linki veya ID gelirse fallback
             val id = url.filter { it.isDigit() }.toIntOrNull() ?: 550
             WatchBuddyMediaData(tmdbId = id, isMovie = true, title = "İçerik", originalTitle = null, year = null)
         }
@@ -146,7 +139,6 @@ class WatchBuddyProvider : MainAPI() {
                 this.year = detail.releaseYear
                 this.duration = detail.runtime
                 this.tags = detail.genres?.map { it.name } ?: emptyList()
-                this.score = Score.from10(detail.voteAverage)
                 addActors(actors)
                 addTrailer(trailer)
             }
@@ -189,7 +181,6 @@ class WatchBuddyProvider : MainAPI() {
                                 this.episode = ep.episodeNumber
                                 this.posterUrl = ep.fullStillUrl ?: detail.fullPosterUrl
                                 this.description = ep.overview
-                                this.score = Score.from10(ep.voteAverage)
                             }
                         )
                     }
@@ -202,7 +193,6 @@ class WatchBuddyProvider : MainAPI() {
                 this.plot = detail.overview
                 this.year = detail.releaseYear
                 this.tags = detail.genres?.map { it.name } ?: emptyList()
-                this.score = Score.from10(detail.voteAverage)
                 addActors(actors)
                 addTrailer(trailer)
             }

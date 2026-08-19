@@ -1,6 +1,6 @@
+// ! Bu araç @keyiflerolsun tarafından | @KekikAkademi için yazılmıştır.
 
-
-package com.kekik.dizibox
+package com.keyiflerolsun
 
 import android.util.Base64
 import android.util.Log

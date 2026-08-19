@@ -2,6 +2,7 @@
 
 package com.kekik.filmmakinesi
 
+import android.util.Base64
 import android.util.Log
 import org.jsoup.nodes.Element
 import com.lagradost.cloudstream3.*
@@ -9,8 +10,9 @@ import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 
+
 class FilmMakinesi : MainAPI() {
-    override var mainUrl              = "https://filmmakinesi.de"
+    override var mainUrl              = "https://filmmakinesi.to"
     override var name                 = "FilmMakinesi"
     override val hasMainPage          = true
     override var lang                 = "tr"
@@ -23,60 +25,73 @@ class FilmMakinesi : MainAPI() {
     override var sequentialMainPageScrollDelay = 50L  // ? 0.05 saniye
 
     override val mainPage = mainPageOf(
-        "${mainUrl}/page/"                                        to "Son Filmler",
-        "${mainUrl}/film-izle/olmeden-izlenmesi-gerekenler/page/" to "Ölmeden İzle",
-        "${mainUrl}/film-izle/aksiyon-filmleri-izle/page/"        to "Aksiyon",
-        "${mainUrl}/film-izle/bilim-kurgu-filmi-izle/page/"       to "Bilim Kurgu",
-        "${mainUrl}/film-izle/macera-filmleri/page/"              to "Macera",
-        "${mainUrl}/film-izle/komedi-filmi-izle/page/"            to "Komedi",
-        "${mainUrl}/film-izle/romantik-filmler-izle/page/"        to "Romantik",
-        "${mainUrl}/film-izle/belgesel/page/"                     to "Belgesel",
-        "${mainUrl}/film-izle/fantastik-filmler-izle/page/"       to "Fantastik",
-        "${mainUrl}/film-izle/polisiye-filmleri-izle/page/"       to "Polisiye Suç",
-        "${mainUrl}/film-izle/korku-filmleri-izle-hd/page/"       to "Korku",
-        // "${mainUrl}/film-izle/savas/page/"                        to "Tarihi ve Savaş",
-        // "${mainUrl}/film-izle/gerilim-filmleri-izle/page/"        to "Gerilim Heyecan",
-        // "${mainUrl}/film-izle/gizemli/page/"                      to "Gizem",
-        // "${mainUrl}/film-izle/aile-filmleri/page/"                to "Aile",
-        // "${mainUrl}/film-izle/animasyon-filmler/page/"            to "Animasyon",
-        // "${mainUrl}/film-izle/western/page/"                      to "Western",
-        // "${mainUrl}/film-izle/biyografi/page/"                    to "Biyografik",
-        // "${mainUrl}/film-izle/dram/page/"                         to "Dram",
-        // "${mainUrl}/film-izle/muzik/page/"                        to "Müzik",
-        // "${mainUrl}/film-izle/spor/page/"                         to "Spor"
+        "${mainUrl}/filmler-1/sayfa/"                                to "Son Filmler",
+        "${mainUrl}/film-izle/olmeden-izlenmesi-gerekenler-fm1/sayfa/" to "Ölmeden İzle",
+        "${mainUrl}/tur/aksiyon-fm1/film/sayfa/"                       to "Aksiyon",
+        "${mainUrl}/tur/bilim-kurgu-fm2/film/sayfa/"                   to "Bilim Kurgu",
+        "${mainUrl}/tur/macera-fm1/film/sayfa/"                        to "Macera",
+        "${mainUrl}/tur/komedi-fm1/film/sayfa/"                        to "Komedi",
+        "${mainUrl}/tur/romantik-fm1/film/sayfa/"                      to "Romantik",
+        "${mainUrl}/tur/belgesel/film/sayfa/"                      to "Belgesel",
+        "${mainUrl}/tur/fantastik-fm1/film/sayfa/"                     to "Fantastik",
+        "${mainUrl}/tur/polisiye/film/sayfa/"                      to "Polisiye Suç",
+        "${mainUrl}/tur/korku-fm1/film/sayfa/"                         to "Korku",
+        // "${mainUrl}/tur/savas/film/sayfa/"                      to "Tarihi ve Savaş",
+        // "${mainUrl}/film-izle/gerilim-filmleri-izle/sayfa/"     to "Gerilim Heyecan",
+        // "${mainUrl}/film-izle/gizemli/sayfa/"                   to "Gizem",
+        // "${mainUrl}/film-izle/aile-filmleri/sayfa/"             to "Aile",
+        // "${mainUrl}/film-izle/animasyon-filmler/sayfa/"         to "Animasyon",
+        // "${mainUrl}/film-izle/western/sayfa/"                   to "Western",
+        // "${mainUrl}/film-izle/biyografi/sayfa/"                 to "Biyografik",
+        // "${mainUrl}/film-izle/dram/sayfa/"                      to "Dram",
+        // "${mainUrl}/film-izle/muzik/sayfa/"                     to "Müzik",
+        // "${mainUrl}/film-izle/spor/sayfa/"                      to "Spor"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val document = app.get("${request.data}${page}").document
-        val home     = if (request.data.contains("/film-izle/")) {
-            document.select("section#film_posts article").mapNotNull { it.toSearchResult() }
-        } else {
-            document.select("section#film_posts div.tooltip").mapNotNull { it.toSearchResult() }
-        }
+val cleanedUrl = request.data.removeSuffix("/")
+val url = if (page > 1) {
+    "$cleanedUrl/$page"
+} else {
+    cleanedUrl.replace(Regex("/sayfa/?$"), "")
+}
 
-        return newHomePageResponse(request.name, home)
+val document = app.get(url, headers = mapOf(
+    "User-Agent" to USER_AGENT,
+    "Referer" to mainUrl
+)).document
+
+    val home = document.select("div.film-list div.item-relative")
+        .mapNotNull { it.toSearchResult() }
+
+    Log.d("FLMM", "Toplam film: ${home.size}")
+    return newHomePageResponse(request.name, home)
+}
+
+private fun Element.toSearchResult(): SearchResponse? {
+    val aTag = selectFirst("a.item") ?: return null
+    val title = aTag.attr("data-title").takeIf { it.isNotBlank() } ?: return null
+    val href = fixUrlNull(aTag.attr("href")) ?: return null
+    val posterUrl = fixUrlNull(aTag.selectFirst("img")?.attr("src"))
+
+    Log.d("FLMM", "Film: $title, Href: $href, Poster: $posterUrl")
+
+    return newMovieSearchResponse(title, href, TvType.Movie) {
+        this.posterUrl = posterUrl
     }
-
-    private fun Element.toSearchResult(): SearchResponse? {
-        val title     = this.selectFirst("h6 a")?.text() ?: return null
-        val href      = fixUrlNull(this.selectFirst("h6 a")?.attr("href")) ?: return null
-        val posterUrl = fixUrlNull(this.selectFirst("img")?.attr("data-src")) ?: fixUrlNull(this.selectFirst("img")?.attr("src"))
-
-        return newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = posterUrl }
-    }
-
+}
     private fun Element.toRecommendResult(): SearchResponse? {
         val title     = this.select("a").last()?.text() ?: return null
         val href      = fixUrlNull(this.select("a").last()?.attr("href")) ?: return null
-        val posterUrl = fixUrlNull(this.selectFirst("img")?.attr("data-src"))
+        val posterUrl = fixUrlNull(this.selectFirst("img")?.attr("src"))
 
         return newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = posterUrl }
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val document = app.get("${mainUrl}?s=${query}").document
+        val document = app.get("${mainUrl}/arama/?s=${query}").document
 
-        return document.select("section#film_posts article").mapNotNull { it.toSearchResult() }
+        return document.select("div.film-list div.item-relative").mapNotNull { it.toSearchResult() }
     }
 
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
@@ -84,11 +99,10 @@ class FilmMakinesi : MainAPI() {
     override suspend fun load(url: String): LoadResponse? {
         val document = app.get(url).document
 
-        val title           = document.selectFirst("div#film_izle h1")?.text()?.trim() ?: return null
+        val title           = document.selectFirst("h1")?.text()?.trim() ?: return null
         val poster          = fixUrlNull(document.selectFirst("[property='og:image']")?.attr("content"))
-        val description     = document.select("section#film_single article p").last()?.text()?.trim()
+        val description     = document.select("div.info-description p").last()?.text()?.trim()
         val tags            = document.selectFirst("dt:contains(Tür:) + dd")?.text()?.split(", ")
-        val rating          = document.selectFirst("dt:contains(IMDB Puanı:) + dd")?.text()?.trim()?.toRatingInt()
         val year            = document.selectFirst("dt:contains(Yapım Yılı:) + dd")?.text()?.trim()?.toIntOrNull()
 
         val durationElement = document.select("dt:contains(Film Süresi:) + dd time").attr("datetime")
@@ -99,19 +113,20 @@ class FilmMakinesi : MainAPI() {
             0
         }
 
-        val recommendations = document.select("div.hidden-mobile li").mapNotNull { it.toRecommendResult() }
+        val recommendations = document.select("div.film-list div.item-relative").mapNotNull { it.toRecommendResult() }
         val actors          = document.selectFirst("dt:contains(Oyuncular:) + dd")?.text()?.split(", ")?.map {
             Actor(it.trim())
         }
 
-        val trailer         = fixUrlNull(document.selectXpath("//iframe[@title='Fragman']").attr("data-src"))
+        val trailer = document.selectFirst("div.left a.trailer-button")?.attr("data-video_url")?.substringAfter("embed/", "")?.let { 
+    if (it.isNotEmpty()) "https://www.youtube.com/watch?v=$it" else null 
+}
 
         return newMovieLoadResponse(title, url, TvType.Movie, url) {
             this.posterUrl       = poster
             this.year            = year
             this.plot            = description
             this.tags            = tags
-            this.rating          = rating
             this.duration        = duration
             this.recommendations = recommendations
             addActors(actors)
@@ -123,12 +138,16 @@ class FilmMakinesi : MainAPI() {
     override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
         Log.d("FLMM", "data » $data")
         val document      = app.get(data).document
-        val iframeElement = document.selectFirst("div.player-div iframe")
-        val iframe        = iframeElement?.attr("src") ?: iframeElement?.attr("data-src") ?: return false
-        Log.d("FLMM", "iframe » $iframe")
+        val iframeSrc = document.selectFirst("iframe")?.attr("data-src") ?: ""
 
-        loadExtractor(iframe, "${mainUrl}/", subtitleCallback, callback)
+        val videoUrls = document.select(".video-parts a[data-video_url]").map { it.attr("data-video_url") }
 
-        return true
-    }
+        val allUrls = (if (iframeSrc.isNotEmpty()) listOf(iframeSrc) else emptyList()) + videoUrls
+
+        allUrls.forEach { url ->
+            Log.d("FLMM", "Processing URL: $url")
+            loadExtractor(url, "${mainUrl}/", subtitleCallback, callback)
+        }
+        return allUrls.isNotEmpty()
+}
 }

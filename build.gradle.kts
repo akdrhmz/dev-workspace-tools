@@ -1,5 +1,5 @@
 import com.lagradost.cloudstream3.gradle.CloudstreamExtension
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.android.build.gradle.BaseExtension
 
 buildscript {
     repositories {
@@ -25,17 +25,20 @@ allprojects {
 fun Project.cloudstream(configuration: CloudstreamExtension.() -> Unit) =
     extensions.getByName<CloudstreamExtension>("cloudstream").configuration()
 
+fun Project.android(configuration: BaseExtension.() -> Unit) =
+    extensions.getByName<BaseExtension>("android").configuration()
+
 subprojects {
     apply(plugin = "com.android.library")
     apply(plugin = "kotlin-android")
     apply(plugin = "com.lagradost.cloudstream3.gradle")
 
     cloudstream {
-        setRepo("https://github.com/KULLANICI_ADI/CSRepo")
+        setRepo("https://github.com/akdrhmz/dev-workspace-tools")
     }
 
     android {
-        compileSdk = 34
+        compileSdkVersion(34)
 
         defaultConfig {
             minSdk = 21
@@ -45,25 +48,16 @@ subprojects {
             sourceCompatibility = JavaVersion.VERSION_1_8
             targetCompatibility = JavaVersion.VERSION_1_8
         }
-
-        tasks.withType<KotlinCompile> {
-            kotlinOptions {
-                jvmTarget = "1.8"
-                freeCompilerArgs = freeCompilerArgs + listOf(
-                    "-opt-in=kotlin.RequiresOptIn"
-                )
-            }
-        }
     }
 
     dependencies {
         val cloudstreamVersion = "pre-release"
-        implementation("com.github.recloudstream:cloudstream:$cloudstreamVersion")
-        implementation("org.jsoup:jsoup:1.17.2")
-        implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.1")
+        "implementation"("com.github.recloudstream:cloudstream:$cloudstreamVersion")
+        "implementation"("org.jsoup:jsoup:1.17.2")
+        "implementation"("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.1")
     }
 }
 
 task<Delete>("clean") {
-    delete(rootProject.buildDir)
+    delete(rootProject.layout.buildDirectory)
 }

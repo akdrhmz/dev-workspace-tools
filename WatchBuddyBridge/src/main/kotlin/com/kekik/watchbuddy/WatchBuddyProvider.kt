@@ -3,6 +3,7 @@ package com.kekik.watchbuddy
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.AcraApplication.Companion.getKey
 import com.lagradost.cloudstream3.utils.*
+import java.net.URLEncoder
 
 class WatchBuddyProvider : MainAPI() {
     override var mainUrl = "https://stream.watchbuddy.tv"
@@ -37,7 +38,9 @@ class WatchBuddyProvider : MainAPI() {
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val targetUrl = "${request.data}&page=$page"
         val response = app.get(targetUrl)
-        val items = response.parsedSafe<List<WbMainPageItem>>() ?: emptyList()
+        val items = response.parsedSafe<WbApiResponse<List<WbMainPageItem>>>()?.result
+            ?: response.parsedSafe<List<WbMainPageItem>>()
+            ?: emptyList()
 
         val searchResponses = items.map { item ->
             newMovieSearchResponse(item.title, item.url, TvType.Movie) {
@@ -49,9 +52,11 @@ class WatchBuddyProvider : MainAPI() {
 
     override suspend fun search(query: String): List<SearchResponse> {
         val activePlugins = getActivePlugins()
-        val searchUrl = "$apiUrl/search?q=$query"
+        val searchUrl = "$apiUrl/search?q=${URLEncoder.encode(query, "UTF-8")}"
         val response = app.get(searchUrl)
-        val items = response.parsedSafe<List<WbSearchItem>>() ?: emptyList()
+        val items = response.parsedSafe<WbApiResponse<List<WbSearchItem>>>()?.result
+            ?: response.parsedSafe<List<WbSearchItem>>()
+            ?: emptyList()
 
         // Kullanıcının eklenti ayarlarında seçtiği sitelere göre filtreleme yap
         val filteredItems = items.filter { item ->
@@ -73,9 +78,11 @@ class WatchBuddyProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        val loadUrl = "$apiUrl/load_item?url=$url"
+        val loadUrl = "$apiUrl/load_item?url=${URLEncoder.encode(url, "UTF-8")}"
         val response = app.get(loadUrl)
-        val detail = response.parsed<WbItemDetail>()
+        val detail = response.parsedSafe<WbApiResponse<WbItemDetail>>()?.result
+            ?: response.parsedSafe<WbItemDetail>()
+            ?: throw ErrorLoadingException("İçerik detayı alınamadı")
 
         val ratingInt = detail.rating?.replace(",", ".")?.toDoubleOrNull()?.times(100)?.toInt()
 
@@ -112,9 +119,11 @@ class WatchBuddyProvider : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val linksUrl = "$apiUrl/load_links?url=$data"
+        val linksUrl = "$apiUrl/load_links?url=${URLEncoder.encode(data, "UTF-8")}"
         val response = app.get(linksUrl)
-        val extractResults = response.parsedSafe<List<WbExtractResult>>() ?: emptyList()
+        val extractResults = response.parsedSafe<WbApiResponse<List<WbExtractResult>>>()?.result
+            ?: response.parsedSafe<List<WbExtractResult>>()
+            ?: emptyList()
 
         for (res in extractResults) {
             // Subtitles

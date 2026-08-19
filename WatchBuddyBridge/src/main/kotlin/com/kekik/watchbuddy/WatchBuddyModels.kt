@@ -2,6 +2,13 @@ package com.kekik.watchbuddy
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
+data class WbApiResponse<T>(
+    @JsonProperty("success") val success: Boolean? = true,
+    @JsonProperty("result") val result: T? = null,
+    @JsonProperty("error") val error: String? = null,
+    @JsonProperty("provider_error") val providerError: Map<String, Any?>? = null
+)
+
 data class WbPluginInfo(
     @JsonProperty("name") val name: String,
     @JsonProperty("language") val language: String? = "tr",

@@ -38,6 +38,7 @@ subprojects {
     }
 
     android {
+        namespace = "com.kekik.${project.name.lowercase().replace("-", "")}"
         compileSdkVersion(34)
 
         defaultConfig {

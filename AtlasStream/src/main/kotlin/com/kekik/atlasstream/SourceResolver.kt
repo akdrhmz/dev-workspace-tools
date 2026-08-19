@@ -102,7 +102,10 @@ object SourceResolver {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ) = coroutineScope {
-        val searchQueries = SourceUtils.getSearchQueries(media.title, media.originalTitle, media.imdbId)
+        // IMDb ID'yi normal arama sorgularından ayır — çoğu site IMDb ID ile arama yapamaz
+        val searchQueries = SourceUtils.getSearchQueries(media.title, media.originalTitle)
+        Log.d(TAG, "resolveLinks » title=${media.title} | orig=${media.originalTitle} | imdb=${media.imdbId} | movie=${media.isMovie} | S${media.season}E${media.episode}")
+        Log.d(TAG, "resolveLinks » searchQueries=$searchQueries")
 
         val jobs = mutableListOf<kotlinx.coroutines.Deferred<*>>()
 
@@ -124,117 +127,161 @@ object SourceResolver {
                     jobs.add(async {
                         val result = withTimeoutOrNull(PROVIDER_TIMEOUT_MS) {
                             try {
-                                // 0. Kademe: TMDB-doğrudan sağlayıcılar (XPrime vb.) — arama/eşleştirme atlanır
+                                // 0. Kademe: TMDB-doğrudan sağlayıcılar (XPrime vb.)
                                 if (media.isMovie && provider.name in tmdbDirectProviders) {
+                                    Log.d(TAG, "[${provider.name}] TMDB direct load: tmdbId=${media.tmdbId}")
                                     val loadRes = try {
                                         provider.load(media.tmdbId.toString())
-                                    } catch (e: Exception) { null }
+                                    } catch (e: Exception) {
+                                        Log.e(TAG, "[${provider.name}] TMDB load failed: ${e.message}")
+                                        null
+                                    }
 
                                     if (loadRes is MovieLoadResponse) {
+                                        Log.d(TAG, "[${provider.name}] TMDB loadLinks: ${loadRes.dataUrl}")
                                         provider.loadLinks(loadRes.dataUrl, false, subtitleCallback, callback)
+                                    } else {
+                                        Log.w(TAG, "[${provider.name}] TMDB load returned: ${loadRes?.javaClass?.simpleName ?: "null"}")
                                     }
                                     return@withTimeoutOrNull
                                 }
 
-                                // 1. Kademe: Aday Arama Sorgularını Sırayla/Akıllıca Tara (IMDb ID, İngilizce ve Türkçe Başlık)
+                                // 1. Kademe: Başlık araması (İngilizce ve Türkçe)
                                 var matched: SearchResponse? = null
 
                                 for (query in searchQueries) {
                                     val searchRes = try {
                                         provider.search(query)
-                                    } catch (e: Exception) { null }
+                                    } catch (e: Exception) {
+                                        Log.e(TAG, "[${provider.name}] search('$query') EXCEPTION: ${e.message}")
+                                        null
+                                    }
+
+                                    val count = searchRes?.size ?: 0
+                                    if (count > 0) {
+                                        Log.d(TAG, "[${provider.name}] search('$query') = $count sonuç: ${searchRes?.take(3)?.map { it.name }}")
+                                    }
 
                                     matched = bestMatch(searchRes, media)
-                                    if (matched != null) break
+                                    if (matched != null) {
+                                        Log.d(TAG, "[${provider.name}] ✓ bestMatch='${matched.name}' url=${matched.url}")
+                                        break
+                                    }
                                 }
 
-                                // 2. Kademe: IMDb ID ile Doğrudan Arama (Sağlayıcı IMDb ID aramasını destekliyorsa)
+                                // 2. Kademe: IMDb ID ile son fallback araması
                                 if (matched == null && !media.imdbId.isNullOrBlank()) {
+                                    Log.d(TAG, "[${provider.name}] IMDb fallback: ${media.imdbId}")
                                     val imdbRes = try {
                                         provider.search(media.imdbId)
                                     } catch (e: Exception) { null }
 
-                                    matched = imdbRes?.firstOrNull()
+                                    if (imdbRes != null && imdbRes.isNotEmpty()) {
+                                        matched = imdbRes.firstOrNull()
+                                        Log.d(TAG, "[${provider.name}] IMDb result: '${matched?.name}'")
+                                    }
                                 }
 
-                                if (matched != null) {
-                                    val loadRes = try {
-                                        provider.load(matched.url)
-                                    } catch (e: Exception) { null }
+                                if (matched == null) {
+                                    Log.w(TAG, "[${provider.name}] ✗ Eşleşme bulunamadı")
+                                    return@withTimeoutOrNull
+                                }
 
-                                    if (media.isMovie) {
-                                        if (loadRes is MovieLoadResponse) {
-                                            provider.loadLinks(loadRes.dataUrl, false, subtitleCallback, callback)
-                                        } else if (loadRes is TvSeriesLoadResponse) {
-                                            // Film tek bölümlük dizi olarak eklenmişse
-                                            val firstEp = loadRes.episodes.firstOrNull()
-                                            if (firstEp != null) {
-                                                provider.loadLinks(firstEp.data, false, subtitleCallback, callback)
+                                // 3. Kademe: Eşleşen içeriği yükle
+                                val loadRes = try {
+                                    provider.load(matched.url)
+                                } catch (e: Exception) {
+                                    Log.e(TAG, "[${provider.name}] load('${matched.url}') EXCEPTION: ${e.message}")
+                                    null
+                                }
+
+                                if (loadRes == null) {
+                                    Log.w(TAG, "[${provider.name}] load() null döndü")
+                                    return@withTimeoutOrNull
+                                }
+
+                                Log.d(TAG, "[${provider.name}] load() type=${loadRes.javaClass.simpleName}")
+
+                                // 4. Kademe: Link çözümleme
+                                if (media.isMovie) {
+                                    if (loadRes is MovieLoadResponse) {
+                                        Log.d(TAG, "[${provider.name}] Film loadLinks: ${loadRes.dataUrl}")
+                                        provider.loadLinks(loadRes.dataUrl, false, subtitleCallback, callback)
+                                    } else if (loadRes is TvSeriesLoadResponse) {
+                                        val firstEp = loadRes.episodes.firstOrNull()
+                                        if (firstEp != null) {
+                                            Log.d(TAG, "[${provider.name}] Film→Dizi fallback: ilk bölüm")
+                                            provider.loadLinks(firstEp.data, false, subtitleCallback, callback)
+                                        }
+                                    }
+                                } else {
+                                    if (loadRes is TvSeriesLoadResponse) {
+                                        val targetSeason = media.season ?: 1
+                                        val targetEpisode = media.episode ?: 1
+                                        Log.d(TAG, "[${provider.name}] Dizi: ${loadRes.episodes.size} bölüm yüklendi. Hedef: S${targetSeason}E${targetEpisode}")
+
+                                        // 1. Standart Sezon x Bölüm eşleşmesi
+                                        var ep = loadRes.episodes.firstOrNull {
+                                            it.season == targetSeason && it.episode == targetEpisode
+                                        }
+
+                                        // 2. Sezon numarası 0 veya null olan düz bölümler
+                                        if (ep == null) {
+                                            ep = loadRes.episodes.firstOrNull {
+                                                it.episode == targetEpisode && (it.season == null || it.season == 0 || it.season == 1)
                                             }
                                         }
-                                    } else {
-                                        if (loadRes is TvSeriesLoadResponse) {
-                                            val targetSeason = media.season ?: 1
-                                            val targetEpisode = media.episode ?: 1
 
-                                            // 1. Standart Sezon x Bölüm eşleşmesi
-                                            var ep = loadRes.episodes.firstOrNull {
-                                                it.season == targetSeason && it.episode == targetEpisode
+                                        // 3. Mutlak Bölüm Fallback'i
+                                        if (ep == null && media.absoluteEpisode != null) {
+                                            ep = loadRes.episodes.firstOrNull {
+                                                it.episode == media.absoluteEpisode
                                             }
-
-                                            // 2. Sezon numarası 0 veya null olan düz bölümler (Örn: 1. Bölüm, 2. Bölüm)
-                                            if (ep == null) {
-                                                ep = loadRes.episodes.firstOrNull {
-                                                    it.episode == targetEpisode && (it.season == null || it.season == 0 || it.season == 1)
-                                                }
-                                            }
-
-                                            // 3. Mutlak Bölüm Fallback'i (Anime ve sezon ayrımı yapmayan diziler için)
-                                            if (ep == null && media.absoluteEpisode != null) {
-                                                ep = loadRes.episodes.firstOrNull {
-                                                    it.episode == media.absoluteEpisode
-                                                }
-                                            }
-
-                                            // 4. İsim bazlı bölüm eşleşmesi (Örn: "1. Bölüm" veya "Bölüm 1")
-                                            if (ep == null) {
-                                                ep = loadRes.episodes.firstOrNull {
-                                                    val epName = it.name ?: ""
-                                                    epName.contains("${targetEpisode}. Bölüm", ignoreCase = true) ||
-                                                    epName.contains("${targetEpisode}. Bolum", ignoreCase = true) ||
-                                                    epName.contains("Bölüm ${targetEpisode}", ignoreCase = true) ||
-                                                    epName.contains("Episode ${targetEpisode}", ignoreCase = true)
-                                                }
-                                            }
-
-                                            // 5. URL Deseni Eşleşmesi (Örn: /sezon-1/bolum-1 veya /1-sezon-1-bolum)
-                                            if (ep == null) {
-                                                ep = loadRes.episodes.firstOrNull {
-                                                    val epData = it.data.lowercase()
-                                                    (epData.contains("sezon-$targetSeason") && epData.contains("bolum-$targetEpisode")) ||
-                                                    (epData.contains("${targetSeason}-sezon-${targetEpisode}-bolum")) ||
-                                                    (epData.contains("/s${targetSeason}e${targetEpisode}")) ||
-                                                    (epData.contains("season-$targetSeason/episode-$targetEpisode")) ||
-                                                    (epData.contains("/${targetSeason}/${targetEpisode}"))
-                                                }
-                                            }
-
-                                            if (ep != null) {
-                                                provider.loadLinks(ep.data, false, subtitleCallback, callback)
-                                            }
-                                        } else if (loadRes is MovieLoadResponse) {
-                                            // Dizi tek parça film/özel bölüm olarak eklenmişse
-                                            provider.loadLinks(loadRes.dataUrl, false, subtitleCallback, callback)
                                         }
+
+                                        // 4. İsim bazlı bölüm eşleşmesi
+                                        if (ep == null) {
+                                            ep = loadRes.episodes.firstOrNull {
+                                                val epName = it.name ?: ""
+                                                epName.contains("${targetEpisode}. Bölüm", ignoreCase = true) ||
+                                                epName.contains("${targetEpisode}. Bolum", ignoreCase = true) ||
+                                                epName.contains("Bölüm ${targetEpisode}", ignoreCase = true) ||
+                                                epName.contains("Episode ${targetEpisode}", ignoreCase = true)
+                                            }
+                                        }
+
+                                        // 5. URL Deseni Eşleşmesi
+                                        if (ep == null) {
+                                            ep = loadRes.episodes.firstOrNull {
+                                                val epData = it.data.lowercase()
+                                                (epData.contains("sezon-$targetSeason") && epData.contains("bolum-$targetEpisode")) ||
+                                                (epData.contains("${targetSeason}-sezon-${targetEpisode}-bolum")) ||
+                                                (epData.contains("/s${targetSeason}e${targetEpisode}")) ||
+                                                (epData.contains("season-$targetSeason/episode-$targetEpisode")) ||
+                                                (epData.contains("/${targetSeason}/${targetEpisode}"))
+                                            }
+                                        }
+
+                                        if (ep != null) {
+                                            Log.d(TAG, "[${provider.name}] ✓ Bölüm bulundu: S${ep.season}E${ep.episode} '${ep.name}'")
+                                            provider.loadLinks(ep.data, false, subtitleCallback, callback)
+                                        } else {
+                                            // Debug: mevcut bölümleri logla
+                                            val available = loadRes.episodes.take(5).map { "S${it.season}E${it.episode}" }
+                                            Log.w(TAG, "[${provider.name}] ✗ S${targetSeason}E${targetEpisode} bulunamadı. Mevcut: $available")
+                                        }
+                                    } else if (loadRes is MovieLoadResponse) {
+                                        Log.d(TAG, "[${provider.name}] Dizi→Film fallback")
+                                        provider.loadLinks(loadRes.dataUrl, false, subtitleCallback, callback)
                                     }
                                 }
                             } catch (e: Exception) {
-                                Log.e(TAG, "Provider Error: ${provider.name}", e)
+                                Log.e(TAG, "[${provider.name}] GENEL HATA: ${e.javaClass.simpleName}: ${e.message}")
                             }
                         }
 
                         if (result == null) {
-                            Log.e(TAG, "Provider Timeout: ${provider.name}")
+                            Log.e(TAG, "[${provider.name}] TIMEOUT (${PROVIDER_TIMEOUT_MS}ms)")
                         }
                     })
                 }

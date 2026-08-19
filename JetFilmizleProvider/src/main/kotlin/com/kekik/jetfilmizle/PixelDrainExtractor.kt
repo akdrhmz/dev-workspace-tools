@@ -14,7 +14,7 @@ open class PixelDrain : ExtractorApi() {
     override suspend fun getUrl(url: String, referer: String?, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit) {
         val pixelId      = url.substringAfterLast("/")
         val downloadLink = "${mainUrl}/api/file/${pixelId}?download"
-        Log.d("Kekik_${this.name}", "downloadLink » $downloadLink")
+        Log.d("Workspace_${this.name}", "downloadLink » $downloadLink")
 
         callback.invoke(
             newExtractorLink(

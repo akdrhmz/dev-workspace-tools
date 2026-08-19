@@ -21,7 +21,7 @@ open class ContentX : ExtractorApi() {
     callback: (ExtractorLink) -> Unit
 ) {
     val extRef = referer ?: "https://dizilla.to"
-    Log.d("Kekik_${this.name}", "url » $url")
+    Log.d("Workspace_${this.name}", "url » $url")
 
     val iSource = app.get(url, referer = extRef).text
     val iExtract = Regex("""window\.openPlayer\('([^']+)'""").find(iSource)!!.groups[1]?.value ?: throw ErrorLoadingException("iExtract is null")

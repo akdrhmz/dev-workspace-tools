@@ -36,7 +36,7 @@ class CloseLoad : ExtractorApi() {
 
             // 2. Fallback Mekanizması: Eğer JS şifre çözücü başarısız olursa JSON-LD bloğundaki şifresiz contentUrl'i ara
             if (realUrl.isNullOrBlank()) {
-                Log.w("Kekik_${this.name}", "Native deşifre başarısız, Fallback JSON-LD aranıyor...")
+                Log.w("Workspace_${this.name}", "Native deşifre başarısız, Fallback JSON-LD aranıyor...")
                 val ldJsonMatch = """"contentUrl"\s*:\s*"([^"]+)"""".toRegex().find(html)
                 realUrl = ldJsonMatch?.groupValues?.get(1)?.replace("\\/", "/")
             }
@@ -57,13 +57,13 @@ class CloseLoad : ExtractorApi() {
                     }
                 )
             } else {
-                Log.e("Kekik_${this.name}", "Real URL bulunamadı veya deşifre edilemedi.")
+                Log.e("Workspace_${this.name}", "Real URL bulunamadı veya deşifre edilemedi.")
             }
 
             processSubtitles(html, subtitleCallback)
 
         } catch (e: Exception) {
-            Log.e("Kekik_${this.name}", "Hata: ${e.message}")
+            Log.e("Workspace_${this.name}", "Hata: ${e.message}")
         }
     }
 
@@ -172,7 +172,7 @@ class CloseLoad : ExtractorApi() {
             return unmix.toString()
 
         } catch (e: Exception) {
-            Log.e("Kekik_Extractor", "Native Çözümleme Hatası: ${e.message}")
+            Log.e("Workspace_Extractor", "Native Çözümleme Hatası: ${e.message}")
             return null
         }
     }
@@ -200,7 +200,7 @@ class CloseLoad : ExtractorApi() {
                 }
             }
         } catch (e: Exception) {
-            Log.e("Kekik_${this.name}", "Altyazı Çözümleme Hatası: ${e.message}")
+            Log.e("Workspace_${this.name}", "Altyazı Çözümleme Hatası: ${e.message}")
         }
     }
 }

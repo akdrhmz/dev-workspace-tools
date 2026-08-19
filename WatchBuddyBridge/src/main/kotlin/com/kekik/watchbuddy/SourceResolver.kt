@@ -1,21 +1,14 @@
-package com.kekik.watchbuddy
+ï»¿package com.kekik.watchbuddy
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
-import com.lagradost.cloudstream3.CloudStreamApp.Companion.getKey
 import com.lagradost.cloudstream3.utils.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import org.jsoup.Jsoup
 import java.net.URLEncoder
 
 object SourceResolver {
     private const val TAG = "Workspace_Resolver"
-
-    private fun isProviderEnabled(providerKey: String): Boolean {
-        val enabledList = getKey<List<String>>(WatchBuddyPlugin.PREF_KEY_ENABLED_SOURCES)
-        return enabledList == null || enabledList.contains(providerKey)
-    }
 
     suspend fun resolveLinks(
         media: WatchBuddyMediaData,
@@ -28,48 +21,30 @@ object SourceResolver {
         val jobs = mutableListOf<kotlinx.coroutines.Deferred<Unit>>()
 
         if (media.isMovie) {
-            // Film Saðlayýcýlarý
-            if (isProviderEnabled("FilmMakinesi")) {
-                jobs += async { resolveFilmMakinesi(cleanTr, cleanOrig, subtitleCallback, callback) }
-            }
-            if (isProviderEnabled("HDFilmCehennemi")) {
-                jobs += async { resolveHDFC(cleanTr, cleanOrig, true, null, null, subtitleCallback, callback) }
-            }
-            if (isProviderEnabled("SineWix")) {
-                jobs += async { resolveSineWix(cleanTr, cleanOrig, true, null, null, subtitleCallback, callback) }
-            }
-            if (isProviderEnabled("JetFilmizle")) {
-                jobs += async { resolveJetFilmizle(cleanTr, cleanOrig, subtitleCallback, callback) }
-            }
+            jobs += async { resolveFilmMakinesi(cleanTr, cleanOrig, subtitleCallback, callback) }
+            jobs += async { resolveHDFC(cleanTr, cleanOrig, true, null, null, subtitleCallback, callback) }
+            jobs += async { resolveSineWix(cleanTr, cleanOrig, true, null, null, subtitleCallback, callback) }
+            jobs += async { resolveJetFilmizle(cleanTr, cleanOrig, subtitleCallback, callback) }
         } else {
-            // Dizi Saðlayýcýlarý
             val s = media.season ?: 1
             val e = media.episode ?: 1
 
-            if (isProviderEnabled("DiziBox")) {
-                jobs += async { resolveDiziBox(cleanTr, cleanOrig, s, e, subtitleCallback, callback) }
-            }
-            if (isProviderEnabled("Dizilla")) {
-                jobs += async { resolveDizilla(cleanTr, cleanOrig, s, e, subtitleCallback, callback) }
-            }
-            if (isProviderEnabled("HDFilmCehennemi")) {
-                jobs += async { resolveHDFC(cleanTr, cleanOrig, false, s, e, subtitleCallback, callback) }
-            }
-            if (isProviderEnabled("SineWix")) {
-                jobs += async { resolveSineWix(cleanTr, cleanOrig, false, s, e, subtitleCallback, callback) }
-            }
+            jobs += async { resolveDiziBox(cleanTr, cleanOrig, s, e, subtitleCallback, callback) }
+            jobs += async { resolveDizilla(cleanTr, cleanOrig, s, e, subtitleCallback, callback) }
+            jobs += async { resolveHDFC(cleanTr, cleanOrig, false, s, e, subtitleCallback, callback) }
+            jobs += async { resolveSineWix(cleanTr, cleanOrig, false, s, e, subtitleCallback, callback) }
         }
 
         jobs.forEach {
             try {
                 it.await()
             } catch (e: Exception) {
-                Log.e(TAG, "Resolver job error: ${e.message}")
+                Log.e(TAG, "Resolver error: ${e.message}")
             }
         }
     }
 
-    // --- 1. DiziBox Çözücü ---
+    // --- 1. DiziBox Ã‡Ã¶zÃ¼cÃ¼ ---
     private suspend fun resolveDiziBox(
         title: String,
         origTitle: String?,
@@ -116,7 +91,7 @@ object SourceResolver {
                                 type = ExtractorLinkType.M3U8
                             ) {
                                 this.referer = iframe
-                                this.quality = Qualities.P1080.value
+                                this.quality = Qualities.Unknown.value
                             }
                         )
                     }
@@ -128,7 +103,7 @@ object SourceResolver {
         }
     }
 
-    // --- 2. FilmMakinesi Çözücü ---
+    // --- 2. FilmMakinesi Ã‡Ã¶zÃ¼cÃ¼ ---
     private suspend fun resolveFilmMakinesi(
         title: String,
         origTitle: String?,
@@ -158,7 +133,7 @@ object SourceResolver {
                                     type = ExtractorLinkType.M3U8
                                 ) {
                                     this.referer = "https://closeload.com/"
-                                    this.quality = Qualities.P1080.value
+                                    this.quality = Qualities.Unknown.value
                                 }
                             )
                         }
@@ -173,7 +148,7 @@ object SourceResolver {
         }
     }
 
-    // --- 3. HDFilmCehennemi Çözücü ---
+    // --- 3. HDFilmCehennemi Ã‡Ã¶zÃ¼cÃ¼ ---
     private suspend fun resolveHDFC(
         title: String,
         origTitle: String?,
@@ -212,7 +187,7 @@ object SourceResolver {
         }
     }
 
-    // --- 4. Dizilla Çözücü ---
+    // --- 4. Dizilla Ã‡Ã¶zÃ¼cÃ¼ ---
     private suspend fun resolveDizilla(
         title: String,
         origTitle: String?,
@@ -244,7 +219,7 @@ object SourceResolver {
         }
     }
 
-    // --- 5. SineWix Çözücü ---
+    // --- 5. SineWix Ã‡Ã¶zÃ¼cÃ¼ ---
     private suspend fun resolveSineWix(
         title: String,
         origTitle: String?,
@@ -276,7 +251,7 @@ object SourceResolver {
         }
     }
 
-    // --- 6. JetFilmizle Çözücü ---
+    // --- 6. JetFilmizle Ã‡Ã¶zÃ¼cÃ¼ ---
     private suspend fun resolveJetFilmizle(
         title: String,
         origTitle: String?,

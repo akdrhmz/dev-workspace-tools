@@ -56,7 +56,9 @@ subprojects {
         kotlinOptions {
             jvmTarget = "17"
             freeCompilerArgs = freeCompilerArgs + listOf(
-                "-opt-in=kotlin.RequiresOptIn"
+                "-opt-in=kotlin.RequiresOptIn",
+                "-Xskip-metadata-version-check",
+                "-Xallow-unstable-dependencies"
             )
         }
     }

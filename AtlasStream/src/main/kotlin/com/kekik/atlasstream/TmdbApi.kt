@@ -1,4 +1,4 @@
-package com.kekik.watchbuddy
+package com.kekik.atlasstream
 
 import com.lagradost.cloudstream3.CloudStreamApp.Companion.getKey
 import com.lagradost.cloudstream3.app
@@ -10,7 +10,7 @@ object TmdbApi {
     private const val BASE_URL = "https://api.themoviedb.org/3"
 
     private fun getApiKey(): String {
-        return getKey<String>(WatchBuddyPlugin.PREF_KEY_TMDB_API_KEY)
+        return getKey<String>(AtlasStreamPlugin.PREF_KEY_TMDB_API_KEY)
             ?.takeIf { it.isNotBlank() } ?: DEFAULT_API_KEY
     }
 

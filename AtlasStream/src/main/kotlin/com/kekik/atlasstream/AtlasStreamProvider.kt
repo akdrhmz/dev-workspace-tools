@@ -1,4 +1,4 @@
-﻿package com.kekik.watchbuddy
+package com.kekik.atlasstream
 
 import android.util.Log
 import com.lagradost.cloudstream3.*
@@ -10,9 +10,9 @@ import com.lagradost.cloudstream3.utils.ExtractorLink
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
-class WatchBuddyProvider : MainAPI() {
+class AtlasStreamProvider : MainAPI() {
     override var mainUrl = "https://www.themoviedb.org"
-    override var name = "WatchBuddy Universal"
+    override var name = "AtlasStream Universal"
     override var lang = "tr"
     override val hasMainPage = true
     override val hasQuickSearch = true
@@ -26,40 +26,40 @@ class WatchBuddyProvider : MainAPI() {
 
     override val mainPage = mainPageOf(
         // Trendler ve Vizyon
-        "trending/all/day"                                                  to "🔥 Günün Trendleri",
-        "movie/now_playing"                                                 to "🎬 Vizyondaki Filmler",
-        "movie/popular"                                                     to "⭐ Popüler Filmler",
-        "tv/popular"                                                        to "📺 Popüler Diziler",
+        "trending/all/day"                                                  to "?? G�n�n Trendleri",
+        "movie/now_playing"                                                 to "?? Vizyondaki Filmler",
+        "movie/popular"                                                     to "? Pop�ler Filmler",
+        "tv/popular"                                                        to "?? Pop�ler Diziler",
 
         // Platformlar
-        "discover/tv?with_watch_providers=8&watch_region=TR"                to "🔴 Netflix Dizileri",
-        "discover/movie?with_watch_providers=8&watch_region=TR"             to "🔴 Netflix Filmleri",
-        "discover/tv?with_watch_providers=1899|384&watch_region=TR"         to "🟣 HBO Max Dizileri",
-        "discover/tv?with_watch_providers=337&watch_region=TR"              to "🏰 Disney+ İçerikleri",
-        "discover/tv?with_watch_providers=119&watch_region=TR"              to "📦 Amazon Prime Dizileri",
-        "discover/tv?with_watch_providers=350|2&watch_region=TR"            to "🍏 Apple TV+ Dizileri",
-        "discover/tv?with_watch_providers=341&watch_region=TR"              to "💙 BluTV İçerikleri",
+        "discover/tv?with_watch_providers=8&watch_region=TR"                to "?? Netflix Dizileri",
+        "discover/movie?with_watch_providers=8&watch_region=TR"             to "?? Netflix Filmleri",
+        "discover/tv?with_watch_providers=1899|384&watch_region=TR"         to "?? HBO Max Dizileri",
+        "discover/tv?with_watch_providers=337&watch_region=TR"              to "?? Disney+ ��erikleri",
+        "discover/tv?with_watch_providers=119&watch_region=TR"              to "?? Amazon Prime Dizileri",
+        "discover/tv?with_watch_providers=350|2&watch_region=TR"            to "?? Apple TV+ Dizileri",
+        "discover/tv?with_watch_providers=341&watch_region=TR"              to "?? BluTV ��erikleri",
 
-        // Türler (Genres)
-        "discover/movie?with_genres=28,12"                                  to "💥 Aksiyon & Macera",
-        "discover/movie?with_genres=16"                                     to "🎨 Animasyon",
-        "discover/movie?with_genres=35"                                     to "🤣 Komedi",
-        "discover/movie?with_genres=80,9648"                                to "🔍 Suç & Gizem",
-        "discover/movie?with_genres=878,14"                                 to "🚀 Bilim Kurgu & Fantastik",
-        "discover/movie?with_genres=27,53"                                  to "😱 Korku & Gerilim",
-        "discover/movie?with_genres=10749"                                  to "💖 Romantik",
-        "discover/movie?with_genres=99"                                     to "🌍 Belgesel",
+        // T�rler (Genres)
+        "discover/movie?with_genres=28,12"                                  to "?? Aksiyon & Macera",
+        "discover/movie?with_genres=16"                                     to "?? Animasyon",
+        "discover/movie?with_genres=35"                                     to "?? Komedi",
+        "discover/movie?with_genres=80,9648"                                to "?? Su� & Gizem",
+        "discover/movie?with_genres=878,14"                                 to "?? Bilim Kurgu & Fantastik",
+        "discover/movie?with_genres=27,53"                                  to "?? Korku & Gerilim",
+        "discover/movie?with_genres=10749"                                  to "?? Romantik",
+        "discover/movie?with_genres=99"                                     to "?? Belgesel",
 
         // Top Listeler
-        "movie/top_rated"                                                   to "🏆 IMDb En Yüksek Puanlı Filmler",
-        "tv/top_rated"                                                      to "🏆 En Yüksek Puanlı Diziler"
+        "movie/top_rated"                                                   to "?? IMDb En Y�ksek Puanl� Filmler",
+        "tv/top_rated"                                                      to "?? En Y�ksek Puanl� Diziler"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val tmdbResponse = TmdbApi.getItemsFromEndpoint(request.data, page)
         val items = tmdbResponse.results.filter { it.posterPath != null }.map { item ->
             val isMovie = item.mediaType == "movie" || request.data.contains("movie")
-            val payload = WatchBuddyMediaData(
+            val payload = AtlasStreamMediaData(
                 tmdbId = item.id,
                 isMovie = isMovie,
                 title = item.displayTitle,
@@ -87,7 +87,7 @@ class WatchBuddyProvider : MainAPI() {
         val tmdbResponse = TmdbApi.search(query)
         return tmdbResponse.results.filter { it.posterPath != null && (it.mediaType == "movie" || it.mediaType == "tv") }.map { item ->
             val isMovie = item.mediaType == "movie"
-            val payload = WatchBuddyMediaData(
+            val payload = AtlasStreamMediaData(
                 tmdbId = item.id,
                 isMovie = isMovie,
                 title = item.displayTitle,
@@ -111,11 +111,11 @@ class WatchBuddyProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        val media: WatchBuddyMediaData = try {
-            AppUtils.parseJson<WatchBuddyMediaData>(url)
+        val media: AtlasStreamMediaData = try {
+            AppUtils.parseJson<AtlasStreamMediaData>(url)
         } catch (e: Exception) {
             val id = url.filter { it.isDigit() }.toIntOrNull() ?: 550
-            WatchBuddyMediaData(tmdbId = id, isMovie = true, title = "İçerik", originalTitle = null, year = null)
+            AtlasStreamMediaData(tmdbId = id, isMovie = true, title = "��erik", originalTitle = null, year = null)
         }
 
         if (media.isMovie) {
@@ -123,7 +123,7 @@ class WatchBuddyProvider : MainAPI() {
             val actors = detail.credits?.cast?.take(10)?.map { Actor(it.name, it.profilePath?.let { p -> "https://image.tmdb.org/t/p/w185$p" }) } ?: emptyList()
             val trailer = detail.videos?.results?.firstOrNull { it.site.equals("YouTube", true) && it.type.equals("Trailer", true) }?.let { "https://www.youtube.com/watch?v=${it.key}" }
 
-            val playPayload = WatchBuddyMediaData(
+            val playPayload = AtlasStreamMediaData(
                 tmdbId = detail.id,
                 isMovie = true,
                 title = detail.displayTitle,
@@ -165,7 +165,7 @@ class WatchBuddyProvider : MainAPI() {
                 seasonTasks.forEach { task ->
                     val seasonDetail = task.await() ?: return@forEach
                     seasonDetail.episodes.forEach { ep ->
-                        val epPayload = WatchBuddyMediaData(
+                        val epPayload = AtlasStreamMediaData(
                             tmdbId = detail.id,
                             isMovie = false,
                             title = detail.displayTitle,
@@ -177,7 +177,7 @@ class WatchBuddyProvider : MainAPI() {
                         )
                         episodesList.add(
                             newEpisode(epPayload.toJson()) {
-                                this.name = ep.name ?: "${ep.seasonNumber}. Sezon ${ep.episodeNumber}. Bölüm"
+                                this.name = ep.name ?: "${ep.seasonNumber}. Sezon ${ep.episodeNumber}. B�l�m"
                                 this.season = ep.seasonNumber
                                 this.episode = ep.episodeNumber
                                 this.posterUrl = ep.fullStillUrl ?: detail.fullPosterUrl
@@ -206,8 +206,8 @@ class WatchBuddyProvider : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val media: WatchBuddyMediaData = try {
-            AppUtils.parseJson<WatchBuddyMediaData>(data)
+        val media: AtlasStreamMediaData = try {
+            AppUtils.parseJson<AtlasStreamMediaData>(data)
         } catch (e: Exception) {
             return false
         }

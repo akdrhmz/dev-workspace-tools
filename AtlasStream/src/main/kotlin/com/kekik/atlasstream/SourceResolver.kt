@@ -1,4 +1,4 @@
-package com.kekik.watchbuddy
+package com.kekik.atlasstream
 
 import android.util.Base64
 import android.util.Log
@@ -25,12 +25,12 @@ object SourceResolver {
     }
 
     private fun isProviderEnabled(providerKey: String): Boolean {
-        val enabledList = CloudStreamApp.getKey<List<String>>(WatchBuddyPlugin.PREF_KEY_ENABLED_SOURCES)
+        val enabledList = CloudStreamApp.getKey<List<String>>(AtlasStreamPlugin.PREF_KEY_ENABLED_SOURCES)
         return enabledList == null || enabledList.contains(providerKey)
     }
 
     suspend fun resolveLinks(
-        media: WatchBuddyMediaData,
+        media: AtlasStreamMediaData,
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ) = coroutineScope {

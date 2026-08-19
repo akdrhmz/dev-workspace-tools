@@ -1,4 +1,4 @@
-package com.kekik.watchbuddy
+package com.kekik.atlasstream
 
 import android.util.Base64
 import java.security.MessageDigest

@@ -1,4 +1,4 @@
-﻿package com.kekik.watchbuddy
+package com.kekik.atlasstream
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
@@ -131,7 +131,7 @@ data class TmdbExternalIds(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class WatchBuddyMediaData(
+data class AtlasStreamMediaData(
     @JsonProperty("tmdbId") val tmdbId: Int = 0,
     @JsonProperty("isMovie") val isMovie: Boolean = true,
     @JsonProperty("title") val title: String = "",

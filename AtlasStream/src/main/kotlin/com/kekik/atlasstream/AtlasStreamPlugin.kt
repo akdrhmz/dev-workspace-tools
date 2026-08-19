@@ -1,4 +1,4 @@
-package com.kekik.watchbuddy
+package com.kekik.atlasstream
 
 import android.content.Context
 import android.widget.EditText
@@ -11,10 +11,10 @@ import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
 import com.lagradost.cloudstream3.plugins.Plugin
 
 @CloudstreamPlugin
-class WatchBuddyPlugin : Plugin() {
+class AtlasStreamPlugin : Plugin() {
     companion object {
-        const val PREF_KEY_ENABLED_SOURCES = "watchbuddy_enabled_sources"
-        const val PREF_KEY_TMDB_API_KEY    = "watchbuddy_tmdb_api_key"
+        const val PREF_KEY_ENABLED_SOURCES = "AtlasStream_enabled_sources"
+        const val PREF_KEY_TMDB_API_KEY    = "AtlasStream_tmdb_api_key"
 
         val ALL_SOURCES = listOf(
             "DiziBox"          to "DiziBox (Yabanci Dizi)",
@@ -27,7 +27,7 @@ class WatchBuddyPlugin : Plugin() {
     }
 
     override fun load(context: Context) {
-        registerMainAPI(WatchBuddyProvider())
+        registerMainAPI(AtlasStreamProvider())
 
         this.openSettings = openSettings@{ ctx ->
             showSettingsDialog(ctx)
@@ -38,11 +38,11 @@ class WatchBuddyPlugin : Plugin() {
         val options = arrayOf(
             "\uD83D\uDD27 Kaynak Saglayicilari Sec (Aktif/Pasif)",
             "\uD83D\uDD11 Ozel TMDB API Anahtari Tanimla",
-            "\u2139\uFE0F WatchBuddy Universal Hakkinda"
+            "\u2139\uFE0F AtlasStream Universal Hakkinda"
         )
 
         AlertDialog.Builder(context)
-            .setTitle("\u2699\uFE0F WatchBuddy Universal Ayarlari")
+            .setTitle("\u2699\uFE0F AtlasStream Universal Ayarlari")
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> showSourceSelectionDialog(context)
@@ -112,9 +112,9 @@ class WatchBuddyPlugin : Plugin() {
 
     private fun showAboutDialog(context: Context) {
         AlertDialog.Builder(context)
-            .setTitle("\u2728 WatchBuddy Universal")
+            .setTitle("\u2728 AtlasStream Universal")
             .setMessage(
-                "WatchBuddy Universal;\n\n" +
+                "AtlasStream Universal;\n\n" +
                 "\u2022 Tekil TMDB Katalogu (Netflix, HBO, Disney+, Prime, Apple TV, BluTV vb.)\n" +
                 "\u2022 6 Turkce kaynak motorunda paralel arama (DiziBox, HDFC, FilmMakinesi, Dizilla, SineWix, JetFilmizle)\n" +
                 "\u2022 CloudStream icin sifir kirlilik, maksimum hiz ve 4K/1080p oynatma destegi sunar.\n\n" +

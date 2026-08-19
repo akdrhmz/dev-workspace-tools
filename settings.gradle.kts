@@ -11,7 +11,7 @@ rootProject.name = "dev-workspace-tools"
 
 // Modüller
 
-include(":WatchBuddyBridge")
+include(":AtlasStream")
 include(":FilmMakinesiProvider")
 include(":DiziBoxProvider")
 include(":HDFilmCehennemiProvider")
@@ -19,3 +19,5 @@ include(":SineWixProvider")
 include(":DizillaProvider")
 
 include(":JetFilmizleProvider")
+
+

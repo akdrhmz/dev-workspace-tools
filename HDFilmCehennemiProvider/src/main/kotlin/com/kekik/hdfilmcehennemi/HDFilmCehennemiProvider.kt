@@ -2,6 +2,7 @@ package com.kekik.hdfilmcehennemi
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
+import java.net.URLEncoder
 
 class HDFilmCehennemiProvider : MainAPI() {
     override var mainUrl = "https://www.hdfilmcehennemi.nl"
@@ -35,7 +36,7 @@ class HDFilmCehennemiProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val doc = app.get("$mainUrl/search?q=$query").document
+        val doc = app.get("$mainUrl/search?q=${URLEncoder.encode(query, "UTF-8")}").document
 
         return doc.select(".card-poster, .search-result, .film-item").mapNotNull { card ->
             val linkElem = card.selectFirst("a") ?: return@mapNotNull null

@@ -2,6 +2,7 @@ package com.kekik.dizibox
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
+import java.net.URLEncoder
 
 class DiziBoxProvider : MainAPI() {
     override var mainUrl = "https://www.dizibox.tv"
@@ -33,7 +34,7 @@ class DiziBoxProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val doc = app.get("$mainUrl/?s=$query").document
+        val doc = app.get("$mainUrl/?s=${URLEncoder.encode(query, "UTF-8")}").document
 
         return doc.select(".post-item, .search-item, article").mapNotNull { card ->
             val titleElem = card.selectFirst(".entry-title, .title a, h2 a") ?: return@mapNotNull null
@@ -48,7 +49,7 @@ class DiziBoxProvider : MainAPI() {
 
     override suspend fun load(url: String): LoadResponse {
         val doc = app.get(url).document
-        val title = doc.selectFirst("h1.entry-title, .series-title")!!.text().trim()
+        val title = doc.selectFirst("h1.entry-title, .series-title")?.text()?.trim() ?: "Bilinmeyen Dizi"
         val poster = doc.selectFirst(".poster img, .series-poster img")?.attr("src")
         val plot = doc.selectFirst(".overview, .story, .entry-content")?.text()?.trim()
 

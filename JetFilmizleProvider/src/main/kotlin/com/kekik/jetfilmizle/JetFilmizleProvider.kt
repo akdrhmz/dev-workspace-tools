@@ -2,6 +2,7 @@ package com.kekik.jetfilmizle
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
+import java.net.URLEncoder
 
 class JetFilmizleProvider : MainAPI() {
     override var mainUrl = "https://jetfilmizle.mobi"
@@ -34,7 +35,7 @@ class JetFilmizleProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val doc = app.get("$mainUrl/?s=$query").document
+        val doc = app.get("$mainUrl/?s=${URLEncoder.encode(query, "UTF-8")}").document
 
         return doc.select(".movie-item, .post, .film-item, article").mapNotNull { card ->
             val titleElem = card.selectFirst("h2, h3, .title") ?: return@mapNotNull null

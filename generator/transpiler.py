@@ -18,6 +18,7 @@ KOTLIN_PROVIDER_TEMPLATE = """package com.kekik.{package_name}
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
+import java.net.URLEncoder
 
 class {class_name}Provider : MainAPI() {{
     override var mainUrl = "{main_url}"
@@ -47,7 +48,7 @@ class {class_name}Provider : MainAPI() {{
     }}
 
     override suspend fun search(query: String): List<SearchResponse> {{
-        val doc = app.get("$mainUrl/{search_path}$query").document
+        val doc = app.get("$mainUrl/{search_path}${{URLEncoder.encode(query, \\"UTF-8\\")}}").document
 
         return doc.select("{card_selector}").mapNotNull {{ card ->
             val titleElem = card.selectFirst("{title_selector}") ?: return@mapNotNull null

@@ -2,6 +2,7 @@ package com.kekik.sinewix
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
+import java.net.URLEncoder
 
 class SineWixProvider : MainAPI() {
     override var mainUrl = "https://sinewix.org"
@@ -34,7 +35,7 @@ class SineWixProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val doc = app.get("$mainUrl/?s=$query").document
+        val doc = app.get("$mainUrl/?s=${URLEncoder.encode(query, "UTF-8")}").document
 
         return doc.select(".movie-item, .post, .search-result").mapNotNull { card ->
             val titleElem = card.selectFirst(".movie-title, .title, h2, h3") ?: return@mapNotNull null

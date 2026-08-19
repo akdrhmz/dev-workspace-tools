@@ -2,6 +2,7 @@ package com.kekik.dizilla
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
+import java.net.URLEncoder
 
 class DizillaProvider : MainAPI() {
     override var mainUrl = "https://dizilla.club"
@@ -34,7 +35,7 @@ class DizillaProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val doc = app.get("$mainUrl/arama?q=$query").document
+        val doc = app.get("$mainUrl/arama?q=${URLEncoder.encode(query, "UTF-8")}").document
 
         return doc.select(".search-result-item, .poster-box, .media-item").mapNotNull { card ->
             val titleElem = card.selectFirst(".title, h3, h2") ?: return@mapNotNull null

@@ -2,6 +2,7 @@ package com.kekik.filmmakinesi
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
+import java.net.URLEncoder
 
 class FilmMakinesiProvider : MainAPI() {
     override var mainUrl = "https://filmmakinesi.pw"
@@ -35,7 +36,7 @@ class FilmMakinesiProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val doc = app.get("$mainUrl/?s=$query").document
+        val doc = app.get("$mainUrl/?s=${URLEncoder.encode(query, "UTF-8")}").document
 
         return doc.select("div.film-list div.film-item, article.post").mapNotNull { card ->
             val titleElem = card.selectFirst("h2.title, a.title, .film-title") ?: return@mapNotNull null
@@ -52,7 +53,7 @@ class FilmMakinesiProvider : MainAPI() {
 
     override suspend fun load(url: String): LoadResponse {
         val doc = app.get(url).document
-        val title = doc.selectFirst("h1.title, .entry-title")!!.text().trim()
+        val title = doc.selectFirst("h1.title, .entry-title")?.text()?.trim() ?: "Bilinmeyen Film"
         val poster = doc.selectFirst(".poster img, .film-poster img")?.let {
             it.attr("src").ifEmpty { it.attr("data-src") }
         }

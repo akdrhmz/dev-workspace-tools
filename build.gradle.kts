@@ -38,7 +38,6 @@ subprojects {
         setRepo("https://github.com/akdrhmz/dev-workspace-tools")
     }
 
-    // Kotlin bağımlılıklarını 2.1.0 sürümüne sabitle (Transitive metadata çakışmalarını önler)
     configurations.all {
         resolutionStrategy.eachDependency {
             if (requested.group == "org.jetbrains.kotlin") {
@@ -77,11 +76,11 @@ subprojects {
         val cloudstreamVersion = "-SNAPSHOT"
         val kotlinVersion = "2.1.0"
         
-        // Kotlin BOM ile sürüm sabitleme
         "implementation"(enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion"))
         "implementation"("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
         "implementation"("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
+        "implementation"("com.github.recloudstream.cloudstream:library-android:$cloudstreamVersion")
         "implementation"("com.github.recloudstream:cloudstream:$cloudstreamVersion")
         "implementation"("com.github.Blatzar:NiceHttp:0.4.11")
         "implementation"("org.jsoup:jsoup:1.17.2")

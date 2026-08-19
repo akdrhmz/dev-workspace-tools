@@ -129,16 +129,18 @@ class WatchBuddyProvider : MainAPI() {
 
             // Direct stream link
             if (res.url.startsWith("http")) {
+                val isM3u8 = res.isM3u8 ?: res.url.contains(".m3u8")
                 callback.invoke(
-                    ExtractorLink(
+                    newExtractorLink(
                         source = res.name ?: name,
                         name = res.name ?: name,
                         url = res.url,
-                        referer = res.referer ?: mainUrl,
-                        quality = if (res.quality == "1080p") Qualities.Q1080p.value else Qualities.Unknown.value,
-                        isM3u8 = res.isM3u8 ?: res.url.contains(".m3u8"),
-                        headers = res.headers ?: emptyMap()
-                    )
+                        type = if (isM3u8) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
+                    ) {
+                        this.referer = res.referer ?: mainUrl
+                        this.quality = if (res.quality == "1080p") Qualities.Q1080p.value else Qualities.Unknown.value
+                        this.headers = res.headers ?: emptyMap()
+                    }
                 )
             } else {
                 loadExtractor(res.url, data, subtitleCallback, callback)

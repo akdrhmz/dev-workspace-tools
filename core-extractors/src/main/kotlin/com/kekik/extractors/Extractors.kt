@@ -4,7 +4,9 @@ import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.utils.ExtractorApi
 import com.lagradost.cloudstream3.utils.ExtractorLink
+import com.lagradost.cloudstream3.utils.ExtractorLinkType
 import com.lagradost.cloudstream3.utils.Qualities
+import com.lagradost.cloudstream3.utils.newExtractorLink
 
 // ─── RapidVid Extractor ──────────────────────────────────────────────
 open class RapidVid : ExtractorApi() {
@@ -25,14 +27,15 @@ open class RapidVid : ExtractorApi() {
         Regex("""(?:file|source|src):\s*['"](https?://[^'"]+\.m3u8[^'"]*)['"]""")
             .findAll(html).forEach { match ->
                 callback.invoke(
-                    ExtractorLink(
+                    newExtractorLink(
                         source = name,
                         name = "$name HLS",
                         url = match.groupValues[1],
-                        referer = url,
-                        quality = Qualities.Unknown.value,
-                        isM3u8 = true
-                    )
+                        type = ExtractorLinkType.M3U8
+                    ) {
+                        this.referer = url
+                        this.quality = Qualities.Unknown.value
+                    }
                 )
             }
 
@@ -40,14 +43,15 @@ open class RapidVid : ExtractorApi() {
         Regex("""(?:file|source|src):\s*['"](https?://[^'"]+\.mp4[^'"]*)['"]""")
             .findAll(html).forEach { match ->
                 callback.invoke(
-                    ExtractorLink(
+                    newExtractorLink(
                         source = name,
                         name = "$name MP4",
                         url = match.groupValues[1],
-                        referer = url,
-                        quality = Qualities.Q1080p.value,
-                        isM3u8 = false
-                    )
+                        type = ExtractorLinkType.VIDEO
+                    ) {
+                        this.referer = url
+                        this.quality = Qualities.Q1080p.value
+                    }
                 )
             }
     }
@@ -73,14 +77,15 @@ open class VidMoxy : ExtractorApi() {
                 val streamUrl = match.groupValues[1]
                 val isM3u8 = streamUrl.contains(".m3u8")
                 callback.invoke(
-                    ExtractorLink(
+                    newExtractorLink(
                         source = name,
                         name = "$name Stream",
                         url = streamUrl,
-                        referer = url,
-                        quality = if (isM3u8) Qualities.Unknown.value else Qualities.Q1080p.value,
-                        isM3u8 = isM3u8
-                    )
+                        type = if (isM3u8) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
+                    ) {
+                        this.referer = url
+                        this.quality = if (isM3u8) Qualities.Unknown.value else Qualities.Q1080p.value
+                    }
                 )
             }
 
@@ -119,15 +124,16 @@ open class Tortuga : ExtractorApi() {
         Regex("""https?://[^\s"'<>]+\.m3u8[^\s"'<>]*""")
             .findAll(html).forEach { match ->
                 callback.invoke(
-                    ExtractorLink(
+                    newExtractorLink(
                         source = name,
                         name = "$name HLS",
                         url = match.value,
-                        referer = url,
-                        quality = Qualities.Unknown.value,
-                        isM3u8 = true,
-                        headers = mapOf("Referer" to url)
-                    )
+                        type = ExtractorLinkType.M3U8
+                    ) {
+                        this.referer = url
+                        this.quality = Qualities.Unknown.value
+                        this.headers = mapOf("Referer" to url)
+                    }
                 )
             }
     }
@@ -151,15 +157,17 @@ open class CloseLoad : ExtractorApi() {
         Regex("""(?:file|src):\s*['"](https?://[^'"]+)['"]""")
             .findAll(html).forEach { match ->
                 val streamUrl = match.groupValues[1]
+                val isM3u8 = streamUrl.contains(".m3u8")
                 callback.invoke(
-                    ExtractorLink(
+                    newExtractorLink(
                         source = name,
                         name = "$name Stream",
                         url = streamUrl,
-                        referer = url,
-                        quality = Qualities.Q1080p.value,
-                        isM3u8 = streamUrl.contains(".m3u8")
-                    )
+                        type = if (isM3u8) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
+                    ) {
+                        this.referer = url
+                        this.quality = Qualities.Q1080p.value
+                    }
                 )
             }
     }
@@ -183,14 +191,15 @@ open class Vidmoly : ExtractorApi() {
         Regex("""file:\s*['"](https?://[^'"]+\.m3u8[^'"]*)['"]""")
             .find(html)?.let { match ->
                 callback.invoke(
-                    ExtractorLink(
+                    newExtractorLink(
                         source = name,
                         name = "$name HLS",
                         url = match.groupValues[1],
-                        referer = url,
-                        quality = Qualities.Unknown.value,
-                        isM3u8 = true
-                    )
+                        type = ExtractorLinkType.M3U8
+                    ) {
+                        this.referer = url
+                        this.quality = Qualities.Unknown.value
+                    }
                 )
             }
     }

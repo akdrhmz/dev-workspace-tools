@@ -2,8 +2,8 @@ name: Upstream Sync & CloudStream Build
 
 on:
   schedule:
-    - cron: "0 */6 * * *" # Her 6 saatte bir otomatik çalışır
-  workflow_dispatch:      # Manuel tetikleme desteği
+    - cron: "0 */6 * * *" # Her 6 saatte bir otomatik calisir
+  workflow_dispatch:      # Manuel tetikleme destegi
   push:
     branches:
       - master
@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Upstream KekikStream Eklentilerini Çevir
+      - name: Upstream KekikStream Eklentilerini Cevir
         run: |
           python generator/sync_upstream.py
 
@@ -39,28 +39,20 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
-      - name: Gradle Cache Ayarla
-        uses: actions/cache@v3
+      - name: Gradle Kur ve Calistir
+        uses: gradle/actions/setup-gradle@v3
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Gradle İzinlerini Ver
-        run: chmod +x gradlew || true
+          gradle-version: "8.5"
 
       - name: Eklentileri Derle (.cs3 paketleri)
         run: |
-          ./gradlew makePlugins || ./gradlew build
+          gradle makePlugins || gradle build --no-daemon
 
-      - name: plugins.json Manifestosu ve Repo Dizini Oluştur
+      - name: plugins.json Manifestosu ve Repo Dizini Olustur
         run: |
           mkdir -p public
-          cp -r build/plugins/* public/ 2>/dev/null || true
-          # Manifest üretici
+          find . -name "*.cs3" -exec cp {} public/ \;
+          # Manifest uretici
           python -c "
           import json, os, glob
           plugins = []
@@ -76,7 +68,7 @@ jobs:
               json.dump(plugins, mf, indent=2, ensure_ascii=False)
           "
 
-      - name: GitHub Pages Üzerine Dağıt
+      - name: GitHub Pages Uzerine Dagit
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -64,6 +64,88 @@ object SourceUtils {
         return s.replace(Regex("\\s+"), " ").trim()
     }
 
+    // Sitelerde sık görülen kısaltma / eş anlam farklarını eşitlemek için
+    private val synonymMap = mapOf(
+        "vol" to "volume", "pt" to "part", "ch" to "chapter",
+        "and" to "ve", "the" to "", "a" to "", "an" to ""
+    )
+
+    private fun canonicalWords(norm: String): Set<String> {
+        return norm.split(" ")
+            .filter { it.length > 1 }
+            .map { synonymMap[it] ?: it }
+            .filter { it.isNotBlank() }
+            .toSet()
+    }
+
+    /**
+     * İki başlık kümesi arasındaki benzerliği 0.0 - 1.0 aralığında Jaccard skoru olarak döner.
+     */
+    private fun similarityScore(resultWords: Set<String>, targetWords: Set<String>): Double {
+        if (resultWords.isEmpty() || targetWords.isEmpty()) return 0.0
+        val intersection = resultWords.intersect(targetWords).size
+        val union = resultWords.union(targetWords).size
+        if (union == 0) return 0.0
+        // Kapsama oranını da hesaba kat: küçük kümenin büyük kümede ne kadarının geçtiği
+        val containmentRatio = intersection.toDouble() / minOf(resultWords.size, targetWords.size)
+        val jaccard = intersection.toDouble() / union
+        // İkisinin ağırlıklı ortalaması: kısa ek/başlık farklarına (alt başlık, "Bölüm" ekleri vb.) tolerans tanır
+        return (jaccard * 0.5) + (containmentRatio * 0.5)
+    }
+
+    /**
+     * Sağlayıcıdan dönen arama sonucu başlığı ile hedef içeriğin ne kadar eşleştiğini 0.0 - 1.0 arası skorlar.
+     * 0.0 döndüğünde kesin uyumsuzluk (ör. yıl farkı), 1.0 tam eşleşme demektir.
+     */
+    fun titleMatchScore(
+        resultTitle: String,
+        targetTitleTr: String,
+        targetTitleOrig: String? = null,
+        targetYear: Int? = null,
+        resultYear: Int? = null
+    ): Double {
+        val normResult = normalizeTitle(resultTitle)
+        if (normResult.isBlank()) return 0.0
+
+        val normTr = normalizeTitle(targetTitleTr)
+        val normOrig = targetTitleOrig?.let { normalizeTitle(it) }
+
+        // 1. Tam Eşleşme
+        if (normTr.isNotEmpty() && normResult == normTr) return 1.0
+        if (normOrig != null && normOrig.isNotEmpty() && normResult == normOrig) return 1.0
+
+        // 2. Yıl Uyumu Kontrolü (Eğer her ikisinde de yıl varsa ve 1 yıldan fazla fark varsa kesin reddet)
+        if (targetYear != null && resultYear != null && Math.abs(targetYear - resultYear) > 1) {
+            return 0.0
+        }
+        // Yıl tam uyuyorsa küçük bir bonus ver (aynı isimli farklı yapımları ayırt etmeye yardımcı olur)
+        val yearBonus = if (targetYear != null && resultYear != null && targetYear == resultYear) 0.1 else 0.0
+
+        val resultWords = canonicalWords(normResult)
+
+        var bestScore = 0.0
+        if (normTr.isNotEmpty()) {
+            bestScore = maxOf(bestScore, similarityScore(resultWords, canonicalWords(normTr)))
+        }
+        if (normOrig != null && normOrig.isNotEmpty()) {
+            bestScore = maxOf(bestScore, similarityScore(resultWords, canonicalWords(normOrig)))
+        }
+
+        // Ön ek / başlangıç eşleşmesi (ör. "Breaking Bad" -> "Breaking Bad 1 Sezon")
+        if (normTr.length >= 3 && (normResult.startsWith(normTr) || normTr.startsWith(normResult))) {
+            bestScore = maxOf(bestScore, 0.85)
+        }
+        if (normOrig != null && normOrig.length >= 3 && (normResult.startsWith(normOrig) || normOrig.startsWith(normResult))) {
+            bestScore = maxOf(bestScore, 0.85)
+        }
+
+        if (bestScore <= 0.0) return 0.0
+        return minOf(1.0, bestScore + yearBonus)
+    }
+
+    /** Eşik değeri: bu skorun altındaki sonuçlar eşleşme sayılmaz. */
+    const val MATCH_THRESHOLD = 0.6
+
     /**
      * Sağlayıcıdan dönen arama sonucu başlığı ile hedef içeriğin eşleşip eşleşmediğini akıllıca kontrol eder.
      */
@@ -74,47 +156,7 @@ object SourceUtils {
         targetYear: Int? = null,
         resultYear: Int? = null
     ): Boolean {
-        val normResult = normalizeTitle(resultTitle)
-        if (normResult.isBlank()) return false
-
-        val normTr = normalizeTitle(targetTitleTr)
-        val normOrig = targetTitleOrig?.let { normalizeTitle(it) }
-
-        // 1. Tam Eşleşme
-        if (normTr.isNotEmpty() && normResult == normTr) return true
-        if (normOrig != null && normOrig.isNotEmpty() && normResult == normOrig) return true
-
-        // 2. Yıl Uyumu Kontrolü (Eğer her ikisinde de yıl varsa ve 1 yıldan fazla fark varsa eşleşmeyi reddet)
-        if (targetYear != null && resultYear != null && Math.abs(targetYear - resultYear) > 1) {
-            return false
-        }
-
-        // 3. Kelime Kümesi (Token) Kapsama Kontrolü (Örn: "Breaking Bad" -> "Breaking Bad 1. Sezon")
-        val resultWords = normResult.split(" ").filter { it.length > 1 }.toSet()
-        
-        if (normTr.isNotEmpty()) {
-            val trWords = normTr.split(" ").filter { it.length > 1 }.toSet()
-            if (trWords.isNotEmpty() && (resultWords.containsAll(trWords) || trWords.containsAll(resultWords))) {
-                return true
-            }
-        }
-
-        if (normOrig != null && normOrig.isNotEmpty()) {
-            val origWords = normOrig.split(" ").filter { it.length > 1 }.toSet()
-            if (origWords.isNotEmpty() && (resultWords.containsAll(origWords) || origWords.containsAll(resultWords))) {
-                return true
-            }
-        }
-
-        // 4. Ön Ek / Başlangıç Eşleşmesi (Minimum 3 karakter)
-        if (normTr.length >= 3 && (normResult.startsWith(normTr) || normTr.startsWith(normResult))) {
-            return true
-        }
-        if (normOrig != null && normOrig.length >= 3 && (normResult.startsWith(normOrig) || normOrig.startsWith(normResult))) {
-            return true
-        }
-
-        return false
+        return titleMatchScore(resultTitle, targetTitleTr, targetTitleOrig, targetYear, resultYear) >= MATCH_THRESHOLD
     }
 
     // --- FullHDFilmizlesene Decrypt ---

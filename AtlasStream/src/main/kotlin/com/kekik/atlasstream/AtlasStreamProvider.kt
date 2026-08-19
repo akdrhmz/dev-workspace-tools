@@ -26,33 +26,33 @@ class AtlasStreamProvider : MainAPI() {
 
     override val mainPage = mainPageOf(
         // Trendler ve Vizyon
-        "trending/all/day"                                                  to "?? G�n�n Trendleri",
-        "movie/now_playing"                                                 to "?? Vizyondaki Filmler",
-        "movie/popular"                                                     to "? Pop�ler Filmler",
-        "tv/popular"                                                        to "?? Pop�ler Diziler",
+        "trending/all/day"                                                  to "🔥 Günün Trendleri",
+        "movie/now_playing"                                                 to "🎬 Vizyondaki Filmler",
+        "movie/popular"                                                     to "🏆 Popüler Filmler",
+        "tv/popular"                                                        to "📺 Popüler Diziler",
 
         // Platformlar
-        "discover/tv?with_watch_providers=8&watch_region=TR"                to "?? Netflix Dizileri",
-        "discover/movie?with_watch_providers=8&watch_region=TR"             to "?? Netflix Filmleri",
-        "discover/tv?with_watch_providers=1899|384&watch_region=TR"         to "?? HBO Max Dizileri",
-        "discover/tv?with_watch_providers=337&watch_region=TR"              to "?? Disney+ ��erikleri",
-        "discover/tv?with_watch_providers=119&watch_region=TR"              to "?? Amazon Prime Dizileri",
-        "discover/tv?with_watch_providers=350|2&watch_region=TR"            to "?? Apple TV+ Dizileri",
-        "discover/tv?with_watch_providers=341&watch_region=TR"              to "?? BluTV ��erikleri",
+        "discover/tv?with_watch_providers=8&watch_region=TR"                to "🔴 Netflix Dizileri",
+        "discover/movie?with_watch_providers=8&watch_region=TR"             to "🔴 Netflix Filmleri",
+        "discover/tv?with_watch_providers=1899|384&watch_region=TR"         to "🟣 HBO Max Dizileri",
+        "discover/tv?with_watch_providers=337&watch_region=TR"              to "🐙 Disney+ İçerikleri",
+        "discover/tv?with_watch_providers=119&watch_region=TR"              to "📦 Amazon Prime Dizileri",
+        "discover/tv?with_watch_providers=350|2&watch_region=TR"            to "🍎 Apple TV+ Dizileri",
+        "discover/tv?with_watch_providers=341&watch_region=TR"              to "🔵 BluTV İçerikleri",
 
-        // T�rler (Genres)
-        "discover/movie?with_genres=28,12"                                  to "?? Aksiyon & Macera",
-        "discover/movie?with_genres=16"                                     to "?? Animasyon",
-        "discover/movie?with_genres=35"                                     to "?? Komedi",
-        "discover/movie?with_genres=80,9648"                                to "?? Su� & Gizem",
-        "discover/movie?with_genres=878,14"                                 to "?? Bilim Kurgu & Fantastik",
-        "discover/movie?with_genres=27,53"                                  to "?? Korku & Gerilim",
-        "discover/movie?with_genres=10749"                                  to "?? Romantik",
-        "discover/movie?with_genres=99"                                     to "?? Belgesel",
+        // Türler (Genres)
+        "discover/movie?with_genres=28,12"                                  to "💥 Aksiyon & Macera",
+        "discover/movie?with_genres=16"                                     to "🎨 Animasyon",
+        "discover/movie?with_genres=35"                                     to "😂 Komedi",
+        "discover/movie?with_genres=80,9648"                                to "🕵 Suç & Gizem",
+        "discover/movie?with_genres=878,14"                                 to "👽 Bilim Kurgu & Fantastik",
+        "discover/movie?with_genres=27,53"                                  to "👻 Korku & Gerilim",
+        "discover/movie?with_genres=10749"                                  to "💕 Romantik",
+        "discover/movie?with_genres=99"                                     to "📽 Belgesel",
 
         // Top Listeler
-        "movie/top_rated"                                                   to "?? IMDb En Y�ksek Puanl� Filmler",
-        "tv/top_rated"                                                      to "?? En Y�ksek Puanl� Diziler"
+        "movie/top_rated"                                                   to "⭐ IMDb En Yüksek Puanlı Filmler",
+        "tv/top_rated"                                                      to "⭐ En Yüksek Puanlı Diziler"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -115,7 +115,7 @@ class AtlasStreamProvider : MainAPI() {
             AppUtils.parseJson<AtlasStreamMediaData>(url)
         } catch (e: Exception) {
             val id = url.filter { it.isDigit() }.toIntOrNull() ?: 550
-            AtlasStreamMediaData(tmdbId = id, isMovie = true, title = "��erik", originalTitle = null, year = null)
+            AtlasStreamMediaData(tmdbId = id, isMovie = true, title = "İçerik", originalTitle = null, year = null)
         }
 
         if (media.isMovie) {
@@ -149,7 +149,21 @@ class AtlasStreamProvider : MainAPI() {
             val trailer = detail.videos?.results?.firstOrNull { it.site.equals("YouTube", true) && it.type.equals("Trailer", true) }?.let { "https://www.youtube.com/watch?v=${it.key}" }
 
             val episodesList = mutableListOf<Episode>()
-            val validSeasons = detail.seasons?.filter { it.seasonNumber > 0 } ?: emptyList()
+            val validSeasons = (detail.seasons?.filter { it.seasonNumber > 0 } ?: emptyList())
+                .sortedBy { it.seasonNumber }
+
+            // Anime siteleri genelde sezon ayrımı yapmadan bölümleri baştan sona tek seferde
+            // numaralandırır (ör. TMDB'de S2E5 olan bölüm, sitede "25. Bölüm" olabilir).
+            // Bu yüzden her sezonun başlangıcındaki "kümülatif" (mutlak) bölüm ofsetini
+            // TMDB'nin bildirdiği sezon başına bölüm sayılarından önceden hesaplıyoruz.
+            val absoluteOffsets = mutableListOf<Int>()
+            run {
+                var running = 0
+                for (s in validSeasons) {
+                    absoluteOffsets.add(running)
+                    running += s.episodeCount
+                }
+            }
 
             coroutineScope {
                 val seasonTasks = validSeasons.map { seasonSummary ->
@@ -162,9 +176,11 @@ class AtlasStreamProvider : MainAPI() {
                     }
                 }
 
-                seasonTasks.forEach { task ->
-                    val seasonDetail = task.await() ?: return@forEach
+                seasonTasks.forEachIndexed { index, task ->
+                    val seasonDetail = task.await() ?: return@forEachIndexed
+                    val seasonOffset = absoluteOffsets.getOrElse(index) { 0 }
                     seasonDetail.episodes.forEach { ep ->
+                        val absoluteEpisode = seasonOffset + ep.episodeNumber
                         val epPayload = AtlasStreamMediaData(
                             tmdbId = detail.id,
                             isMovie = false,
@@ -173,11 +189,12 @@ class AtlasStreamProvider : MainAPI() {
                             year = detail.releaseYear ?: media.year,
                             season = ep.seasonNumber,
                             episode = ep.episodeNumber,
+                            absoluteEpisode = absoluteEpisode,
                             imdbId = detail.externalIds?.imdbId
                         )
                         episodesList.add(
                             newEpisode(epPayload.toJson()) {
-                                this.name = ep.name ?: "${ep.seasonNumber}. Sezon ${ep.episodeNumber}. B�l�m"
+                                this.name = ep.name ?: "${ep.seasonNumber}. Sezon ${ep.episodeNumber}. Bölüm"
                                 this.season = ep.seasonNumber
                                 this.episode = ep.episodeNumber
                                 this.posterUrl = ep.fullStillUrl ?: detail.fullPosterUrl

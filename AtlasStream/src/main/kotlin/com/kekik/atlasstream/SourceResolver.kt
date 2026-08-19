@@ -12,6 +12,7 @@ import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.utils.StringUtils.decodeUri
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withTimeoutOrNull
 import org.jsoup.Jsoup
 import java.net.URLEncoder
 
@@ -91,6 +92,35 @@ object SourceResolver {
         return enabledList == null || enabledList.contains(providerKey)
     }
 
+    // TMDB'yi doğrudan backend olarak kullanan sağlayıcılar: arama/eşleştirme gerekmeden
+    // media.tmdbId ile doğrudan yükleme yapılabilir (kesin eşleşme, fuzzy matching riski yok).
+    private val tmdbDirectProviders = setOf("XPrime")
+
+    // Tek bir sağlayıcının (arama + yükleme + link çözme dahil) alabileceği maksimum süre.
+    // Bir sitenin yavaş/asılı kalması diğer sağlayıcıları bloklamasın diye.
+    private const val PROVIDER_TIMEOUT_MS = 15_000L
+
+    /** Verilen aday listesinden eşik değerini geçen en yüksek skorlu sonucu döner. */
+    private fun bestMatch(
+        results: List<SearchResponse>?,
+        media: AtlasStreamMediaData
+    ): SearchResponse? {
+        return results
+            ?.mapNotNull { item ->
+                val resYear = (item as? MovieSearchResponse)?.year ?: (item as? TvSeriesSearchResponse)?.year ?: (item as? AnimeSearchResponse)?.year
+                val score = SourceUtils.titleMatchScore(
+                    resultTitle = item.name,
+                    targetTitleTr = media.title,
+                    targetTitleOrig = media.originalTitle,
+                    targetYear = media.year,
+                    resultYear = resYear
+                )
+                if (score >= SourceUtils.MATCH_THRESHOLD) item to score else null
+            }
+            ?.maxByOrNull { it.second }
+            ?.first
+    }
+
     suspend fun resolveLinks(
         media: AtlasStreamMediaData,
         subtitleCallback: (SubtitleFile) -> Unit,
@@ -115,72 +145,83 @@ object SourceResolver {
 
                 if (matchesType) {
                     jobs.add(async {
-                        try {
-                            // 1. Kademe: Türkçe Başlık ile Arama
-                            var searchRes: List<SearchResponse>? = try {
-                                provider.search(cleanTr)
-                            } catch (e: Exception) { null }
+                        val result = withTimeoutOrNull(PROVIDER_TIMEOUT_MS) {
+                            try {
+                                // 0. Kademe: TMDB-doğrudan sağlayıcılar (XPrime vb.) — arama/eşleştirme atlanır,
+                                // TMDB ID zaten kesin eşleşme garantisi verir.
+                                if (media.isMovie && provider.name in tmdbDirectProviders) {
+                                    val loadRes = try {
+                                        provider.load(media.tmdbId.toString())
+                                    } catch (e: Exception) { null }
 
-                            var matched = searchRes?.firstOrNull { item ->
-                                val resYear = (item as? MovieSearchResponse)?.year ?: (item as? TvSeriesSearchResponse)?.year ?: (item as? AnimeSearchResponse)?.year
-                                SourceUtils.isTitleMatch(
-                                    resultTitle = item.name,
-                                    targetTitleTr = media.title,
-                                    targetTitleOrig = media.originalTitle,
-                                    targetYear = media.year,
-                                    resultYear = resYear
-                                )
-                            }
-
-                            // 2. Kademe: Eşleşme yoksa Orijinal (İngilizce/Yabancı) Başlık ile Arama
-                            if (matched == null && cleanOrig != null && !cleanOrig.equals(cleanTr, ignoreCase = true)) {
-                                val origRes = try {
-                                    provider.search(cleanOrig)
-                                } catch (e: Exception) { null }
-
-                                matched = origRes?.firstOrNull { item ->
-                                    val resYear = (item as? MovieSearchResponse)?.year ?: (item as? TvSeriesSearchResponse)?.year ?: (item as? AnimeSearchResponse)?.year
-                                    SourceUtils.isTitleMatch(
-                                        resultTitle = item.name,
-                                        targetTitleTr = media.title,
-                                        targetTitleOrig = media.originalTitle,
-                                        targetYear = media.year,
-                                        resultYear = resYear
-                                    )
-                                }
-                            }
-
-                            // 3. Kademe: IMDb ID ile Arama (Sağlayıcı IMDb ID aramasını destekliyorsa)
-                            if (matched == null && !media.imdbId.isNullOrBlank()) {
-                                val imdbRes = try {
-                                    provider.search(media.imdbId)
-                                } catch (e: Exception) { null }
-
-                                matched = imdbRes?.firstOrNull()
-                            }
-
-                            if (matched != null) {
-                                val loadRes = try {
-                                    provider.load(matched.url)
-                                } catch (e: Exception) { null }
-
-                                if (media.isMovie && loadRes is MovieLoadResponse) {
-                                    provider.loadLinks(loadRes.dataUrl, false, subtitleCallback, callback)
-                                } else if (!media.isMovie && loadRes is TvSeriesLoadResponse) {
-                                    val targetSeason = media.season ?: 1
-                                    val targetEpisode = media.episode ?: 1
-                                    val ep = loadRes.episodes.firstOrNull { 
-                                        it.season == targetSeason && it.episode == targetEpisode 
-                                    } ?: loadRes.episodes.firstOrNull {
-                                        it.episode == targetEpisode && (it.season == null || it.season == 0)
+                                    if (loadRes is MovieLoadResponse) {
+                                        provider.loadLinks(loadRes.dataUrl, false, subtitleCallback, callback)
                                     }
-                                    if (ep != null) {
-                                        provider.loadLinks(ep.data, false, subtitleCallback, callback)
+                                    return@withTimeoutOrNull
+                                }
+
+                                // 1. Kademe: Türkçe ve Orijinal başlık aramalarını PARALEL çalıştır
+                                // (sıralı yerine eşzamanlı yapmak toplam bekleme süresini yarıya indirir)
+                                val needsOrigSearch = cleanOrig != null && !cleanOrig.equals(cleanTr, ignoreCase = true)
+
+                                val trSearchJob = async {
+                                    try { provider.search(cleanTr) } catch (e: Exception) { null }
+                                }
+                                val origSearchJob = if (needsOrigSearch) {
+                                    async {
+                                        try { provider.search(cleanOrig!!) } catch (e: Exception) { null }
+                                    }
+                                } else null
+
+                                val trRes = trSearchJob.await()
+                                val origRes = origSearchJob?.await()
+
+                                // İki sonuç kümesini birleştirip aralarından en iyi skorluyu seç
+                                val combined = (trRes.orEmpty() + origRes.orEmpty())
+                                var matched = bestMatch(combined, media)
+
+                                // 2. Kademe: IMDb ID ile Arama (Sağlayıcı IMDb ID aramasını destekliyorsa)
+                                if (matched == null && !media.imdbId.isNullOrBlank()) {
+                                    val imdbRes = try {
+                                        provider.search(media.imdbId)
+                                    } catch (e: Exception) { null }
+
+                                    matched = imdbRes?.firstOrNull()
+                                }
+
+                                if (matched != null) {
+                                    val loadRes = try {
+                                        provider.load(matched.url)
+                                    } catch (e: Exception) { null }
+
+                                    if (media.isMovie && loadRes is MovieLoadResponse) {
+                                        provider.loadLinks(loadRes.dataUrl, false, subtitleCallback, callback)
+                                    } else if (!media.isMovie && loadRes is TvSeriesLoadResponse) {
+                                        val targetSeason = media.season ?: 1
+                                        val targetEpisode = media.episode ?: 1
+                                        val ep = loadRes.episodes.firstOrNull {
+                                            it.season == targetSeason && it.episode == targetEpisode
+                                        } ?: loadRes.episodes.firstOrNull {
+                                            it.episode == targetEpisode && (it.season == null || it.season == 0)
+                                        } ?: media.absoluteEpisode?.let { absEp ->
+                                            // Mutlak bölüm fallback'i: anime siteleri sezon ayrımı
+                                            // yapmadan bölümleri baştan sona numaralandırabilir.
+                                            loadRes.episodes.firstOrNull {
+                                                (it.season == null || it.season == 0 || it.season == 1) && it.episode == absEp
+                                            }
+                                        }
+                                        if (ep != null) {
+                                            provider.loadLinks(ep.data, false, subtitleCallback, callback)
+                                        }
                                     }
                                 }
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Provider Error: ${provider.name}", e)
                             }
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Provider Error: ${provider.name}", e)
+                        }
+
+                        if (result == null) {
+                            Log.e(TAG, "Provider Timeout: ${provider.name} (${PROVIDER_TIMEOUT_MS}ms aşıldı)")
                         }
                     })
                 }

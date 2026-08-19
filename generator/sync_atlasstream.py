@@ -55,16 +55,25 @@ def sync_upstreams():
 
     git_cmd = shutil.which("git") or r"C:\Program Files\Git\bin\git.exe" or "git"
     cloned_paths = []
+    failed_repos = []
     for name, url in UPSTREAM_REPOS:
         target = temp_dir / name
         if not target.exists():
             print(f"[*] Klonlanıyor: {name} ({url})")
-            subprocess.run([git_cmd, "clone", "--depth", "1", url, str(target)], check=False)
+            result = subprocess.run([git_cmd, "clone", "--depth", "1", url, str(target)], check=False)
         else:
             print(f"[*] Güncelleniyor: {name}")
-            subprocess.run([git_cmd, "-C", str(target), "pull"], check=False)
-        if target.exists():
-            cloned_paths.append(target)
+            result = subprocess.run([git_cmd, "-C", str(target), "pull"], check=False)
+
+        # KRITIK: git komutu hata dönerse (ag sorunu, rate-limit, vb.) bu repoyu
+        # basarisiz olarak isaretle. Sessizce atlamak, asagida found_providers'in
+        # eksik olmasina ve mevcut saglayici listesinin silinmesine yol acabilir.
+        if result.returncode != 0 or not target.exists():
+            print(f"[!] UYARI: {name} klonlanamadi/guncellenemedi (git exit code: {result.returncode}).")
+            failed_repos.append(name)
+            continue
+
+        cloned_paths.append(target)
 
     found_providers = {}
     updated_count = 0
@@ -146,7 +155,23 @@ def sync_upstreams():
     print(f"[BİLGİ] {unchanged_count} kaynakta değişiklik yok (korundu).")
     print(f"[BİLGİ] {updated_count} kaynak güncellendi.")
 
-    if updated_count > 0:
+    # KRITIK GUVENLIK KILIDI: Herhangi bir upstream repo bu calistirmada
+    # klonlanamadiysa/guncellenemediyse, ALL_SOURCES ve externalProviders
+    # listelerini ASLA yeniden yazma. Aksi halde o repoya ait onlarca
+    # saglayici, dosyalari diskte durmasina ragmen listeden dusup
+    # uygulamadan tamamen kaybolur (sessizce, derleme hatasi vermeden).
+    if failed_repos:
+        print(f"[!] {', '.join(failed_repos)} basarisiz oldugu icin saglayici listesi GUNCELLENMEYECEK.")
+        print("[!] Mevcut ALL_SOURCES / externalProviders listeleri korunuyor, bir sonraki calistirmada tekrar denenecek.")
+    elif updated_count > 0:
+        # Diskteki provider klasorlerinden, bu calistirmada upstream'de hic
+        # rastlanmayanlari tespit et (silinmis/yeniden adlandirilmis olabilir).
+        # Guvenlik icin otomatik SILMIYORUZ (manuel ozellestirme riski), sadece uyariyoruz.
+        existing_dirs = {d.name for d in PROVIDERS_DIR.iterdir() if d.is_dir()}
+        stale = existing_dirs - set(found_providers.keys()) - EXCLUDED_PROVIDERS
+        if stale:
+            print(f"[!] UYARI: Su klasorler upstream'de artik bulunamadi (eskimis olabilir, manuel kontrol onerilir): {', '.join(sorted(stale))}")
+
         update_plugin_and_resolver(found_providers)
 
     try:

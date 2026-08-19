@@ -139,5 +139,8 @@ data class AtlasStreamMediaData(
     @JsonProperty("year") val year: Int? = null,
     @JsonProperty("season") val season: Int? = null,
     @JsonProperty("episode") val episode: Int? = null,
+    // Anime siteleri sezon ayrımı yapmadan bölümleri baştan sona tek seferde numaralandırdığında
+    // (ör. TMDB'de S2E5 -> sitede "25. Bölüm") kullanılacak, sezonlar arası kümülatif bölüm numarası.
+    @JsonProperty("absoluteEpisode") val absoluteEpisode: Int? = null,
     @JsonProperty("imdbId") val imdbId: String? = null
 )

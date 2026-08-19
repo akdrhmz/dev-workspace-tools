@@ -1,76 +1,143 @@
-package com.kekik.watchbuddy
+﻿package com.kekik.watchbuddy
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
-data class WbApiResponse<T>(
-    @JsonProperty("success") val success: Boolean? = true,
-    @JsonProperty("result") val result: T? = null,
-    @JsonProperty("error") val error: String? = null,
-    @JsonProperty("provider_error") val providerError: Map<String, Any?>? = null
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TmdbPageResponse<T>(
+    @JsonProperty("page") val page: Int = 1,
+    @JsonProperty("results") val results: List<T> = emptyList(),
+    @JsonProperty("total_pages") val totalPages: Int = 1,
+    @JsonProperty("total_results") val totalResults: Int = 0
 )
 
-data class WbPluginInfo(
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TmdbItem(
+    @JsonProperty("id") val id: Int,
+    @JsonProperty("title") val title: String? = null,
+    @JsonProperty("name") val name: String? = null,
+    @JsonProperty("original_title") val originalTitle: String? = null,
+    @JsonProperty("original_name") val originalName: String? = null,
+    @JsonProperty("overview") val overview: String? = null,
+    @JsonProperty("poster_path") val posterPath: String? = null,
+    @JsonProperty("backdrop_path") val backdropPath: String? = null,
+    @JsonProperty("media_type") val mediaType: String? = null,
+    @JsonProperty("release_date") val releaseDate: String? = null,
+    @JsonProperty("first_air_date") val firstAirDate: String? = null,
+    @JsonProperty("vote_average") val voteAverage: Double? = null,
+    @JsonProperty("vote_count") val voteCount: Int? = null,
+    @JsonProperty("genre_ids") val genreIds: List<Int>? = null
+) {
+    val displayTitle: String get() = title ?: name ?: originalTitle ?: originalName ?: "Bilinmeyen"
+    val releaseYear: Int? get() = (releaseDate ?: firstAirDate)?.take(4)?.toIntOrNull()
+    val fullPosterUrl: String? get() = posterPath?.let { "https://image.tmdb.org/t/p/w500$it" }
+    val fullBackdropUrl: String? get() = backdropPath?.let { "https://image.tmdb.org/t/p/original$it" }
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TmdbDetail(
+    @JsonProperty("id") val id: Int,
+    @JsonProperty("title") val title: String? = null,
+    @JsonProperty("name") val name: String? = null,
+    @JsonProperty("original_title") val originalTitle: String? = null,
+    @JsonProperty("original_name") val originalName: String? = null,
+    @JsonProperty("overview") val overview: String? = null,
+    @JsonProperty("poster_path") val posterPath: String? = null,
+    @JsonProperty("backdrop_path") val backdropPath: String? = null,
+    @JsonProperty("release_date") val releaseDate: String? = null,
+    @JsonProperty("first_air_date") val firstAirDate: String? = null,
+    @JsonProperty("vote_average") val voteAverage: Double? = null,
+    @JsonProperty("runtime") val runtime: Int? = null,
+    @JsonProperty("number_of_seasons") val numberOfSeasons: Int? = null,
+    @JsonProperty("number_of_episodes") val numberOfEpisodes: Int? = null,
+    @JsonProperty("genres") val genres: List<TmdbGenre>? = null,
+    @JsonProperty("credits") val credits: TmdbCredits? = null,
+    @JsonProperty("videos") val videos: TmdbVideos? = null,
+    @JsonProperty("seasons") val seasons: List<TmdbSeasonSummary>? = null,
+    @JsonProperty("external_ids") val externalIds: TmdbExternalIds? = null
+) {
+    val displayTitle: String get() = title ?: name ?: originalTitle ?: originalName ?: "Bilinmeyen"
+    val releaseYear: Int? get() = (releaseDate ?: firstAirDate)?.take(4)?.toIntOrNull()
+    val fullPosterUrl: String? get() = posterPath?.let { "https://image.tmdb.org/t/p/w500$it" }
+    val fullBackdropUrl: String? get() = backdropPath?.let { "https://image.tmdb.org/t/p/original$it" }
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TmdbGenre(
+    @JsonProperty("id") val id: Int,
+    @JsonProperty("name") val name: String
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TmdbSeasonSummary(
+    @JsonProperty("id") val id: Int,
+    @JsonProperty("season_number") val seasonNumber: Int,
+    @JsonProperty("name") val name: String? = null,
+    @JsonProperty("episode_count") val episodeCount: Int = 0,
+    @JsonProperty("poster_path") val posterPath: String? = null
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TmdbSeasonDetail(
+    @JsonProperty("id") val id: Int,
+    @JsonProperty("season_number") val seasonNumber: Int,
+    @JsonProperty("name") val name: String? = null,
+    @JsonProperty("overview") val overview: String? = null,
+    @JsonProperty("episodes") val episodes: List<TmdbEpisode> = emptyList()
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TmdbEpisode(
+    @JsonProperty("id") val id: Int,
+    @JsonProperty("episode_number") val episodeNumber: Int,
+    @JsonProperty("season_number") val seasonNumber: Int,
+    @JsonProperty("name") val name: String? = null,
+    @JsonProperty("overview") val overview: String? = null,
+    @JsonProperty("still_path") val stillPath: String? = null,
+    @JsonProperty("air_date") val airDate: String? = null,
+    @JsonProperty("vote_average") val voteAverage: Double? = null
+) {
+    val fullStillUrl: String? get() = stillPath?.let { "https://image.tmdb.org/t/p/w500$it" }
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TmdbCredits(
+    @JsonProperty("cast") val cast: List<TmdbCast> = emptyList()
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TmdbCast(
     @JsonProperty("name") val name: String,
-    @JsonProperty("language") val language: String? = "tr",
-    @JsonProperty("main_url") val mainUrl: String? = null,
-    @JsonProperty("description") val description: String? = null,
-    @JsonProperty("favicon") val favicon: String? = null,
-    @JsonProperty("main_page") val mainPage: Map<String, String>? = emptyMap()
+    @JsonProperty("character") val character: String? = null,
+    @JsonProperty("profile_path") val profilePath: String? = null
 )
 
-data class WbSearchItem(
-    @JsonProperty("title") val title: String,
-    @JsonProperty("url") val url: String,
-    @JsonProperty("poster") val poster: String? = null,
-    @JsonProperty("media_type") val mediaType: String? = "movie",
-    @JsonProperty("year") val year: String? = null,
-    @JsonProperty("rating") val rating: String? = null,
-    @JsonProperty("plugin") val plugin: String? = null
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TmdbVideos(
+    @JsonProperty("results") val results: List<TmdbVideo> = emptyList()
 )
 
-data class WbMainPageItem(
-    @JsonProperty("title") val title: String,
-    @JsonProperty("url") val url: String,
-    @JsonProperty("poster") val poster: String? = null,
-    @JsonProperty("category") val category: String? = null,
-    @JsonProperty("rating") val rating: String? = null,
-    @JsonProperty("year") val year: String? = null
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TmdbVideo(
+    @JsonProperty("key") val key: String,
+    @JsonProperty("site") val site: String,
+    @JsonProperty("type") val type: String
 )
 
-data class WbEpisode(
-    @JsonProperty("title") val title: String,
-    @JsonProperty("url") val url: String,
-    @JsonProperty("season") val season: Int? = 1,
-    @JsonProperty("episode") val episode: Int? = 1,
-    @JsonProperty("poster") val poster: String? = null
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TmdbExternalIds(
+    @JsonProperty("imdb_id") val imdbId: String? = null,
+    @JsonProperty("tvdb_id") val tvdbId: Int? = null
 )
 
-data class WbItemDetail(
-    @JsonProperty("title") val title: String,
-    @JsonProperty("url") val url: String,
-    @JsonProperty("poster") val poster: String? = null,
-    @JsonProperty("description") val description: String? = null,
-    @JsonProperty("rating") val rating: String? = null,
-    @JsonProperty("year") val year: String? = null,
-    @JsonProperty("genres") val genres: List<String>? = emptyList(),
-    @JsonProperty("duration") val duration: String? = null,
-    @JsonProperty("actors") val actors: List<String>? = emptyList(),
-    @JsonProperty("sources") val sources: List<String>? = emptyList(),
-    @JsonProperty("episodes") val episodes: List<WbEpisode>? = emptyList()
+data class WatchBuddyMediaData(
+    val tmdbId: Int,
+    val isMovie: Boolean,
+    val title: String,
+    val originalTitle: String?,
+    val year: Int?,
+    val season: Int? = null,
+    val episode: Int? = null,
+    val imdbId: String? = null
 )
 
-data class WbSubtitle(
-    @JsonProperty("url") val url: String,
-    @JsonProperty("language") val language: String? = "tr",
-    @JsonProperty("format") val format: String? = "vtt"
-)
-
-data class WbExtractResult(
-    @JsonProperty("name") val name: String? = "WatchBuddy Stream",
-    @JsonProperty("url") val url: String,
-    @JsonProperty("referer") val referer: String? = null,
-    @JsonProperty("headers") val headers: Map<String, String>? = emptyMap(),
-    @JsonProperty("subtitles") val subtitles: List<WbSubtitle>? = emptyList(),
-    @JsonProperty("quality") val quality: String? = "1080p",
-    @JsonProperty("is_m3u8") val isM3u8: Boolean? = false
-)

@@ -1,15 +1,23 @@
-package com.kekik.watchbuddy
+﻿package com.kekik.watchbuddy
 
+import android.util.Log
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.lagradost.cloudstream3.*
-import com.lagradost.cloudstream3.CloudStreamApp.Companion.getKey
-import com.lagradost.cloudstream3.utils.*
-import java.net.URLEncoder
+import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
+import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
+import com.lagradost.cloudstream3.utils.AppUtils.toJson
+import com.lagradost.cloudstream3.utils.AppUtils.parseJson
+import com.lagradost.cloudstream3.utils.ExtractorLink
+import com.lagradost.cloudstream3.utils.Qualities
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 class WatchBuddyProvider : MainAPI() {
-    override var mainUrl = "https://stream.watchbuddy.tv"
-    override var name = "WatchBuddy Universal (170+ Site)"
+    override var mainUrl = "https://www.themoviedb.org"
+    override var name = "WatchBuddy Universal"
     override var lang = "tr"
     override val hasMainPage = true
+    override val hasQuickSearch = true
     override val supportedTypes = setOf(
         TvType.Movie,
         TvType.TvSeries,
@@ -18,97 +26,185 @@ class WatchBuddyProvider : MainAPI() {
         TvType.Documentary
     )
 
-    private val apiUrl = "$mainUrl/api/v1"
-
-    private fun getActivePlugins(): List<String> {
-        return getKey<List<String>>(WatchBuddyPlugin.PREF_KEY_ENABLED_PLUGINS)
-            ?: ProviderCategory.allProviders()
-    }
-
     override val mainPage = mainPageOf(
-        "$apiUrl/get_main_page?plugin=FilmMakinesi" to "FilmMakinesi - Son Filmler",
-        "$apiUrl/get_main_page?plugin=DiziBox"      to "DiziBox - Son Diziler",
-        "$apiUrl/get_main_page?plugin=HDFilmCehennemi" to "HDFilmCehennemi - Popüler",
-        "$apiUrl/get_main_page?plugin=SineWix"      to "SineWix - Güncel",
-        "$apiUrl/get_main_page?plugin=Dizilla"      to "Dizilla - Trend Diziler",
-        "$apiUrl/get_main_page?plugin=Animecix"     to "Animecix - Güncel Animeler",
-        "$apiUrl/get_main_page?plugin=JetFilmizle"  to "JetFilmizle - Yeni Filmler"
+        // Trendler ve Vizyon
+        "trending/all/day"                                                  to "🔥 Günün Trendleri",
+        "movie/now_playing"                                                 to "🎬 Vizyondaki Filmler",
+        "movie/popular"                                                     to "⭐ Popüler Filmler",
+        "tv/popular"                                                        to "📺 Popüler Diziler",
+
+        // Platformlar
+        "discover/tv?with_watch_providers=8&watch_region=TR"                to "🔴 Netflix Dizileri",
+        "discover/movie?with_watch_providers=8&watch_region=TR"             to "🔴 Netflix Filmleri",
+        "discover/tv?with_watch_providers=1899|384&watch_region=TR"         to "🟣 HBO Max Dizileri",
+        "discover/tv?with_watch_providers=337&watch_region=TR"              to "🏰 Disney+ İçerikleri",
+        "discover/tv?with_watch_providers=119&watch_region=TR"              to "📦 Amazon Prime Dizileri",
+        "discover/tv?with_watch_providers=350|2&watch_region=TR"            to "🍏 Apple TV+ Dizileri",
+        "discover/tv?with_watch_providers=341&watch_region=TR"              to "💙 BluTV İçerikleri",
+
+        // Türler (Genres)
+        "discover/movie?with_genres=28,12"                                  to "💥 Aksiyon & Macera",
+        "discover/movie?with_genres=16"                                     to "🎨 Animasyon",
+        "discover/movie?with_genres=35"                                     to "🤣 Komedi",
+        "discover/movie?with_genres=80,9648"                                to "🔍 Suç & Gizem",
+        "discover/movie?with_genres=878,14"                                 to "🚀 Bilim Kurgu & Fantastik",
+        "discover/movie?with_genres=27,53"                                  to "😱 Korku & Gerilim",
+        "discover/movie?with_genres=10749"                                  to "💖 Romantik",
+        "discover/movie?with_genres=99"                                     to "🌍 Belgesel",
+
+        // Top Listeler
+        "movie/top_rated"                                                   to "🏆 IMDb En Yüksek Puanlı Filmler",
+        "tv/top_rated"                                                      to "🏆 En Yüksek Puanlı Diziler"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val targetUrl = "${request.data}&page=$page"
-        val response = app.get(targetUrl)
-        val items = response.parsedSafe<WbApiResponse<List<WbMainPageItem>>>()?.result
-            ?: response.parsedSafe<List<WbMainPageItem>>()
-            ?: emptyList()
+        val tmdbResponse = TmdbApi.getItemsFromEndpoint(request.data, page)
+        val items = tmdbResponse.results.filter { it.posterPath != null }.map { item ->
+            val isMovie = item.mediaType == "movie" || request.data.contains("movie")
+            val payload = WatchBuddyMediaData(
+                tmdbId = item.id,
+                isMovie = isMovie,
+                title = item.displayTitle,
+                originalTitle = item.originalTitle ?: item.originalName,
+                year = item.releaseYear
+            )
+            val jsonPayload = toJson(payload)
 
-        val searchResponses = items.map { item ->
-            newMovieSearchResponse(item.title, item.url, TvType.Movie) {
-                this.posterUrl = item.poster
+            if (isMovie) {
+                newMovieSearchResponse(item.displayTitle, jsonPayload, TvType.Movie) {
+                    this.posterUrl = item.fullPosterUrl
+                    this.year = item.releaseYear
+                    this.score = Score.from10(item.voteAverage)
+                }
+            } else {
+                newTvSeriesSearchResponse(item.displayTitle, jsonPayload, TvType.TvSeries) {
+                    this.posterUrl = item.fullPosterUrl
+                    this.year = item.releaseYear
+                    this.score = Score.from10(item.voteAverage)
+                }
             }
         }
-        return newHomePageResponse(request.name, searchResponses)
+        return newHomePageResponse(request.name, items)
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val activePlugins = getActivePlugins()
-        val searchUrl = "$apiUrl/search?q=${URLEncoder.encode(query, "UTF-8")}"
-        val response = app.get(searchUrl)
-        val items = response.parsedSafe<WbApiResponse<List<WbSearchItem>>>()?.result
-            ?: response.parsedSafe<List<WbSearchItem>>()
-            ?: emptyList()
+        val tmdbResponse = TmdbApi.search(query)
+        return tmdbResponse.results.filter { it.posterPath != null && (it.mediaType == "movie" || it.mediaType == "tv") }.map { item ->
+            val isMovie = item.mediaType == "movie"
+            val payload = WatchBuddyMediaData(
+                tmdbId = item.id,
+                isMovie = isMovie,
+                title = item.displayTitle,
+                originalTitle = item.originalTitle ?: item.originalName,
+                year = item.releaseYear
+            )
+            val jsonPayload = toJson(payload)
 
-        // Kullanıcının eklenti ayarlarında seçtiği sitelere göre filtreleme yap
-        val filteredItems = items.filter { item ->
-            val pluginName = item.plugin
-            pluginName == null || activePlugins.contains(pluginName)
-        }
-
-        return filteredItems.map { item ->
-            val tvType = if (item.mediaType?.lowercase() == "series") TvType.TvSeries else TvType.Movie
-            newMovieSearchResponse(
-                item.title,
-                item.url,
-                tvType
-            ) {
-                this.posterUrl = item.poster
-                this.year = item.year?.toIntOrNull()
+            if (isMovie) {
+                newMovieSearchResponse(item.displayTitle, jsonPayload, TvType.Movie) {
+                    this.posterUrl = item.fullPosterUrl
+                    this.year = item.releaseYear
+                    this.score = Score.from10(item.voteAverage)
+                }
+            } else {
+                newTvSeriesSearchResponse(item.displayTitle, jsonPayload, TvType.TvSeries) {
+                    this.posterUrl = item.fullPosterUrl
+                    this.year = item.releaseYear
+                    this.score = Score.from10(item.voteAverage)
+                }
             }
         }
     }
 
     override suspend fun load(url: String): LoadResponse {
-        val loadUrl = "$apiUrl/load_item?url=${URLEncoder.encode(url, "UTF-8")}"
-        val response = app.get(loadUrl)
-        val detail = response.parsedSafe<WbApiResponse<WbItemDetail>>()?.result
-            ?: response.parsedSafe<WbItemDetail>()
-            ?: throw ErrorLoadingException("İçerik detayı alınamadı")
+        val media: WatchBuddyMediaData = try {
+            parseJson<WatchBuddyMediaData>(url)
+        } catch (e: Exception) {
+            // Eğer doğrudan bir TMDB linki veya ID gelirse fallback
+            val id = url.filter { it.isDigit() }.toIntOrNull() ?: 550
+            WatchBuddyMediaData(tmdbId = id, isMovie = true, title = "İçerik", originalTitle = null, year = null)
+        }
 
-        val ratingValue = detail.rating?.replace(",", ".")?.toDoubleOrNull()
+        if (media.isMovie) {
+            val detail = TmdbApi.getMovieDetail(media.tmdbId)
+            val actors = detail.credits?.cast?.take(10)?.map { Actor(it.name, it.profilePath?.let { p -> "https://image.tmdb.org/t/p/w185$p" }) } ?: emptyList()
+            val trailer = detail.videos?.results?.firstOrNull { it.site.equals("YouTube", true) && it.type.equals("Trailer", true) }?.let { "https://www.youtube.com/watch?v=${it.key}" }
 
-        if (!detail.episodes.isNullOrEmpty()) {
-            val episodes = detail.episodes.map { ep ->
-                newEpisode(ep.url) {
-                    this.name = ep.title
-                    this.season = ep.season ?: 1
-                    this.episode = ep.episode
-                    this.posterUrl = ep.poster ?: detail.poster
-                }
-            }
-            return newTvSeriesLoadResponse(detail.title, url, TvType.TvSeries, episodes) {
-                this.posterUrl = detail.poster
-                this.plot = detail.description
-                this.tags = detail.genres ?: emptyList()
-                this.score = Score.from10(ratingValue)
-                this.year = detail.year?.toIntOrNull()
+            val playPayload = WatchBuddyMediaData(
+                tmdbId = detail.id,
+                isMovie = true,
+                title = detail.displayTitle,
+                originalTitle = detail.originalTitle ?: media.originalTitle,
+                year = detail.releaseYear ?: media.year,
+                imdbId = detail.externalIds?.imdbId
+            )
+
+            return newMovieLoadResponse(detail.displayTitle, toJson(playPayload), TvType.Movie, toJson(playPayload)) {
+                this.posterUrl = detail.fullPosterUrl
+                this.backgroundPosterUrl = detail.fullBackdropUrl
+                this.plot = detail.overview
+                this.year = detail.releaseYear
+                this.duration = detail.runtime
+                this.tags = detail.genres?.map { it.name } ?: emptyList()
+                this.score = Score.from10(detail.voteAverage)
+                addActors(actors)
+                addTrailer(trailer)
             }
         } else {
-            return newMovieLoadResponse(detail.title, url, TvType.Movie, url) {
-                this.posterUrl = detail.poster
-                this.plot = detail.description
-                this.tags = detail.genres ?: emptyList()
-                this.score = Score.from10(ratingValue)
-                this.year = detail.year?.toIntOrNull()
+            val detail = TmdbApi.getTvDetail(media.tmdbId)
+            val actors = detail.credits?.cast?.take(10)?.map { Actor(it.name, it.profilePath?.let { p -> "https://image.tmdb.org/t/p/w185$p" }) } ?: emptyList()
+            val trailer = detail.videos?.results?.firstOrNull { it.site.equals("YouTube", true) && it.type.equals("Trailer", true) }?.let { "https://www.youtube.com/watch?v=${it.key}" }
+
+            val episodesList = mutableListOf<Episode>()
+            val validSeasons = detail.seasons?.filter { it.seasonNumber > 0 } ?: emptyList()
+
+            coroutineScope {
+                val seasonTasks = validSeasons.map { seasonSummary ->
+                    async {
+                        try {
+                            TmdbApi.getTvSeason(detail.id, seasonSummary.seasonNumber)
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }
+                }
+
+                seasonTasks.forEach { task ->
+                    val seasonDetail = task.await() ?: return@forEach
+                    seasonDetail.episodes.forEach { ep ->
+                        val epPayload = WatchBuddyMediaData(
+                            tmdbId = detail.id,
+                            isMovie = false,
+                            title = detail.displayTitle,
+                            originalTitle = detail.originalName ?: media.originalTitle,
+                            year = detail.releaseYear ?: media.year,
+                            season = ep.seasonNumber,
+                            episode = ep.episodeNumber,
+                            imdbId = detail.externalIds?.imdbId
+                        )
+                        episodesList.add(
+                            newEpisode(toJson(epPayload)) {
+                                this.name = ep.name ?: "${ep.seasonNumber}. Sezon ${ep.episodeNumber}. Bölüm"
+                                this.season = ep.seasonNumber
+                                this.episode = ep.episodeNumber
+                                this.posterUrl = ep.fullStillUrl ?: detail.fullPosterUrl
+                                this.description = ep.overview
+                                this.score = Score.from10(ep.voteAverage)
+                            }
+                        )
+                    }
+                }
+            }
+
+            return newTvSeriesLoadResponse(detail.displayTitle, url, TvType.TvSeries, episodesList) {
+                this.posterUrl = detail.fullPosterUrl
+                this.backgroundPosterUrl = detail.fullBackdropUrl
+                this.plot = detail.overview
+                this.year = detail.releaseYear
+                this.tags = detail.genres?.map { it.name } ?: emptyList()
+                this.score = Score.from10(detail.voteAverage)
+                addActors(actors)
+                addTrailer(trailer)
             }
         }
     }
@@ -119,42 +215,13 @@ class WatchBuddyProvider : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val linksUrl = "$apiUrl/load_links?url=${URLEncoder.encode(data, "UTF-8")}"
-        val response = app.get(linksUrl)
-        val extractResults = response.parsedSafe<WbApiResponse<List<WbExtractResult>>>()?.result
-            ?: response.parsedSafe<List<WbExtractResult>>()
-            ?: emptyList()
-
-        for (res in extractResults) {
-            // Subtitles
-            res.subtitles?.forEach { sub ->
-                subtitleCallback.invoke(
-                    com.lagradost.cloudstream3.newSubtitleFile(
-                        lang = sub.language ?: "tr",
-                        url = sub.url
-                    )
-                )
-            }
-
-            // Direct stream link
-            if (res.url.startsWith("http")) {
-                val isM3u8 = res.isM3u8 ?: res.url.contains(".m3u8")
-                callback.invoke(
-                    newExtractorLink(
-                        source = res.name ?: name,
-                        name = res.name ?: name,
-                        url = res.url,
-                        type = if (isM3u8) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
-                    ) {
-                        this.referer = res.referer ?: mainUrl
-                        this.quality = if (res.quality == "1080p") Qualities.P1080.value else Qualities.Unknown.value
-                        this.headers = res.headers ?: emptyMap()
-                    }
-                )
-            } else {
-                loadExtractor(res.url, data, subtitleCallback, callback)
-            }
+        val media: WatchBuddyMediaData = try {
+            parseJson<WatchBuddyMediaData>(data)
+        } catch (e: Exception) {
+            return false
         }
+
+        SourceResolver.resolveLinks(media, subtitleCallback, callback)
         return true
     }
 }

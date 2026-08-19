@@ -1,4 +1,4 @@
-name: Workspace Sync & Build
+﻿name: AtlasStream Auto-Sync & Build
 
 on:
   schedule:
@@ -29,9 +29,19 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Modulleri Senkronize Et
+      - name: Kaynak Depolari Senkronize Et (Upstream Sync)
         run: |
-          python generator/sync_upstream.py
+          python generator/sync_atlasstream.py
+
+      - name: Guncellemeleri Master Dalina Kaydet (Gerekliyse)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add AtlasStream/
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(auto-sync): upstream depolarindan otomatik kaynak guncellemesi [skip ci]"
+            git push origin HEAD:${{ github.ref_name }} || true
+          fi
 
       - name: JDK 17 Kur
         uses: actions/setup-java@v4
@@ -44,7 +54,7 @@ jobs:
         with:
           gradle-version: "8.11.1"
 
-      - name: Paketleri Derle (.cs3)
+      - name: AtlasStream Paketini Derle (.cs3)
         run: |
           chmod +x ./gradlew || true
           ./gradlew make --no-daemon --stacktrace
@@ -60,7 +70,7 @@ jobs:
 
           os.makedirs('public', exist_ok=True)
 
-          # 1. Tum derlenen .cs3 paketlerini derleme agacinda bul ve public dizinine kopyala
+          # 1. Derlenen .cs3 paketlerini public dizinine kopyala
           cs3_files = [f for f in glob.glob('**/*.cs3', recursive=True) if not f.startswith('public')]
           for f in cs3_files:
               dest = os.path.join('public', os.path.basename(f))
@@ -83,11 +93,10 @@ jobs:
               plugins.append({
                   'name': name,
                   'url': f'{base_url}/{os.path.basename(f)}',
-                  'version': 1,
+                  'version': 3,
                   'language': 'tr'
               })
 
-          # Eger gradle tarafindan uretilen dolu bir plugins.json varsa al ve URL'lerini builds dalina ayarla
           gradle_manifest = None
           for candidate in glob.glob('**/plugins.json', recursive=True):
               if not candidate.startswith('public') and os.path.exists(candidate) and os.path.getsize(candidate) > 10:
@@ -114,8 +123,8 @@ jobs:
           print(f'[OK] plugins.json olusturuldu: {len(final_manifest)} eklenti eklendi.')
 
           repo_meta = {
-              'name': 'WatchBuddy TR Providers',
-              'description': 'Universal Multi-Source Personal Provider Repository',
+              'name': 'AtlasStream TR Deposu',
+              'description': 'AtlasStream - 40+ Entegre Kaynakli Universal Meta-Provider',
               'manifestVersion': 1,
               'pluginLists': [
                   f'{base_url}/plugins.json'

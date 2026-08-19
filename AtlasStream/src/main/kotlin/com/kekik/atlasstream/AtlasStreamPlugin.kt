@@ -22,7 +22,10 @@ class AtlasStreamPlugin : Plugin() {
             "HDFilmCehennemi"  to "HDFilmCehennemi (Film & Dizi)",
             "Dizilla"          to "Dizilla (Dublaj & Altyazi Dizi)",
             "SineWix"          to "SineWix (Genis Arsiv)",
-            "JetFilmizle"      to "JetFilmizle (Yerli/Yabanci Film)"
+            "JetFilmizle"      to "JetFilmizle (Yerli/Yabanci Film)",
+            "DiziPal"          to "DiziPal (Geniþ Arþiv)",
+            "FullHDFilmizlesene" to "FullHDFilmizlesene (Film Odaklý)",
+            "FilmModu"         to "FilmModu (Film Odaklý)"
         )
     }
 
@@ -124,3 +127,4 @@ class AtlasStreamPlugin : Plugin() {
             .show()
     }
 }
+

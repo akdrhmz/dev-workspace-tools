@@ -4,7 +4,9 @@ import android.util.Base64
 import java.security.MessageDigest
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
+import javax.crypto.SecretKeyFactory
 import kotlin.math.min
 
 object SourceUtils {
@@ -17,6 +19,58 @@ object SourceUtils {
             .replace("\"", "")
             .replace("-", " ")
             .trim()
+    }
+
+    // --- FullHDFilmizlesene Decrypt ---
+    fun atob(s: String): String {
+        return String(Base64.decode(s, Base64.DEFAULT))
+    }
+
+    fun rot13(s: String): String {
+        fun rot13Char(c: Char): Char {
+            return when (c) {
+                in 'a'..'z' -> ((c - 'a' + 13) % 26 + 'a'.code).toChar()
+                in 'A'..'Z' -> ((c - 'A' + 13) % 26 + 'A'.code).toChar()
+                else -> c
+            }
+        }
+        return s.map { rot13Char(it) }.joinToString("")
+    }
+
+    // --- DiziPal AES-CBC PBKDF2 Decrypt ---
+    private fun String.decodeHex(): ByteArray {
+        check(length % 2 == 0) { "Hex string must have an even length" }
+        return chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+    }
+
+    fun decryptDizipalData(rawJsonText: String): String {
+        return try {
+            val passphrase = "3hPn4uCjTVtfYWcjIcoJQ4cL1WWk1qxXI39egLYOmNv6IblA7eKJz68uU3eLzux1biZLCms0quEjTYniGv5z1JcKbNIsDQFSeIZOBZJz4is6pD7UyWDggWWzTLBQbHcQFpBQdClnuQaMNUHtLHTpzCvZy33p6I7wFBvL4fnXBYH84aUIyWGTRvM2G5cfoNf4705tO2kv"
+            val ctMatch = """"ciphertext"\s*:\s*"([^"]+)"""".toRegex().find(rawJsonText)?.groupValues?.get(1) ?: return ""
+            val ivMatch = """"iv"\s*:\s*"([^"]+)"""".toRegex().find(rawJsonText)?.groupValues?.get(1) ?: return ""
+            val saltMatch = """"salt"\s*:\s*"([^"]+)"""".toRegex().find(rawJsonText)?.groupValues?.get(1) ?: return ""
+
+            val salt = saltMatch.decodeHex()
+            val iv = ivMatch.decodeHex()
+            val ciphertext = Base64.decode(ctMatch, Base64.DEFAULT)
+
+            val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512")
+            val spec = PBEKeySpec(passphrase.toCharArray(), salt, 999, 256)
+            val secretKey = factory.generateSecret(spec)
+            val secret = SecretKeySpec(secretKey.encoded, "AES")
+
+            val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+            cipher.init(Cipher.DECRYPT_MODE, secret, IvParameterSpec(iv))
+
+            val decryptedBytes = cipher.doFinal(ciphertext)
+            var finalUrl = String(decryptedBytes, Charsets.UTF_8).replace("\\/", "/")
+            if (finalUrl.startsWith("://")) finalUrl = "https$finalUrl"
+            else if (finalUrl.startsWith("//")) finalUrl = "https:$finalUrl"
+            else if (!finalUrl.startsWith("http")) finalUrl = "https://$finalUrl"
+            finalUrl
+        } catch (e: Exception) {
+            ""
+        }
     }
 
     // --- DiziBox CryptoJS AES Decrypt (from DiziBoxUtils.kt CryptoJS object) ---

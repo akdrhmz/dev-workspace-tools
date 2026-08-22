@@ -1,0 +1,26 @@
+[
+  {
+    "iconUrl": "https://img.icons8.com/color/512/cloud-sync.png",
+    "fileHash": "sha256-ba00044c54e3b18342da912b43a58f89c819d0a0d612781437da93b91cd2f5be",
+    "apiVersion": 1,
+    "repositoryUrl": "https://github.com/akdrhmz/dev-workspace-tools",
+    "fileSize": 722972,
+    "status": 1,
+    "language": "tr",
+    "authors": [
+      "Workspace"
+    ],
+    "tvTypes": [
+      "Movie",
+      "TvSeries",
+      "Anime",
+      "Cartoon",
+      "Documentary"
+    ],
+    "version": 3,
+    "internalName": "AtlasStream",
+    "description": "AtlasStream - Geli�mi� Meta-Provider (Dizi & Film)",
+    "url": "https://raw.githubusercontent.com/akdrhmz/dev-workspace-tools/builds/AtlasStream.cs3",
+    "name": "AtlasStream"
+  }
+]
